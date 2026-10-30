@@ -23,11 +23,20 @@ business = Business(
 
 TEAM = """Maya Patel - barista, $17/hr, max 30 hrs, can't do Tuesdays
 Leo Kim - barista + register, 16.50, full time
-Ana Ruiz - shift lead, opens most days, $21/hr full-time
-Sam Ortiz - cashier/drive thru, $15.75, PT 20 hrs
-Priya Nair - dishes & bussing, $15/hr, weekends only
-Jordan Lee - barista, $18, part time, no Mondays
-Chris Wong - shift lead, $20.50, PT 28h"""
+Ana Ruiz - shift lead (also pulls shots), opens most days, $21/hr full-time
+Sam Ortiz - cashier/drive thru order taker, $15.75, PT 20 hrs
+Priya Nair - dishes & bussing, $15/hr, weekends only, 25h
+Jordan Lee - barista, $18, part time 25h, no Mondays
+Chris Wong - shift lead, can cover register, $20.50, PT 28h
+Ravi Shah - barista/cashier, $17, FT
+Mei Chen - register + drive thru, $16/hr, full time
+Tom Baker - dishwasher, helps with food prep, $15, weekdays only, 32 hrs
+Elena Popov - shift lead + barista, closer, $20/hr, 36 hrs
+Diego Silva - drive thru & register, 15.75, 30h
+Nia Brooks - barista, can do drive thru, $16.50, 24 hrs
+Omar Haddad - dish/bussing, sometimes register, $15, 24h
+Kai Nakamura - barista and cashier, $17, 32h
+Lucia Romero - drive thru, register, dishes - $15.50, 30h, never Sundays"""
 
 RULES = "@Maya off Tuesdays, baristas max 32h, a keyholder at every open and close, 10 hours between shifts"
 

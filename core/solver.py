@@ -1,6 +1,7 @@
 """Weekly shift scheduling with OR-Tools CP-SAT.
 
 The solver makes every assignment and computes every dollar; the language model never does.
+It solves in two stages: first the fewest unfilled hours, then the cheapest way to staff that.
 
 Units: time in 15-minute "quarters" from midnight (see taxonomy.to_q), money in integer cents.
 
@@ -24,7 +25,10 @@ from ortools.sat.python import cp_model
 from core.taxonomy import DAYS, ROLE_REQUIRED_SKILLS
 
 OT_THRESHOLD_Q = 40 * 4          # weekly overtime starts after 40 hours
-GAP_PENALTY_CENTS_PER_HOUR = 100_000  # $1,000/hour unfilled: always worse than any real fill
+# Solved in two stages: (1) fewest unfilled hours, (2) cheapest way to staff that coverage.
+# GAP_WEIGHT is in quarter-cents per unfilled quarter-hour ($1,000/hour): far above any real
+# wage, so stage 1 always prefers a fill, overtime included.
+GAP_WEIGHT = 100_000
 
 
 # ---------------------------------------------------------------- eligibility
@@ -58,7 +62,7 @@ def eligible(worker: dict, slot: dict) -> bool:
 # ---------------------------------------------------------------- core solve
 
 def solve(workers: list[dict], slots: list[dict], booking_fee_cents: int = 0,
-          min_rest_q: int = 0, fixed=(), time_limit_s: float = 10.0) -> dict:
+          min_rest_q: int = 0, fixed=(), time_limit_s: float = 6.0) -> dict:
     """Cheapest weekly schedule. Unfillable headcount comes back as gaps, never as 'infeasible'.
 
     fixed: (worker_id, slot_id) pairs the manager has pinned; skipped if that worker isn't eligible.
@@ -77,7 +81,8 @@ def solve(workers: list[dict], slots: list[dict], booking_fee_cents: int = 0,
     for s in slots:  # coverage: assigned + unfilled == headcount needed
         m.Add(sum(v for (_, sid), v in x.items() if sid == s["id"]) + u[s["id"]] == s["need"])
 
-    objective = [GAP_PENALTY_CENTS_PER_HOUR * length[sid] * u[sid] for sid in u]  # quarter-cents
+    gap_q = sum(length[sid] * u[sid] for sid in u)  # unfilled quarter-hours
+    objective = []  # labor cost in quarter-cents
     h_vars, o_vars, y_vars = {}, {}, {}
 
     for w in workers:
@@ -109,10 +114,29 @@ def solve(workers: list[dict], slots: list[dict], booking_fee_cents: int = 0,
             objective.append(4 * booking_fee_cents * y)
             y_vars[w["id"]] = y
 
-    m.Minimize(sum(objective))
+    # Stage 1: cover as much as possible. An unfilled hour costs far more than any real fill,
+    # and the labor term guides the search toward sensible schedules quickly.
     solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = time_limit_s
     solver.parameters.num_workers = 8
+    solver.parameters.interleave_search = True       # same inputs -> same schedule, run after run
+    solver.parameters.random_seed = 7
+    solver.parameters.max_deterministic_time = time_limit_s / 2
+    solver.parameters.max_time_in_seconds = time_limit_s * 2  # hard wall-clock safety net
+    m.Minimize(GAP_WEIGHT * gap_q + sum(objective))
+    status = solver.Solve(m)
+    if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+        return {"status": solver.StatusName(status), "assignments": [], "gaps": {}, "bill": {}}
+    best_gap_q = sum(length[sid] * solver.Value(v) for sid, v in u.items())
+    stage1_optimal = status == cp_model.OPTIMAL
+
+    # Stage 2: keep that coverage, find the cheapest way to staff it (stop within 0.5% of optimal).
+    m.Add(gap_q <= best_gap_q)
+    m.ClearHints()
+    for var in list(x.values()) + list(u.values()):
+        m.AddHint(var, solver.Value(var))
+    m.Minimize(sum(objective))
+    solver.parameters.max_deterministic_time = time_limit_s / 2
+    solver.parameters.relative_gap_limit = 0.005
     status = solver.Solve(m)
     if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         return {"status": solver.StatusName(status), "assignments": [], "gaps": {}, "bill": {}}
@@ -121,6 +145,7 @@ def solve(workers: list[dict], slots: list[dict], booking_fee_cents: int = 0,
     gaps = {sid: solver.Value(v) for sid, v in u.items() if solver.Value(v)}
     result = {
         "status": solver.StatusName(status),
+        "coverage_proven_best": stage1_optimal,
         "assignments": assignments,
         "gaps": gaps,
         "binding_caps": sorted(wid for wid, h in h_vars.items()

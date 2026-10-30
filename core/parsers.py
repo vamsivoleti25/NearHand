@@ -35,17 +35,35 @@ def default_grid(business: Business) -> StaffingGrid:
         open_q, close_q = to_q(business.hours[day][0]), to_q(business.hours[day][1])
         mid = open_q + ((close_q - open_q) // 2 // 4) * 4  # split on the hour
         for role in roles_for(business.type, set(business.toggles)):
-            skills = ["keyholder"] if role in ("shift_lead", "shift_manager") else []
+            # No skills here: "a keyholder at open/close" comes from the manager's rules (adapter.py).
             for s, e in ((open_q, mid), (mid, close_q)):
-                blocks.append(StaffingBlock(day=day, role=role, start=from_q(s), end=from_q(e),
-                                            headcount=1, skills=skills))
+                blocks.append(StaffingBlock(day=day, role=role, start=from_q(s), end=from_q(e), headcount=1))
     return StaffingGrid(blocks=blocks, notes=["Template default: one per role per half-day."])
+
+
+MIN_BLOCK_Q = 4 * 4  # nobody works a shift shorter than 4 hours
+
+
+def normalize_grid(grid: StaffingGrid, business: Business) -> StaffingGrid:
+    """Stretch blocks shorter than 4 hours to 4 hours, staying inside opening hours where possible."""
+    blocks = []
+    for b in grid.blocks:
+        s, e = to_q(b.start), to_q(b.end)
+        if e - s < MIN_BLOCK_Q and b.day in business.hours:
+            open_q, close_q = to_q(business.hours[b.day][0]), to_q(business.hours[b.day][1])
+            e = min(max(e, s + MIN_BLOCK_Q), max(close_q, e))
+            s = max(min(s, e - MIN_BLOCK_Q), 0 if b.role == "baker" else open_q)
+            b = b.model_copy(update={"start": from_q(s), "end": from_q(e)})
+        blocks.append(b)
+    return grid.model_copy(update={"blocks": blocks})
 
 
 GRID_SYSTEM = f"""You adjust a small business's weekly staffing grid.
 You get the business type, opening hours, a template grid, and the owner's one-line description.
-Return the full adjusted grid: add headcount for the busy times they describe, add shorter peak blocks
-(e.g. 07:00-09:00) where that fits better than raising a whole half-day, and drop roles they say they lack.
+Return the full adjusted grid: add headcount for the busy times they describe, add a mid shift
+(at least 4 hours, e.g. 07:00-11:00 for a 7-9am rush) where that fits better than raising a whole
+half-day, cut headcount for times they say are slow, and drop roles they say they lack.
+Every block must be at least 4 hours long: nobody works a 2-hour shift.
 Keep blocks inside opening hours (except bakers, who may start up to 3 hours before opening).
 Keep it realistic for a small business: rarely more than 3 of one role at once.
 Put a one-line reason for each change in `notes`.
@@ -63,7 +81,8 @@ def parse_business(business: Business, provider=None) -> StaffingGrid:
         "description": business.description,
         "template_grid": [b.model_dump() for b in base.blocks],
     })
-    return llm.call_json("parse_business", GRID_SYSTEM, user, StaffingGrid, provider=provider, max_tokens=12000)
+    grid = llm.call_json("parse_business", GRID_SYSTEM, user, StaffingGrid, provider=provider, max_tokens=12000)
+    return normalize_grid(grid, business)
 
 
 # ---------------------------------------------------------------- 2. pasted team -> employees
@@ -76,15 +95,22 @@ Rules:
 - Overtime rate is 1.5x the hourly rate unless stated.
 - max_hours: use what is stated; otherwise 40 for full-time, 25 for part-time.
 - Put days they can't work in unavailable_days.
-- Add role certifications only when stated or obvious from the title (e.g. "opener" -> keyholder).
+- Add keyholder for anyone who opens or closes ("opens", "closer", "opener", "has keys") and for
+  shift leads and managers unless the text says they don't; mention it in ambiguities so the manager
+  can confirm. Add other certifications only when stated.
 {VOCAB}
 {UNSURE}"""
+
+LEAD_ROLES = ("shift_lead", "shift_manager")
 
 
 def parse_team(text: str, business_type: str = "cafe", provider=None) -> TeamParse:
     user = f"Business type: {TEMPLATES[business_type]['label']}\n\nTeam list:\n{text}"
     out = llm.call_json("parse_team", TEAM_SYSTEM, user, TeamParse, provider=provider, max_tokens=8000)
     for e in out.employees:  # certifications the role requires by law are assumed held, but flagged
+        if any(r in LEAD_ROLES for r in e.roles) and "keyholder" not in e.skills:
+            e.skills.append("keyholder")
+            out.ambiguities.append(f"Assumed {e.name} is a keyholder as a shift lead; confirm.")
         for role in e.roles:
             for skill in ROLE_REQUIRED_SKILLS.get(role, []):
                 if skill not in e.skills:

@@ -95,3 +95,30 @@ def test_parse_rules_drops_invented_employee_ids(monkeypatch):
 def test_grid_slot_ids_are_unique():
     slots = grid_to_slots(parsers.default_grid(cafe()))
     assert len({s["id"] for s in slots}) == len(slots)
+
+
+def test_short_peak_blocks_stretch_to_four_hours():
+    g = StaffingGrid.model_validate({"blocks": [
+        {"day": "Mon", "role": "barista", "start": "07:00", "end": "09:00", "headcount": 1},
+        {"day": "Mon", "role": "barista", "start": "12:00", "end": "14:00", "headcount": 1}]})
+    out = parsers.normalize_grid(g, cafe())  # cafe() closes at 14:00
+    assert [(b.start, b.end) for b in out.blocks] == [("07:00", "11:00"), ("10:00", "14:00")]
+
+
+def test_shift_leads_get_keyholder_with_a_confirm_note(monkeypatch):
+    from core.schemas import TeamParse
+    fake = TeamParse(employees=[emp("Ana", ["shift_lead"]), emp("Leo", ["barista"])])
+    monkeypatch.setattr(parsers.llm, "call_json", lambda *a, **k: fake.model_copy(deep=True))
+    out = parsers.parse_team("Ana - shift lead\nLeo - barista")
+    skills = {e.id: e.skills for e in out.employees}
+    assert skills == {"emp_ana": ["keyholder"], "emp_leo": []}
+    assert any("Ana" in q and "keyholder" in q for q in out.ambiguities)
+
+
+def test_same_inputs_give_the_same_schedule():
+    grid = parsers.default_grid(cafe())
+    team = [emp(n, ["barista", "cashier", "dishwasher_busser", "shift_lead"], rate=1500 + 25 * i, max_hours=30)
+            for i, n in enumerate(["Maya", "Leo", "Ana", "Sam", "Jo"])]
+    inp = build_inputs(cafe(), grid, team, ConstraintSet(constraints=[]))
+    runs = [solve(inp["workers"], inp["slots"], time_limit_s=2)["assignments"] for _ in range(2)]
+    assert runs[0] == runs[1]
