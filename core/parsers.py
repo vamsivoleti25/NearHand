@@ -99,7 +99,8 @@ Rules:
   shift leads and managers unless the text says they don't; mention it in ambiguities so the manager
   can confirm. Add other certifications only when stated.
 {VOCAB}
-{UNSURE}"""
+{UNSURE} Ask at most 5 questions: only ones whose answer would change who can work which shift
+(days off, hour caps, certifications). Do not ask about title-to-role mappings or the 1.5x overtime default."""
 
 LEAD_ROLES = ("shift_lead", "shift_manager")
 
@@ -108,14 +109,18 @@ def parse_team(text: str, business_type: str = "cafe", provider=None) -> TeamPar
     user = f"Business type: {TEMPLATES[business_type]['label']}\n\nTeam list:\n{text}"
     out = llm.call_json("parse_team", TEAM_SYSTEM, user, TeamParse, provider=provider, max_tokens=8000)
     for e in out.employees:  # certifications the role requires by law are assumed held, but flagged
+        first = e.name.split()[0]
+        asked = lambda skill: any(first in q and skill.split("_")[0] in q.lower() for q in out.ambiguities)
         if any(r in LEAD_ROLES for r in e.roles) and "keyholder" not in e.skills:
             e.skills.append("keyholder")
-            out.ambiguities.append(f"Assumed {e.name} is a keyholder as a shift lead; confirm.")
+            if not asked("keyholder"):
+                out.ambiguities.append(f"Assumed {e.name} is a keyholder as a shift lead; confirm.")
         for role in e.roles:
             for skill in ROLE_REQUIRED_SKILLS.get(role, []):
                 if skill not in e.skills:
                     e.skills.append(skill)
-                    out.ambiguities.append(f"Assumed {e.name} holds {skill} for {role}; confirm.")
+                    if not asked(skill):
+                        out.ambiguities.append(f"Assumed {e.name} holds {skill} for {role}; confirm.")
     return out
 
 
