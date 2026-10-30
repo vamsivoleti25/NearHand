@@ -1,0 +1,1504 @@
+{
+ "biz_bean": {
+  "blocks": [
+   {
+    "day": "Mon",
+    "role": "barista",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "barista",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "cashier",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "cashier",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "shift_lead",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "shift_lead",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "dishwasher_busser",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "dishwasher_busser",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "drive_thru_order",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "drive_thru_order",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "barista",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "barista",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "cashier",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "cashier",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "shift_lead",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "shift_lead",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "dishwasher_busser",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "dishwasher_busser",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "drive_thru_order",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "drive_thru_order",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "barista",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "barista",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "cashier",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "cashier",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "shift_lead",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "shift_lead",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "dishwasher_busser",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "dishwasher_busser",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "drive_thru_order",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "drive_thru_order",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "barista",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "barista",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "cashier",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "cashier",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "shift_lead",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "shift_lead",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "dishwasher_busser",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "dishwasher_busser",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "drive_thru_order",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "drive_thru_order",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "barista",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "barista",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "cashier",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "cashier",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "shift_lead",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "shift_lead",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "dishwasher_busser",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "dishwasher_busser",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "drive_thru_order",
+    "start": "06:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "drive_thru_order",
+    "start": "12:00",
+    "end": "18:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "barista",
+    "start": "07:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "barista",
+    "start": "12:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "cashier",
+    "start": "07:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "cashier",
+    "start": "12:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "shift_lead",
+    "start": "07:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "shift_lead",
+    "start": "12:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "dishwasher_busser",
+    "start": "07:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "dishwasher_busser",
+    "start": "12:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "drive_thru_order",
+    "start": "07:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "drive_thru_order",
+    "start": "12:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "barista",
+    "start": "07:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "barista",
+    "start": "12:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "cashier",
+    "start": "07:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "cashier",
+    "start": "12:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "shift_lead",
+    "start": "07:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "shift_lead",
+    "start": "12:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "dishwasher_busser",
+    "start": "07:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "dishwasher_busser",
+    "start": "12:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "drive_thru_order",
+    "start": "07:00",
+    "end": "12:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "drive_thru_order",
+    "start": "12:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "barista",
+    "start": "06:00",
+    "end": "10:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "cashier",
+    "start": "06:00",
+    "end": "10:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "drive_thru_order",
+    "start": "06:00",
+    "end": "10:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "barista",
+    "start": "06:00",
+    "end": "10:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "cashier",
+    "start": "06:00",
+    "end": "10:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "drive_thru_order",
+    "start": "06:00",
+    "end": "10:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "barista",
+    "start": "06:00",
+    "end": "10:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "cashier",
+    "start": "06:00",
+    "end": "10:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "drive_thru_order",
+    "start": "06:00",
+    "end": "10:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "barista",
+    "start": "06:00",
+    "end": "10:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "cashier",
+    "start": "06:00",
+    "end": "10:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "drive_thru_order",
+    "start": "06:00",
+    "end": "10:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "barista",
+    "start": "06:00",
+    "end": "10:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "cashier",
+    "start": "06:00",
+    "end": "10:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "drive_thru_order",
+    "start": "06:00",
+    "end": "10:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "barista",
+    "start": "09:00",
+    "end": "13:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "cashier",
+    "start": "09:00",
+    "end": "13:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "drive_thru_order",
+    "start": "09:00",
+    "end": "13:00",
+    "headcount": 1,
+    "skills": []
+   }
+  ],
+  "notes": [
+   "Reference grid: template + weekday rush + Saturday brunch."
+  ]
+ },
+ "biz_maple": {
+  "blocks": [
+   {
+    "day": "Mon",
+    "role": "host",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "host",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "server",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "server",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "line_cook",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "line_cook",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "prep_cook",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "prep_cook",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "dishwasher_busser",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "dishwasher_busser",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "shift_manager",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "shift_manager",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "bartender",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Mon",
+    "role": "bartender",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "host",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "host",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "server",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "server",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "line_cook",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "line_cook",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "prep_cook",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "prep_cook",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "dishwasher_busser",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "dishwasher_busser",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "shift_manager",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "shift_manager",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "bartender",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Tue",
+    "role": "bartender",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "host",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "host",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "server",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "server",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "line_cook",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "line_cook",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "prep_cook",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "prep_cook",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "dishwasher_busser",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "dishwasher_busser",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "shift_manager",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "shift_manager",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "bartender",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Wed",
+    "role": "bartender",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "host",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "host",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "server",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "server",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "line_cook",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "line_cook",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "prep_cook",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "prep_cook",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "dishwasher_busser",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "dishwasher_busser",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "shift_manager",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "shift_manager",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "bartender",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Thu",
+    "role": "bartender",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "host",
+    "start": "11:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "host",
+    "start": "17:00",
+    "end": "23:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "server",
+    "start": "11:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "server",
+    "start": "17:00",
+    "end": "23:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "line_cook",
+    "start": "11:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "line_cook",
+    "start": "17:00",
+    "end": "23:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "prep_cook",
+    "start": "11:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "prep_cook",
+    "start": "17:00",
+    "end": "23:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "dishwasher_busser",
+    "start": "11:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "dishwasher_busser",
+    "start": "17:00",
+    "end": "23:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "shift_manager",
+    "start": "11:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "shift_manager",
+    "start": "17:00",
+    "end": "23:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "bartender",
+    "start": "11:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Fri",
+    "role": "bartender",
+    "start": "17:00",
+    "end": "23:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "host",
+    "start": "11:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "host",
+    "start": "17:00",
+    "end": "23:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "server",
+    "start": "11:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "server",
+    "start": "17:00",
+    "end": "23:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "line_cook",
+    "start": "11:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "line_cook",
+    "start": "17:00",
+    "end": "23:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "prep_cook",
+    "start": "11:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "prep_cook",
+    "start": "17:00",
+    "end": "23:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "dishwasher_busser",
+    "start": "11:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "dishwasher_busser",
+    "start": "17:00",
+    "end": "23:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "shift_manager",
+    "start": "11:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "shift_manager",
+    "start": "17:00",
+    "end": "23:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "bartender",
+    "start": "11:00",
+    "end": "17:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sat",
+    "role": "bartender",
+    "start": "17:00",
+    "end": "23:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "host",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "host",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "server",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "server",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "line_cook",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "line_cook",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "prep_cook",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "prep_cook",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "dishwasher_busser",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "dishwasher_busser",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "shift_manager",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "shift_manager",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "bartender",
+    "start": "11:00",
+    "end": "16:00",
+    "headcount": 1,
+    "skills": []
+   },
+   {
+    "day": "Sun",
+    "role": "bartender",
+    "start": "16:00",
+    "end": "22:00",
+    "headcount": 1,
+    "skills": []
+   }
+  ],
+  "notes": [
+   "Template default: one per role per half-day."
+  ]
+ }
+}

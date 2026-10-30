@@ -78,8 +78,22 @@ TEMPLATES = {
     },
 }
 
-# Filled in at Step 3.1: ZIP code -> (latitude, longitude) for the demo neighborhood.
-ZIP_COORDS: dict[str, tuple[float, float]] = {}
+# Demo neighborhood: Greater Hartford, CT. Approximate ZIP centroids (latitude, longitude).
+ZIP_COORDS: dict[str, tuple[float, float]] = {
+    "06095": (41.852, -72.644),  # Windsor
+    "06002": (41.826, -72.730),  # Bloomfield
+    "06103": (41.767, -72.674),  # Hartford, downtown
+    "06105": (41.773, -72.704),  # Hartford, West End
+    "06106": (41.749, -72.695),  # Hartford, south
+    "06112": (41.790, -72.696),  # Hartford, north
+    "06114": (41.740, -72.671),  # Hartford, South End
+    "06117": (41.786, -72.746),  # West Hartford, north
+    "06107": (41.753, -72.757),  # West Hartford, south
+    "06108": (41.780, -72.623),  # East Hartford
+    "06074": (41.834, -72.574),  # South Windsor
+    "06088": (41.912, -72.599),  # East Windsor
+    "06109": (41.703, -72.664),  # Wethersfield
+}
 
 
 def roles_for(business_type: str, toggles=frozenset()) -> list[str]:

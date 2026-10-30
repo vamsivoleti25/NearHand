@@ -62,17 +62,24 @@ def eligible(worker: dict, slot: dict) -> bool:
 # ---------------------------------------------------------------- core solve
 
 def solve(workers: list[dict], slots: list[dict], booking_fee_cents: int = 0,
-          min_rest_q: int = 0, fixed=(), time_limit_s: float = 6.0) -> dict:
+          min_rest_q: int = 0, fixed=(), market_slots=None, time_limit_s: float = 6.0) -> dict:
     """Cheapest weekly schedule. Unfillable headcount comes back as gaps, never as 'infeasible'.
 
-    fixed: (worker_id, slot_id) pairs the manager has pinned; skipped if that worker isn't eligible.
+    fixed: (worker_id, slot_id) pairs that must stay (pinned shifts, or the staff schedule
+           when filling gaps); skipped if that worker isn't eligible.
+    market_slots: if given, marketplace workers may only take these slot ids (the gaps).
     """
     m = cp_model.CpModel()
     slot_by_id = {s["id"]: s for s in slots}
     length = {s["id"]: s["end_q"] - s["start_q"] for s in slots}
 
+    def allowed(w, s):
+        if w.get("is_market") and market_slots is not None and s["id"] not in market_slots:
+            return False
+        return eligible(w, s)
+
     x = {(w["id"], s["id"]): m.NewBoolVar(f"x_{w['id']}_{s['id']}")
-         for w in workers for s in slots if eligible(w, s)}
+         for w in workers for s in slots if allowed(w, s)}
     u = {s["id"]: m.NewIntVar(0, s["need"], f"u_{s['id']}") for s in slots}
     for pair in fixed:
         if tuple(pair) in x:
@@ -204,6 +211,14 @@ def solve_with_pool(staff, pool, slots, booking_fee_cents=0, platform_fee=0.0, *
         p["ot_rate_cents"] = round(p.get("ot_rate_cents", p["rate_cents"]) * (1 + platform_fee))
         market.append(p)
     return solve(list(staff) + market, slots, booking_fee_cents=booking_fee_cents, **kw)
+
+
+def fill_gaps(staff, pool, slots, staff_result: dict, booking_fee_cents=0, platform_fee=0.0, **kw) -> dict:
+    """Pass 2 as a manager expects it: the staff schedule stays exactly as it is, and
+    marketplace workers may only take the gap shifts left by pass 1."""
+    keep = list(staff_result["assignments"]) + list(kw.pop("fixed", ()))
+    return solve_with_pool(staff, pool, slots, booking_fee_cents, platform_fee,
+                           fixed=keep, market_slots=set(staff_result["gaps"]), **kw)
 
 
 def _gap_hours(result, slots) -> float:

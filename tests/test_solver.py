@@ -125,3 +125,13 @@ def test_cafe_week_solves_quickly():
     r = solve(staff, slots)
     assert r["status"] in ("OPTIMAL", "FEASIBLE")
     assert time.time() - t0 < 5
+
+
+def test_fill_gaps_keeps_staff_and_only_fills_gaps():
+    from core.solver import fill_gaps
+    slots = [slot("mon", "Mon", "06:00", "11:00"), slot("tue", "Tue", "06:00", "11:00")]
+    staff = [worker("maya", 2000, unavailable_days=["Tue"])]
+    cheap = worker("priya", 1725)  # cheaper than Maya, but must not take Maya's Monday
+    first = solve_staff_only(staff, slots)
+    r = fill_gaps(staff, [cheap], slots, first, booking_fee_cents=500)
+    assert set(r["assignments"]) == {("maya", "mon"), ("priya", "tue")}

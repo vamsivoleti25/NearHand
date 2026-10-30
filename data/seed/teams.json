@@ -1,0 +1,408 @@
+{
+ "biz_bean": [
+  {
+   "id": "emp_maya",
+   "name": "Maya Patel",
+   "roles": [
+    "barista"
+   ],
+   "skills": [],
+   "rate_cents": 1900,
+   "ot_rate_cents": 2850,
+   "max_hours": 30.0,
+   "employment": "part_time",
+   "unavailable_days": [
+    "Tue"
+   ]
+  },
+  {
+   "id": "emp_leo",
+   "name": "Leo Kim",
+   "roles": [
+    "barista",
+    "cashier"
+   ],
+   "skills": [],
+   "rate_cents": 1850,
+   "ot_rate_cents": 2775,
+   "max_hours": 40.0,
+   "employment": "full_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_ana",
+   "name": "Ana Ruiz",
+   "roles": [
+    "shift_lead",
+    "barista"
+   ],
+   "skills": [
+    "keyholder"
+   ],
+   "rate_cents": 2300,
+   "ot_rate_cents": 3450,
+   "max_hours": 40.0,
+   "employment": "full_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_sam",
+   "name": "Sam Ortiz",
+   "roles": [
+    "cashier",
+    "drive_thru_order"
+   ],
+   "skills": [],
+   "rate_cents": 1775,
+   "ot_rate_cents": 2662,
+   "max_hours": 20.0,
+   "employment": "part_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_priya",
+   "name": "Priya Nair",
+   "roles": [
+    "dishwasher_busser"
+   ],
+   "skills": [],
+   "rate_cents": 1725,
+   "ot_rate_cents": 2588,
+   "max_hours": 25.0,
+   "employment": "part_time",
+   "unavailable_days": [
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri"
+   ]
+  },
+  {
+   "id": "emp_jordan",
+   "name": "Jordan Lee",
+   "roles": [
+    "barista"
+   ],
+   "skills": [],
+   "rate_cents": 2000,
+   "ot_rate_cents": 3000,
+   "max_hours": 25.0,
+   "employment": "part_time",
+   "unavailable_days": [
+    "Mon"
+   ]
+  },
+  {
+   "id": "emp_chris",
+   "name": "Chris Wong",
+   "roles": [
+    "shift_lead",
+    "cashier"
+   ],
+   "skills": [
+    "keyholder"
+   ],
+   "rate_cents": 2250,
+   "ot_rate_cents": 3375,
+   "max_hours": 28.0,
+   "employment": "part_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_ravi",
+   "name": "Ravi Shah",
+   "roles": [
+    "barista",
+    "cashier"
+   ],
+   "skills": [],
+   "rate_cents": 1900,
+   "ot_rate_cents": 2850,
+   "max_hours": 40.0,
+   "employment": "full_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_mei",
+   "name": "Mei Chen",
+   "roles": [
+    "cashier",
+    "drive_thru_order"
+   ],
+   "skills": [],
+   "rate_cents": 1800,
+   "ot_rate_cents": 2700,
+   "max_hours": 40.0,
+   "employment": "full_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_tom",
+   "name": "Tom Baker",
+   "roles": [
+    "dishwasher_busser",
+    "food_prep"
+   ],
+   "skills": [
+    "food_handler"
+   ],
+   "rate_cents": 1725,
+   "ot_rate_cents": 2588,
+   "max_hours": 32.0,
+   "employment": "part_time",
+   "unavailable_days": [
+    "Sat",
+    "Sun"
+   ]
+  },
+  {
+   "id": "emp_elena",
+   "name": "Elena Popov",
+   "roles": [
+    "shift_lead",
+    "barista"
+   ],
+   "skills": [
+    "keyholder"
+   ],
+   "rate_cents": 2200,
+   "ot_rate_cents": 3300,
+   "max_hours": 36.0,
+   "employment": "part_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_diego",
+   "name": "Diego Silva",
+   "roles": [
+    "drive_thru_order",
+    "cashier"
+   ],
+   "skills": [],
+   "rate_cents": 1775,
+   "ot_rate_cents": 2662,
+   "max_hours": 30.0,
+   "employment": "part_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_nia",
+   "name": "Nia Brooks",
+   "roles": [
+    "barista",
+    "drive_thru_order"
+   ],
+   "skills": [],
+   "rate_cents": 1850,
+   "ot_rate_cents": 2775,
+   "max_hours": 24.0,
+   "employment": "part_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_omar",
+   "name": "Omar Haddad",
+   "roles": [
+    "dishwasher_busser",
+    "cashier"
+   ],
+   "skills": [],
+   "rate_cents": 1725,
+   "ot_rate_cents": 2588,
+   "max_hours": 24.0,
+   "employment": "part_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_kai",
+   "name": "Kai Nakamura",
+   "roles": [
+    "barista",
+    "cashier"
+   ],
+   "skills": [],
+   "rate_cents": 1900,
+   "ot_rate_cents": 2850,
+   "max_hours": 32.0,
+   "employment": "part_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_lucia",
+   "name": "Lucia Romero",
+   "roles": [
+    "drive_thru_order",
+    "cashier",
+    "dishwasher_busser"
+   ],
+   "skills": [],
+   "rate_cents": 1750,
+   "ot_rate_cents": 2625,
+   "max_hours": 30.0,
+   "employment": "part_time",
+   "unavailable_days": [
+    "Sun"
+   ]
+  }
+ ],
+ "biz_maple": [
+  {
+   "id": "emp_grace",
+   "name": "Grace Okafor",
+   "roles": [
+    "shift_manager",
+    "server"
+   ],
+   "skills": [
+    "keyholder",
+    "food_safety_manager"
+   ],
+   "rate_cents": 2800,
+   "ot_rate_cents": 4200,
+   "max_hours": 40.0,
+   "employment": "full_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_ben",
+   "name": "Ben Taylor",
+   "roles": [
+    "line_cook",
+    "prep_cook"
+   ],
+   "skills": [
+    "food_handler"
+   ],
+   "rate_cents": 2150,
+   "ot_rate_cents": 3225,
+   "max_hours": 40.0,
+   "employment": "full_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_hana",
+   "name": "Hana Sato",
+   "roles": [
+    "line_cook",
+    "prep_cook"
+   ],
+   "skills": [
+    "food_handler"
+   ],
+   "rate_cents": 2050,
+   "ot_rate_cents": 3075,
+   "max_hours": 32.0,
+   "employment": "part_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_luis",
+   "name": "Luis Mendez",
+   "roles": [
+    "prep_cook"
+   ],
+   "skills": [
+    "food_handler"
+   ],
+   "rate_cents": 1900,
+   "ot_rate_cents": 2850,
+   "max_hours": 28.0,
+   "employment": "part_time",
+   "unavailable_days": [
+    "Sun"
+   ]
+  },
+  {
+   "id": "emp_zoe",
+   "name": "Zoe Martin",
+   "roles": [
+    "server"
+   ],
+   "skills": [],
+   "rate_cents": 1800,
+   "ot_rate_cents": 2700,
+   "max_hours": 30.0,
+   "employment": "part_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_aaron",
+   "name": "Aaron Fisher",
+   "roles": [
+    "server",
+    "host"
+   ],
+   "skills": [],
+   "rate_cents": 1750,
+   "ot_rate_cents": 2625,
+   "max_hours": 24.0,
+   "employment": "part_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_ivy",
+   "name": "Ivy Nguyen",
+   "roles": [
+    "host"
+   ],
+   "skills": [],
+   "rate_cents": 1725,
+   "ot_rate_cents": 2588,
+   "max_hours": 20.0,
+   "employment": "part_time",
+   "unavailable_days": [
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri"
+   ]
+  },
+  {
+   "id": "emp_malik",
+   "name": "Malik Johnson",
+   "roles": [
+    "bartender"
+   ],
+   "skills": [
+    "alcohol_service"
+   ],
+   "rate_cents": 1900,
+   "ot_rate_cents": 2850,
+   "max_hours": 32.0,
+   "employment": "part_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_rosa",
+   "name": "Rosa Garcia",
+   "roles": [
+    "dishwasher_busser"
+   ],
+   "skills": [],
+   "rate_cents": 1725,
+   "ot_rate_cents": 2588,
+   "max_hours": 30.0,
+   "employment": "part_time",
+   "unavailable_days": []
+  },
+  {
+   "id": "emp_sean",
+   "name": "Sean Walsh",
+   "roles": [
+    "shift_manager",
+    "server"
+   ],
+   "skills": [
+    "keyholder",
+    "food_safety_manager"
+   ],
+   "rate_cents": 2500,
+   "ot_rate_cents": 3750,
+   "max_hours": 36.0,
+   "employment": "part_time",
+   "unavailable_days": []
+  }
+ ]
+}

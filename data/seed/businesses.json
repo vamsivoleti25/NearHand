@@ -1,0 +1,86 @@
+[
+ {
+  "id": "biz_bean",
+  "name": "Bean & Co.",
+  "type": "cafe",
+  "toggles": [
+   "drive_thru"
+  ],
+  "zip": "06095",
+  "hours": {
+   "Mon": [
+    "06:00",
+    "18:00"
+   ],
+   "Tue": [
+    "06:00",
+    "18:00"
+   ],
+   "Wed": [
+    "06:00",
+    "18:00"
+   ],
+   "Thu": [
+    "06:00",
+    "18:00"
+   ],
+   "Fri": [
+    "06:00",
+    "18:00"
+   ],
+   "Sat": [
+    "07:00",
+    "17:00"
+   ],
+   "Sun": [
+    "07:00",
+    "17:00"
+   ]
+  },
+  "description": "We get slammed 7-9am on weekdays and Saturday brunch is our busiest time. Sundays are slow.",
+  "lat": 41.8521,
+  "lon": -72.6431
+ },
+ {
+  "id": "biz_maple",
+  "name": "Maple Table",
+  "type": "restaurant",
+  "toggles": [
+   "bar"
+  ],
+  "zip": "06002",
+  "hours": {
+   "Mon": [
+    "11:00",
+    "22:00"
+   ],
+   "Tue": [
+    "11:00",
+    "22:00"
+   ],
+   "Wed": [
+    "11:00",
+    "22:00"
+   ],
+   "Thu": [
+    "11:00",
+    "22:00"
+   ],
+   "Fri": [
+    "11:00",
+    "23:00"
+   ],
+   "Sat": [
+    "11:00",
+    "23:00"
+   ],
+   "Sun": [
+    "11:00",
+    "22:00"
+   ]
+  },
+  "description": "Dinner rush 5-8pm every night, Friday and Saturday nights are packed.",
+  "lat": 41.8402,
+  "lon": -72.6855
+ }
+]

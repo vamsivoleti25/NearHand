@@ -29,6 +29,8 @@ class Business(BaseModel):
     zip: str = ""
     hours: dict[Day, tuple[HHMM, HHMM]]
     description: str = ""
+    lat: float | None = None
+    lon: float | None = None
 
 
 class StaffingBlock(BaseModel):
@@ -146,8 +148,22 @@ class PartTimerProfile(BaseModel):
 class PartTimer(PartTimerProfile):
     id: str
     availability: dict[Day, list[tuple[HHMM, HHMM]]] = {}
-    blocked: list[tuple[Day, HHMM, HHMM]] = Field(default=[], description="Commitments elsewhere and bookings")
+    blocked: list[tuple[Day, HHMM, HHMM]] = Field(default=[], description="Commitments elsewhere")
     max_hours: float = 25
+    lat: float | None = None   # approximate home location; only distance is ever shown
+    lon: float | None = None
+    bio: str = ""              # their own words, as typed into the app
+
+
+class Booking(BaseModel):
+    id: str
+    part_timer_id: str
+    business_id: str
+    day: Day
+    start: HHMM
+    end: HHMM
+    role: Role
+    rate_cents: int
 
 
 class SearchFilter(BaseModel):
