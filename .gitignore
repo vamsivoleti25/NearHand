@@ -225,3 +225,10 @@ __marimo__/
 .cache/
 data/*.db
 .streamlit/secrets.toml
+
+# NearHand
+.env
+.venv/
+.cache/
+data/*.db
+.streamlit/secrets.toml
