@@ -58,8 +58,11 @@ def eligible(worker: dict, slot: dict) -> bool:
 # ---------------------------------------------------------------- core solve
 
 def solve(workers: list[dict], slots: list[dict], booking_fee_cents: int = 0,
-          min_rest_q: int = 0, time_limit_s: float = 10.0) -> dict:
-    """Cheapest weekly schedule. Unfillable headcount comes back as gaps, never as 'infeasible'."""
+          min_rest_q: int = 0, fixed=(), time_limit_s: float = 10.0) -> dict:
+    """Cheapest weekly schedule. Unfillable headcount comes back as gaps, never as 'infeasible'.
+
+    fixed: (worker_id, slot_id) pairs the manager has pinned; skipped if that worker isn't eligible.
+    """
     m = cp_model.CpModel()
     slot_by_id = {s["id"]: s for s in slots}
     length = {s["id"]: s["end_q"] - s["start_q"] for s in slots}
@@ -67,6 +70,9 @@ def solve(workers: list[dict], slots: list[dict], booking_fee_cents: int = 0,
     x = {(w["id"], s["id"]): m.NewBoolVar(f"x_{w['id']}_{s['id']}")
          for w in workers for s in slots if eligible(w, s)}
     u = {s["id"]: m.NewIntVar(0, s["need"], f"u_{s['id']}") for s in slots}
+    for pair in fixed:
+        if tuple(pair) in x:
+            m.Add(x[tuple(pair)] == 1)
 
     for s in slots:  # coverage: assigned + unfilled == headcount needed
         m.Add(sum(v for (_, sid), v in x.items() if sid == s["id"]) + u[s["id"]] == s["need"])
