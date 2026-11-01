@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import random
 import re
 import sqlite3
 import time
@@ -53,7 +54,7 @@ def _client(provider: str):
         key = os.getenv(key_var)
         if not key:
             raise RuntimeError(f"{key_var} is not set (check your .env file)")
-        _clients[provider] = OpenAI(base_url=url, api_key=key, timeout=120, max_retries=2)
+        _clients[provider] = OpenAI(base_url=url, api_key=key, timeout=120, max_retries=0)  # we retry ourselves
     return _clients[provider]
 
 
@@ -132,10 +133,28 @@ def _cache_put(key: str, value) -> None:
 
 # ---------------------------------------------------------------- the raw call
 
+RETRY_WAITS = (2, 5, 10, 20, 40)  # seconds between attempts when a provider says "slow down"
+
+
+def _is_retryable(e: Exception) -> bool:
+    status = getattr(e, "status_code", None)
+    return status in (429, 500, 502, 503, 504) or type(e).__name__ in ("RateLimitError", "APITimeoutError",
+                                                                       "APIConnectionError")
+
+
 def _create(provider: str, **kwargs) -> tuple[dict, dict, float]:
-    """One network call. Returns (assistant message as a dict, usage, seconds)."""
+    """One network call, retried with growing waits on rate limits and server hiccups.
+    Returns (assistant message as a dict, usage, seconds)."""
     t0 = time.time()
-    resp = _client(provider).chat.completions.create(model=PROVIDERS[provider][2], **kwargs)
+    for attempt, wait in enumerate((0,) + RETRY_WAITS):
+        if wait:
+            time.sleep(wait + random.random())
+        try:
+            resp = _client(provider).chat.completions.create(model=PROVIDERS[provider][2], **kwargs)
+            break
+        except Exception as e:
+            if not _is_retryable(e) or attempt == len(RETRY_WAITS):
+                raise
     msg = resp.choices[0].message
     out = {"role": "assistant", "content": msg.content}
     if getattr(msg, "tool_calls", None):

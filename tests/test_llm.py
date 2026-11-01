@@ -80,3 +80,21 @@ def test_cost_is_logged(fake):
     expected = (400 * 1.25 + 600 * 0.15 + 200 * 4.25) / 1e6
     assert rows[0]["task"] == "parse_test"
     assert rows[0]["cost_usd"] == round(expected, 4)
+
+
+def test_rate_limits_are_retried(fake, monkeypatch):
+    monkeypatch.setattr(llm, "RETRY_WAITS", (0, 0))
+    comp = fake(['{"role": "barista", "hours": 5}'])
+    real_create, calls = comp.create, {"n": 0}
+
+    class RateLimited(Exception):
+        status_code = 429
+
+    def flaky(**kwargs):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise RateLimited("429 slow down")
+        return real_create(**kwargs)
+    comp.create = flaky
+    assert llm.call_json("t", "sys", "user", Shift, provider="baseten").hours == 5
+    assert calls["n"] == 2

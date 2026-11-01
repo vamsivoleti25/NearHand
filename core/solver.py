@@ -62,12 +62,14 @@ def eligible(worker: dict, slot: dict) -> bool:
 # ---------------------------------------------------------------- core solve
 
 def solve(workers: list[dict], slots: list[dict], booking_fee_cents: int = 0,
-          min_rest_q: int = 0, fixed=(), market_slots=None, time_limit_s: float = 6.0) -> dict:
+          min_rest_q: int = 0, fixed=(), market_slots=None, restrict=None,
+          time_limit_s: float = 6.0) -> dict:
     """Cheapest weekly schedule. Unfillable headcount comes back as gaps, never as 'infeasible'.
 
     fixed: (worker_id, slot_id) pairs that must stay (pinned shifts, or the staff schedule
            when filling gaps); skipped if that worker isn't eligible.
     market_slots: if given, marketplace workers may only take these slot ids (the gaps).
+    restrict: optional {worker_id: set of slot ids} limiting what each listed worker may take.
     """
     m = cp_model.CpModel()
     slot_by_id = {s["id"]: s for s in slots}
@@ -75,6 +77,8 @@ def solve(workers: list[dict], slots: list[dict], booking_fee_cents: int = 0,
 
     def allowed(w, s):
         if w.get("is_market") and market_slots is not None and s["id"] not in market_slots:
+            return False
+        if restrict is not None and w["id"] in restrict and s["id"] not in restrict[w["id"]]:
             return False
         return eligible(w, s)
 
@@ -97,7 +101,7 @@ def solve(workers: list[dict], slots: list[dict], booking_fee_cents: int = 0,
         if not mine:
             continue
         # at most one shift per day
-        for day in {s["day"] for s, _ in mine}:
+        for day in sorted({s["day"] for s, _ in mine}):  # sorted: same model, same answer, every process
             m.Add(sum(v for s, v in mine if s["day"] == day) <= 1)
         # minimum rest between a shift and the next day's shift
         if min_rest_q:
@@ -128,7 +132,7 @@ def solve(workers: list[dict], slots: list[dict], booking_fee_cents: int = 0,
     solver.parameters.interleave_search = True       # same inputs -> same schedule, run after run
     solver.parameters.random_seed = 7
     solver.parameters.max_deterministic_time = time_limit_s / 2
-    solver.parameters.max_time_in_seconds = time_limit_s * 2  # hard wall-clock safety net
+    solver.parameters.max_time_in_seconds = time_limit_s * 10  # wall-clock safety net only; the deterministic limit governs
     m.Minimize(GAP_WEIGHT * gap_q + sum(objective))
     status = solver.Solve(m)
     if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
@@ -217,8 +221,12 @@ def fill_gaps(staff, pool, slots, staff_result: dict, booking_fee_cents=0, platf
     """Pass 2 as a manager expects it: the staff schedule stays exactly as it is, and
     marketplace workers may only take the gap shifts left by pass 1."""
     keep = list(staff_result["assignments"]) + list(kw.pop("fixed", ()))
+    gaps = set(staff_result["gaps"])
+    # Staff may only work the shifts they already have; part-timers may only take gaps.
+    # That keeps this solve tiny (it runs on every agent tool call).
+    restrict = {w["id"]: {sid for wid, sid in keep if wid == w["id"]} for w in staff}
     return solve_with_pool(staff, pool, slots, booking_fee_cents, platform_fee,
-                           fixed=keep, market_slots=set(staff_result["gaps"]), **kw)
+                           fixed=keep, market_slots=gaps, restrict=restrict, **kw)
 
 
 def _gap_hours(result, slots) -> float:

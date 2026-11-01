@@ -35,7 +35,8 @@ SYSTEM = """You write realistic text that a part-time hourly worker types into a
 Include every role with roughly how long they did it (vague phrasing is fine: "about 2 yrs", "a summer"),
 the kinds of places they worked (invent plausible local business names, never real chains),
 any certifications listed, and their asking pay. Do not mention their name, address or availability.
-Do not add roles, certifications or experience that are not listed."""
+Do not add roles, certifications or experience that are not listed.
+Write exactly one version: no numbering, no alternatives."""
 
 
 def describe(p: dict, style: str) -> str:
@@ -52,6 +53,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--provider", default=None)
+    ap.add_argument("--workers", type=int, default=3, help="parallel requests; lower it if you hit rate limits")
     args = ap.parse_args()
 
     pts = json.loads(SEED.read_text())
@@ -60,17 +62,30 @@ def main():
     styles = {p["id"]: STYLES[int(rng.integers(len(STYLES)))] for p in todo}
 
     def one(p):
-        out = llm.call_json("make_bio", SYSTEM, describe(p, styles[p["id"]]), Bio, provider=args.provider,
-                            max_tokens=2000)
-        return p["id"], out.bio
+        try:
+            out = llm.call_json("make_bio", SYSTEM, describe(p, styles[p["id"]]), Bio, provider=args.provider,
+                                max_tokens=2000)
+            return p["id"], out.bio
+        except Exception as e:  # keep going; a rerun picks up whatever is missing
+            print(f"  {p['id']} failed: {str(e)[:120]}")
+            return p["id"], None
 
-    with ThreadPoolExecutor(max_workers=8) as pool:
-        bios = dict(pool.map(one, todo))
-    for p in pts:
-        if p["id"] in bios:
-            p["bio"] = bios[p["id"]]
-    SEED.write_text(json.dumps(pts, indent=1))
-    print(f"Wrote {len(bios)} bios. Example:\n{todo[0]['name']}: {bios[todo[0]['id']]}" if bios else "Nothing to do.")
+    bios, done = {}, 0
+    by_id = {p["id"]: p for p in pts}
+    with ThreadPoolExecutor(max_workers=args.workers) as pool:
+        for pid, bio in pool.map(one, todo):
+            if bio:
+                bios[pid] = bio
+                by_id[pid]["bio"] = bio
+            done += 1
+            if done % 10 == 0 or done == len(todo):
+                SEED.write_text(json.dumps(pts, indent=1))  # save progress as we go
+                print(f"  {done}/{len(todo)}")
+    missing = len(todo) - len(bios)
+    if missing:
+        print(f"{missing} failed; run the same command again to finish them (finished ones are skipped).")
+    first = next((p for p in todo if p["id"] in bios), None)
+    print(f"Wrote {len(bios)} bios." + (f" Example:\n{first['name']}: {bios[first['id']]}" if first else ""))
     spent = [r for r in llm.spend_summary() if r["task"] == "make_bio"]
     if spent:
         print(f"make_bio spend: ${spent[0]['cost_usd']}")
