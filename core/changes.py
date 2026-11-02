@@ -99,6 +99,9 @@ def apply(state: dict, o: Offer, facts: dict, business_name: str) -> Offer:
     shifts = [OfferShift(slot_id=new_ids[0], day=s.day, start=from_q(ca), end=from_q(cb), role=s.role)
               if s.slot_id == sid else s for s in o.shifts]
     o2 = o.model_copy(update={"shifts": shifts})
+    who_id = o.employee_id or o.part_timer_id      # they gave those hours up: never ask them to cover them
+    if who_id not in state.setdefault("changed_by", []):
+        state["changed_by"].append(who_id)
     db.save_offer(o2)                               # same status: no offer event, so log the change here
     who = db.worker_name(o2)
     db.log_event(o.business_id, "change_accepted",

@@ -57,6 +57,9 @@ def run_fill(biz, grid, team, state, pts, replacement: bool) -> None:
                                                                       list(pts.values()), db.bookings(), biz.id)
     else:
         sr, pool, held, covered, no_extra = state["staff_result"], list(pts.values()), db.bookings(), None, set()
+    changed_by = set(state.get("changed_by", []))   # asked for shorter hours: don't offer them what they gave up
+    pool = [p for p in pool if p.id not in changed_by]
+    no_extra = set(no_extra) | changed_by
     extra = state.get("extra_hours", 8) if state.get("team_first", True) else 0
     session = FillSession(biz, grid, team, chosen_constraints(state), pool, held, staff_result=sr, covered=covered,
                           staff_extra_hours=extra, overtime_ok=state.get("overtime_ok", True), no_extra_for=no_extra,
@@ -275,7 +278,21 @@ with tab_week:
 
         # ------------------------------------------------------------ the agent's proposal
         plan = state.get("plan")
-        if plan:
+        if plan and not plan.get("bookings") and not plan.get("team_extra_hours"):
+            # The agent found nobody: say so plainly instead of a $0.00 "plan" with a Send button.
+            with st.container(border=True, key="nh-plan"):
+                st.markdown("**Nobody is free for this yet.** No one on your team or within reach of the "
+                            "marketplace can take the open hours without breaking a rule or a calendar.")
+                if plan.get("explanation"):
+                    st.caption(md(plan["explanation"]))
+                st.caption("Options: leave it open for now, message someone directly, or allow more extra hours "
+                           "or overtime above and try again.")
+                if st.button("OK, keep it open", width="stretch"):
+                    state["plan"] = None
+                    save_state(biz.id, state)
+                    db.log_event(biz.id, "plan_discarded", "Agent found nobody free; kept the shift open")
+                    st.rerun()
+        elif plan:
             with st.container(border=True, key="nh-plan"):
                 st.markdown(md(f"**Proposed plan** · adds **{plan['added_cost']}** "
                                f"({plan['added_wages']} wages + {plan['booking_fees']} booking fees) · "
@@ -420,8 +437,8 @@ with tab_offers:
             return ms[-1].ts if ms else o.created_ts
         convo = sorted(sent, key=lambda o: (-last_ts(o), o.id))
         pick = st.selectbox("Conversation", [o.id for o in convo], key="msg_pick",
-                            format_func=lambda i: next(f"{who_of(o)} · {db.shifts_text(o)}"   # stable labels: a changing
-                                                       for o in convo if o.id == i))      # label resets the picker
+                            format_func=lambda i: next(f"{who_of(o)} · round {o.round}"   # stable labels: a changing
+                                                       for o in convo if o.id == i))  # label resets the picker
         o = next(x for x in convo if x.id == pick)
         first = who_of(o).split(" (")[0].split()[0]
         thread(o, as_business=True, me=biz.name, other=first, key=f"biz_{o.id}")

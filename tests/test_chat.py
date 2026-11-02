@@ -97,17 +97,12 @@ def test_each_visitor_gets_their_own_demo_data(tmp_path):
         llm.use_db(None)
 
 
-def test_change_request_in_chat_splits_the_shift_and_reopens_the_rest(monkeypatch):
+def ask_for_change(monkeypatch, o, day, start, end):
+    """The worker writes; the owner has Muse Spark Open (faked here) read it and accepts the change."""
     from core import changes
-    from core.taxonomy import to_q
-    sent = owner_sends_offers()
-    o = next(x for x in sent if to_q(x.shifts[0].end) - to_q(x.shifts[0].start) >= 16)   # a 4 h+ shift
-    s0 = o.shifts[0]
-    new_start = f"{int(s0.start[:2]) + 2:02d}:{s0.start[3:]}"                              # two hours later
     monkeypatch.setattr(changes.llm, "call_json", lambda *a, **k: changes.ChangeRequest(
-        is_change_request=True, day=s0.day, start=new_start, end=s0.end))
-    db.send_message(o, False, "Pat", f"Could I start at {new_start} instead?")
-
+        is_change_request=True, day=day, start=start, end=end))
+    db.send_message(o, False, "Them", f"Could I do {start}-{end} instead?")
     owner = run("views/planner.py", business_id="biz_bean")
     owner.selectbox(key="msg_pick").set_value(o.id).run()
     click(owner, next(b.label for b in owner.button if b.label.startswith("✨ Read")))
@@ -115,18 +110,54 @@ def test_change_request_in_chat_splits_the_shift_and_reopens_the_rest(monkeypatc
     assert any("Would reopen" in m.label for m in owner.metric)
     click(owner, "Accept change")
     assert not owner.exception, owner.exception
+    return run("views/planner.py", business_id="biz_bean")
+
+
+def test_team_member_leaves_early_and_someone_else_covers_the_rest(monkeypatch):
+    """The demo story: a team member asks to leave two hours early; the reopened end of the shift goes to
+    someone else, never back to them. (Independent of which shifts the solver leaves open.)"""
+    from core.taxonomy import from_q, to_q
+    at = run("views/planner.py", business_id="biz_bean")
+    for label in ["Read my rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
+        click(at, label)
+    o = next(x for x in db.offers(business_id="biz_bean") if x.kind == "extra_hours"
+             and to_q(x.shifts[0].end) - to_q(x.shifts[0].start) >= 16)
+    s0 = o.shifts[0]
+    early = from_q(to_q(s0.end) - 8)                                         # leave two hours early
+    owner = ask_for_change(monkeypatch, o, s0.day, s0.start, early)
 
     changed = db.offer(o.id)
-    assert changed.shifts[0].start == new_start and changed.status == "pending"
+    assert (changed.shifts[0].start, changed.shifts[0].end, changed.status) == (s0.start, early, "pending")
     assert db.messages(o.id)[-1].from_business                                            # a reply went out
     assert any(e.kind == "change_accepted" for e in db.events(business_id="biz_bean"))
-    owner = run("views/planner.py", business_id="biz_bean")
-    assert any("Find replacements with AI" == b.label for b in owner.button)               # the 2 h reopened
     click(owner, "Find replacements with AI")
     assert not owner.exception, owner.exception
-    click(owner, "Send offers")
-    round2 = [x for x in db.offers(business_id="biz_bean") if x.round == 2]
-    assert round2 and any(sh.end == new_start for x in round2 for sh in x.shifts)
+    if any(b.label == "Send offers" for b in owner.button):
+        click(owner, "Send offers")
+        round2 = [x for x in db.offers(business_id="biz_bean") if x.round == 2]
+        assert [(s.day, s.start, s.end) for x in round2 for s in x.shifts] == [(s0.day, early, s0.end)]
+        assert o.employee_id not in {x.employee_id for x in round2}   # not asked to cover what they gave up
+    else:
+        assert any("Nobody is free" in m.value for m in owner.markdown)
+
+
+def test_nobody_free_for_the_reopened_hours(monkeypatch):
+    """A part-timer shortens their shift; nobody else is free for the hours that reopen, and the planner says
+    so plainly instead of offering a $0.00 plan. (Independent of which shifts the solver leaves open.)"""
+    from core.taxonomy import from_q, to_q
+    o = next(x for x in owner_sends_offers() if to_q(x.shifts[0].end) - to_q(x.shifts[0].start) >= 12)
+    s0 = o.shifts[0]
+    later = from_q(to_q(s0.start) + 4)                                        # start an hour later
+    for p in db.part_timers():                                                # everyone else is busy
+        if p.id != o.part_timer_id:
+            db.save_part_timer(p.model_copy(update={"availability": {"Mon": [("23:00", "23:30")]}}))
+    owner = ask_for_change(monkeypatch, o, s0.day, later, s0.end)
+    click(owner, "Find replacements with AI")                                 # team first is off here
+    assert not owner.exception, owner.exception
+    assert any("Nobody is free" in m.value for m in owner.markdown)
+    assert not any(b.label == "Send offers" for b in owner.button)
+    click(owner, "OK, keep it open")
+    assert db.offer(o.id).shifts[0].start == later
 
 
 def test_not_a_change_request():
