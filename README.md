@@ -8,7 +8,7 @@ neighborhood part-timer network built in. An owner writes their rules the way th
 them. An AI agent then fills the open shifts, asking the owner's own team first and then qualified
 part-timers who live nearby. Everyone accepts or declines on their phone, and nothing is booked without a yes.
 
-- **Live app:** LIVE_APP_URL  (one click on *I need staff* or *I'm looking for shifts*; demo accounts, no password)
+- **Live app:** [nearhand.streamlit.app](https://nearhand.streamlit.app)  (one click on *I need staff* or *I'm looking for shifts*; demo accounts, no password)
 - **3-minute demo:** VIDEO_URL
 - Built during the **Meta Global AI Developer Hackathon**, Oct 29 – Nov 4, 2026 (Indie track).
 
