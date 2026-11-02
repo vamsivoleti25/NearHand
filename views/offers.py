@@ -21,8 +21,7 @@ if not pending:
 for o in pending:
     biz = businesses[o.business_id]
     facts = offers.offer_facts(o, p, biz, db.bookings(), mine)
-    with st.container(border=True):
-        st.markdown('<span class="nh-marker-offer"></span>', unsafe_allow_html=True)
+    with st.container(border=True, key=f"nh-offer-{o.id}"):
         st.markdown(md(f"### {biz.name}\n{facts['distance_miles']} mi away"))
         st.markdown(md(f"## You'd earn {facts['total_pay']}"))
         st.caption(md(f"for {facts['total_hours']:g} hours at {money(o.rate_cents)}/h"))

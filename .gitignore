@@ -232,3 +232,4 @@ data/*.db
 .cache/
 data/*.db
 .streamlit/secrets.toml
+.DS_Store

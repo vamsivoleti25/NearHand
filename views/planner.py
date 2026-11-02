@@ -175,8 +175,7 @@ if projected is not view or sent:
     a_gaps, a_h = len(projected["gaps"]), gap_hours(slots, projected["gaps"])
     b_cost, a_cost = base["bill"]["total_cents"], projected["bill"]["total_cents"]
     booked = sum(1 for s in projected["status"].values() if s == "accepted")
-    with st.container(border=True):
-        st.markdown('<span class="nh-marker-impact"></span>', unsafe_allow_html=True)
+    with st.container(border=True, key="nh-impact"):
         st.markdown("**Impact** · " + ("if you send these offers" if projected is not view
                                          else f"{booked} booked, {len(projected['status']) - booked} waiting"))
         i1, i2, i3, i4 = st.columns(4)
@@ -227,8 +226,7 @@ if view["gaps"] and not state.get("plan"):
 # ---------------------------------------------------------------- the agent's proposal
 plan = state.get("plan")
 if plan:
-    with st.container(border=True):
-        st.markdown('<span class="nh-marker-plan"></span>', unsafe_allow_html=True)
+    with st.container(border=True, key="nh-plan"):
         st.markdown(md(f"**Proposed plan** · adds **{plan['added_cost']}** "
                        f"({plan['added_wages']} wages + {plan['booking_fees']} booking fees) · "
                        f"week total {plan['week_total']}"))
@@ -250,9 +248,9 @@ if plan:
             st.caption(plan["note"])
         if state.get("trace"):
             with st.expander("How the agent got here"):
-                st.markdown('<div class="nh-timeline">' + "".join(
-                    f'<div class="nh-timeline-item">{md(line)}</div>' for line in state["trace"]
-                ) + "</div>", unsafe_allow_html=True)
+                with st.container(key="nh-timeline"):
+                    for line in state["trace"]:
+                        st.markdown(md(line))
         a, b = st.columns(2)
         if a.button("Send offers", type="primary", width="stretch"):
             n = send_offers(biz, state, pts)

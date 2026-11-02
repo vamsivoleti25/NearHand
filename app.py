@@ -18,7 +18,7 @@ st.set_page_config(page_title="Nearhand", page_icon="assets/favicon.png" if _HAS
 boot()
 
 if _HAS_LOGO:
-    st.logo("assets/logo.png", icon_image="assets/favicon.png" if _HAS_FAVICON else "assets/logo.png")
+    st.logo("assets/logo.png", size="large", icon_image="assets/favicon.png" if _HAS_FAVICON else "assets/logo.png")
 
 with st.sidebar:
     st.markdown("## Nearhand" if _HAS_LOGO else "## 🤝 Nearhand")

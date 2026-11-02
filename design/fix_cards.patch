@@ -1,0 +1,98 @@
+diff --git a/app.py b/app.py
+index fd278a1..430602f 100644
+--- a/app.py
++++ b/app.py
+@@ -18,7 +18,7 @@ st.set_page_config(page_title="Nearhand", page_icon="assets/favicon.png" if _HAS
+ boot()
+ 
+ if _HAS_LOGO:
+-    st.logo("assets/logo.png", icon_image="assets/favicon.png" if _HAS_FAVICON else "assets/logo.png")
++    st.logo("assets/logo.png", size="large", icon_image="assets/favicon.png" if _HAS_FAVICON else "assets/logo.png")
+ 
+ with st.sidebar:
+     st.markdown("## Nearhand" if _HAS_LOGO else "## 🤝 Nearhand")
+diff --git a/ui/common.py b/ui/common.py
+index b8ef6f8..377eae1 100644
+--- a/ui/common.py
++++ b/ui/common.py
+@@ -69,20 +69,15 @@ CSS = """
+   .nh-avatar {display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px;
+     border-radius:999px; color:#FFFFFF; font-weight:700; font-size:.85rem; margin-right:8px;
+     vertical-align:middle; flex:none;}
+-  /* impact card: strongest element after the grid (violet-50, violet left border) */
+-  div[data-testid="stVerticalBlockBorderWrapper"]:has(.nh-marker-impact) {background:#F5F3FF;
+-    border-left:4px solid #6D28D9;}
+-  /* agent plan card: white, violet left border */
+-  div[data-testid="stVerticalBlockBorderWrapper"]:has(.nh-marker-plan) {background:#FFFFFF;
+-    border-left:4px solid #6D28D9;}
+-  /* phone-width offer cards, centered */
+-  div[data-testid="stVerticalBlockBorderWrapper"]:has(.nh-marker-offer) {max-width:560px;
+-    margin-left:auto; margin-right:auto; background:#FFFFFF;}
+-  /* agent trace timeline inside the expander */
+-  .nh-timeline {border-left:2px solid #E2E8F0; margin:.4rem 0 .4rem 6px; padding-left:0;}
+-  .nh-timeline-item {position:relative; padding:2px 0 10px 18px; font-size:.9rem;}
+-  .nh-timeline-item::before {content:""; position:absolute; left:-6px; top:8px; width:10px; height:10px;
+-    border-radius:999px; background:#6D28D9;}
++  /* keyed containers: st.container(key="nh-...") gets the class st-key-nh-... */
++  .st-key-nh-impact {background:#F5F3FF; border-left:4px solid #6D28D9 !important;}
++  .st-key-nh-plan {background:#FFFFFF; border-left:4px solid #6D28D9 !important;}
++  div[class*="st-key-nh-offer-"] {max-width:560px; margin-left:auto; margin-right:auto; background:#FFFFFF;}
++  /* agent trace as a timeline inside the expander */
++  .st-key-nh-timeline {border-left:2px solid #E2E8F0; margin:.4rem 0 .4rem 6px; padding-left:18px; gap:.5rem;}
++  .st-key-nh-timeline [data-testid="stMarkdown"] {position:relative; font-size:.9rem;}
++  .st-key-nh-timeline [data-testid="stMarkdown"]::before {content:""; position:absolute; left:-24px; top:7px;
++    width:10px; height:10px; border-radius:999px; background:#6D28D9;}
+ </style>
+ """
+ 
+diff --git a/views/offers.py b/views/offers.py
+index 8d920b1..3ab4232 100644
+--- a/views/offers.py
++++ b/views/offers.py
+@@ -21,8 +21,7 @@ if not pending:
+ for o in pending:
+     biz = businesses[o.business_id]
+     facts = offers.offer_facts(o, p, biz, db.bookings(), mine)
+-    with st.container(border=True):
+-        st.markdown('<span class="nh-marker-offer"></span>', unsafe_allow_html=True)
++    with st.container(border=True, key=f"nh-offer-{o.id}"):
+         st.markdown(md(f"### {biz.name}\n{facts['distance_miles']} mi away"))
+         st.markdown(md(f"## You'd earn {facts['total_pay']}"))
+         st.caption(md(f"for {facts['total_hours']:g} hours at {money(o.rate_cents)}/h"))
+diff --git a/views/planner.py b/views/planner.py
+index 4f52263..303a44e 100644
+--- a/views/planner.py
++++ b/views/planner.py
+@@ -175,8 +175,7 @@ if projected is not view or sent:
+     a_gaps, a_h = len(projected["gaps"]), gap_hours(slots, projected["gaps"])
+     b_cost, a_cost = base["bill"]["total_cents"], projected["bill"]["total_cents"]
+     booked = sum(1 for s in projected["status"].values() if s == "accepted")
+-    with st.container(border=True):
+-        st.markdown('<span class="nh-marker-impact"></span>', unsafe_allow_html=True)
++    with st.container(border=True, key="nh-impact"):
+         st.markdown("**Impact** · " + ("if you send these offers" if projected is not view
+                                          else f"{booked} booked, {len(projected['status']) - booked} waiting"))
+         i1, i2, i3, i4 = st.columns(4)
+@@ -227,8 +226,7 @@ if view["gaps"] and not state.get("plan"):
+ # ---------------------------------------------------------------- the agent's proposal
+ plan = state.get("plan")
+ if plan:
+-    with st.container(border=True):
+-        st.markdown('<span class="nh-marker-plan"></span>', unsafe_allow_html=True)
++    with st.container(border=True, key="nh-plan"):
+         st.markdown(md(f"**Proposed plan** · adds **{plan['added_cost']}** "
+                        f"({plan['added_wages']} wages + {plan['booking_fees']} booking fees) · "
+                        f"week total {plan['week_total']}"))
+@@ -250,9 +248,9 @@ if plan:
+             st.caption(plan["note"])
+         if state.get("trace"):
+             with st.expander("How the agent got here"):
+-                st.markdown('<div class="nh-timeline">' + "".join(
+-                    f'<div class="nh-timeline-item">{md(line)}</div>' for line in state["trace"]
+-                ) + "</div>", unsafe_allow_html=True)
++                with st.container(key="nh-timeline"):
++                    for line in state["trace"]:
++                        st.markdown(md(line))
+         a, b = st.columns(2)
+         if a.button("Send offers", type="primary", width="stretch"):
+             n = send_offers(biz, state, pts)

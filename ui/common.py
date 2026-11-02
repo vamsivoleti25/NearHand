@@ -69,20 +69,15 @@ CSS = """
   .nh-avatar {display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px;
     border-radius:999px; color:#FFFFFF; font-weight:700; font-size:.85rem; margin-right:8px;
     vertical-align:middle; flex:none;}
-  /* impact card: strongest element after the grid (violet-50, violet left border) */
-  div[data-testid="stVerticalBlockBorderWrapper"]:has(.nh-marker-impact) {background:#F5F3FF;
-    border-left:4px solid #6D28D9;}
-  /* agent plan card: white, violet left border */
-  div[data-testid="stVerticalBlockBorderWrapper"]:has(.nh-marker-plan) {background:#FFFFFF;
-    border-left:4px solid #6D28D9;}
-  /* phone-width offer cards, centered */
-  div[data-testid="stVerticalBlockBorderWrapper"]:has(.nh-marker-offer) {max-width:560px;
-    margin-left:auto; margin-right:auto; background:#FFFFFF;}
-  /* agent trace timeline inside the expander */
-  .nh-timeline {border-left:2px solid #E2E8F0; margin:.4rem 0 .4rem 6px; padding-left:0;}
-  .nh-timeline-item {position:relative; padding:2px 0 10px 18px; font-size:.9rem;}
-  .nh-timeline-item::before {content:""; position:absolute; left:-6px; top:8px; width:10px; height:10px;
-    border-radius:999px; background:#6D28D9;}
+  /* keyed containers: st.container(key="nh-...") gets the class st-key-nh-... */
+  .st-key-nh-impact {background:#F5F3FF; border-left:4px solid #6D28D9 !important;}
+  .st-key-nh-plan {background:#FFFFFF; border-left:4px solid #6D28D9 !important;}
+  div[class*="st-key-nh-offer-"] {max-width:560px; margin-left:auto; margin-right:auto; background:#FFFFFF;}
+  /* agent trace as a timeline inside the expander */
+  .st-key-nh-timeline {border-left:2px solid #E2E8F0; margin:.4rem 0 .4rem 6px; padding-left:18px; gap:.5rem;}
+  .st-key-nh-timeline [data-testid="stMarkdown"] {position:relative; font-size:.9rem;}
+  .st-key-nh-timeline [data-testid="stMarkdown"]::before {content:""; position:absolute; left:-24px; top:7px;
+    width:10px; height:10px; border-radius:999px; background:#6D28D9;}
 </style>
 """
 
