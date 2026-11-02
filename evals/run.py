@@ -6,9 +6,12 @@
     python -m evals.run --provider meta          # Muse Spark on Meta's API, for comparison
     python -m evals.run --suite agent --only biz_bean-normal
     python -m evals.run --fresh                  # ignore cached answers and call the model again
+    python -m evals.run --note "agent quotes coverage counts"   # label this run in the history
 
-Results go to evals/results/<suite>_<provider>.json (commit them: the Evals tab reads them).
-Model answers are cached in evals/.cache, so a re-run costs nothing unless you pass --fresh.
+Results go to evals/results/<suite>_<provider>.json (commit them: the Evals tab reads them), and every run
+that calls the model adds a summary line to evals/results/history.jsonl.
+Model answers are cached in evals/.cache, so a re-run costs nothing unless you pass --fresh; a re-run served
+entirely from the cache keeps the cost and timings of the run that made those calls.
 """
 
 from __future__ import annotations
@@ -45,6 +48,7 @@ def main():
     ap.add_argument("--workers", type=int, default=3, help="parallel calls for rules and advice")
     ap.add_argument("--scenarios", type=int, default=5, help="agent scenarios per business")
     ap.add_argument("--fresh", action="store_true", help="clear the eval cache first")
+    ap.add_argument("--note", default="", help="what changed since the last run, for the history")
     args = ap.parse_args()
 
     cache = HERE / ".cache" / args.provider
@@ -68,7 +72,19 @@ def main():
                    run_at=time.strftime("%Y-%m-%d %H:%M"), seconds=round(time.time() - t0, 1),
                    cost_usd=cost, model_calls=calls, partial=bool(args.only))
         path = RESULTS / f"{name}_{args.provider}{'_partial' if args.only else ''}.json"
+        if calls == 0 and path.exists():   # all answers from the cache: keep the real cost and timings
+            prev = json.loads(path.read_text())
+            if prev.get("model_calls"):
+                secs = {c["id"]: c.get("seconds") for c in prev["cases"]}
+                for c in out["cases"]:
+                    c["seconds"] = secs.get(c["id"], c.get("seconds"))
+                out["summary"]["avg_seconds"] = prev["summary"].get("avg_seconds")
+                out.update({k: prev[k] for k in ("run_at", "seconds", "cost_usd", "model_calls")})
         path.write_text(json.dumps(out, indent=1, default=str))
+        if calls and not args.only:
+            with open(RESULTS / "history.jsonl", "a") as f:
+                f.write(json.dumps({k: out[k] for k in ("suite", "provider", "model", "run_at", "cost_usd",
+                                                         "model_calls", "summary")} | {"note": args.note}) + "\n")
         print(f"-- {name}: " + ", ".join(f"{k} {v}" for k, v in out["summary"].items()))
         print(f"   {calls} model calls, ${cost:.4f}, {out['seconds']}s -> {path.relative_to(llm.ROOT)}")
 

@@ -1,0 +1,1059 @@
+{
+ "cases": [
+  {
+   "tp": 5,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "unavailable",
+     "employee_id": "emp_maya",
+     "days": [
+      "Tue"
+     ],
+     "start": null,
+     "end": null
+    },
+    {
+     "type": "max_hours",
+     "employee_id": null,
+     "role": "barista",
+     "hours": 32.0
+    },
+    {
+     "type": "require_skill",
+     "skill": "keyholder",
+     "at": "open",
+     "days": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+     ],
+     "at_least": 1
+    },
+    {
+     "type": "require_skill",
+     "skill": "keyholder",
+     "at": "close",
+     "days": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+     ],
+     "at_least": 1
+    },
+    {
+     "type": "min_rest",
+     "hours": 10.0
+    }
+   ],
+   "questions": [],
+   "id": "r01",
+   "business_id": "biz_bean",
+   "text": "@Maya off Tuesdays, baristas max 32h, a keyholder at every open and close, 10 hours between shifts",
+   "gold": [
+    {
+     "type": "unavailable",
+     "employee_id": "emp_maya",
+     "days": [
+      "Tue"
+     ]
+    },
+    {
+     "type": "max_hours",
+     "role": "barista",
+     "hours": 32
+    },
+    {
+     "type": "require_skill",
+     "skill": "keyholder",
+     "at": "open"
+    },
+    {
+     "type": "require_skill",
+     "skill": "keyholder",
+     "at": "close"
+    },
+    {
+     "type": "min_rest",
+     "hours": 10
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.02,
+   "note": ""
+  },
+  {
+   "tp": 2,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "unavailable",
+     "employee_id": "emp_leo",
+     "days": [
+      "Sat",
+      "Sun"
+     ],
+     "start": "07:00",
+     "end": "17:00"
+    },
+    {
+     "type": "unavailable",
+     "employee_id": "emp_leo",
+     "days": [
+      "Sat"
+     ],
+     "start": "07:00",
+     "end": "17:00"
+    },
+    {
+     "type": "unavailable",
+     "employee_id": "emp_leo",
+     "days": [
+      "Sun"
+     ],
+     "start": "07:00",
+     "end": "17:00"
+    }
+   ],
+   "questions": [],
+   "id": "r02",
+   "business_id": "biz_bean",
+   "text": "@Leo can't work weekends",
+   "gold": [
+    {
+     "type": "unavailable",
+     "employee_id": "emp_leo",
+     "days": [
+      "Sat",
+      "Sun"
+     ]
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.02,
+   "note": ""
+  },
+  {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "unavailable",
+     "employee_id": "emp_kai",
+     "days": [
+      "Fri"
+     ],
+     "start": "12:00",
+     "end": "18:00"
+    }
+   ],
+   "questions": [],
+   "id": "r03",
+   "business_id": "biz_bean",
+   "text": "Kai is off Friday afternoons, from noon",
+   "gold": [
+    {
+     "type": "unavailable",
+     "employee_id": "emp_kai",
+     "days": [
+      "Fri"
+     ],
+     "start": "12:00"
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.02,
+   "note": ""
+  },
+  {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "max_hours",
+     "employee_id": null,
+     "role": null,
+     "hours": 35.0
+    }
+   ],
+   "questions": [],
+   "id": "r04",
+   "business_id": "biz_bean",
+   "text": "Nobody works more than 35 hours this week",
+   "gold": [
+    {
+     "type": "max_hours",
+     "hours": 35
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "fixed_assignment",
+     "employee_id": "emp_ana",
+     "day": "Sat",
+     "start": "07:00",
+     "end": "13:00"
+    }
+   ],
+   "questions": [],
+   "id": "r05",
+   "business_id": "biz_bean",
+   "text": "Put @Ana on Saturday 7am to 1pm",
+   "gold": [
+    {
+     "type": "fixed_assignment",
+     "employee_id": "emp_ana",
+     "day": "Sat",
+     "start": "07:00",
+     "end": "13:00"
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": true,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "budget_cap",
+     "dollars": 9000.0
+    }
+   ],
+   "questions": [
+    "Does the $9,000 labor cap apply per-week for this schedule? Please confirm timeframe."
+   ],
+   "id": "r06",
+   "business_id": "biz_bean",
+   "text": "Keep total labor under $9,000",
+   "gold": [
+    {
+     "type": "budget_cap",
+     "dollars": 9000
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "prefer",
+     "employee_id": "emp_elena",
+     "days": [
+      "Mon"
+     ],
+     "kind": "avoid",
+     "weight": 3
+    }
+   ],
+   "questions": [],
+   "id": "r07",
+   "business_id": "biz_bean",
+   "text": "Elena would rather not work Mondays",
+   "gold": [
+    {
+     "type": "prefer",
+     "employee_id": "emp_elena",
+     "days": [
+      "Mon"
+     ],
+     "kind": "avoid"
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "prefer",
+     "employee_id": "emp_nia",
+     "days": [
+      "Sat"
+     ],
+     "kind": "prefer",
+     "weight": 1
+    }
+   ],
+   "questions": [],
+   "id": "r08",
+   "business_id": "biz_bean",
+   "text": "Give Nia Saturdays if you can, she asked for more hours",
+   "gold": [
+    {
+     "type": "prefer",
+     "employee_id": "emp_nia",
+     "days": [
+      "Sat"
+     ],
+     "kind": "prefer"
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "min_rest",
+     "hours": 8.0
+    }
+   ],
+   "questions": [],
+   "id": "r09",
+   "business_id": "biz_bean",
+   "text": "at least 8 hours rest between shifts",
+   "gold": [
+    {
+     "type": "min_rest",
+     "hours": 8
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "require_skill",
+     "skill": "keyholder",
+     "at": "close",
+     "days": [
+      "Fri",
+      "Sat"
+     ],
+     "at_least": 2
+    }
+   ],
+   "questions": [],
+   "id": "r10",
+   "business_id": "biz_bean",
+   "text": "two keyholders at close on Friday and Saturday",
+   "gold": [
+    {
+     "type": "require_skill",
+     "skill": "keyholder",
+     "at": "close",
+     "days": [
+      "Fri",
+      "Sat"
+     ],
+     "at_least": 2
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 2,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "max_hours",
+     "employee_id": "emp_sam",
+     "role": null,
+     "hours": 15.0
+    },
+    {
+     "type": "max_hours",
+     "employee_id": "emp_mei",
+     "role": null,
+     "hours": 20.0
+    }
+   ],
+   "questions": [],
+   "id": "r11",
+   "business_id": "biz_bean",
+   "text": "Sam max 15 hours, Mei max 20",
+   "gold": [
+    {
+     "type": "max_hours",
+     "employee_id": "emp_sam",
+     "hours": 15
+    },
+    {
+     "type": "max_hours",
+     "employee_id": "emp_mei",
+     "hours": 20
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 3,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "unavailable",
+     "employee_id": "emp_diego",
+     "days": [
+      "Wed",
+      "Thu"
+     ],
+     "start": null,
+     "end": null
+    },
+    {
+     "type": "max_hours",
+     "employee_id": null,
+     "role": "cashier",
+     "hours": 30.0
+    }
+   ],
+   "questions": [],
+   "id": "r12",
+   "business_id": "biz_bean",
+   "text": "Diego is out Wednesday and Thursday for a family thing. Cashiers no more than 30 hours.",
+   "gold": [
+    {
+     "type": "unavailable",
+     "employee_id": "emp_diego",
+     "days": [
+      "Wed",
+      "Thu"
+     ]
+    },
+    {
+     "type": "max_hours",
+     "role": "cashier",
+     "hours": 30
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 0,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": true,
+   "pass": true,
+   "predicted": [],
+   "questions": [
+    "'@Alex is off Sunday' refers to 'Alex' who is not found in the provided team list - please clarify the full name or employee_id for this employee"
+   ],
+   "id": "r13",
+   "business_id": "biz_bean",
+   "text": "@Alex is off Sunday",
+   "gold": [],
+   "expect_question": true,
+   "seconds": 0.01,
+   "note": "Alex is not on the team: no rule, ask who this is"
+  },
+  {
+   "tp": 2,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": true,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "unavailable",
+     "employee_id": "emp_chris",
+     "days": [
+      "Thu"
+     ],
+     "start": null,
+     "end": null
+    },
+    {
+     "type": "prefer",
+     "employee_id": "emp_chris",
+     "days": [
+      "Sat"
+     ],
+     "kind": "avoid",
+     "weight": 7
+    }
+   ],
+   "questions": [
+    "'shouldn\u2019t close on Saturday' captured as a soft preference to avoid a closing shift on Sat \u2013 confirm if this should be a hard unavailable for the closing period instead, and what start time counts as 'close' given Sat hours are 07:00-17:00"
+   ],
+   "id": "r14",
+   "business_id": "biz_bean",
+   "text": "Chris needs Thursday off and shouldn't close on Saturday",
+   "gold": [
+    {
+     "type": "unavailable",
+     "employee_id": "emp_chris",
+     "days": [
+      "Thu"
+     ]
+    },
+    {
+     "type": "unavailable",
+     "employee_id": "emp_chris",
+     "days": [
+      "Sat"
+     ],
+     "start": "12:00"
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": "'shouldn't close' can be the second half of Saturday off, a soft 'avoid Saturday', or a question"
+  },
+  {
+   "tp": 0,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": true,
+   "pass": true,
+   "predicted": [],
+   "questions": [
+    "'keep Maya\\'s hours down' for Maya Patel (emp_maya) is vague - what weekly max_hours cap should apply? Please specify e.g. 'max 20h/week'."
+   ],
+   "id": "r15",
+   "business_id": "biz_bean",
+   "text": "keep Maya's hours down",
+   "gold": [],
+   "expect_question": true,
+   "seconds": 0.01,
+   "note": "no number given: ask how many hours"
+  },
+  {
+   "tp": 9,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "require_skill",
+     "skill": "food_safety_manager",
+     "at": "all_shifts",
+     "days": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+     ],
+     "at_least": 1
+    },
+    {
+     "type": "require_skill",
+     "skill": "keyholder",
+     "at": "open",
+     "days": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+     ],
+     "at_least": 1
+    },
+    {
+     "type": "require_skill",
+     "skill": "keyholder",
+     "at": "close",
+     "days": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+     ],
+     "at_least": 1
+    },
+    {
+     "type": "unavailable",
+     "employee_id": "emp_ivy",
+     "days": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri"
+     ],
+     "start": null,
+     "end": null
+    },
+    {
+     "type": "max_hours",
+     "employee_id": null,
+     "role": "server",
+     "hours": 30.0
+    }
+   ],
+   "questions": [],
+   "id": "r16",
+   "business_id": "biz_maple",
+   "text": "a food safety manager on every shift, keyholder at open and close, @Ivy only weekends, servers max 30 hours",
+   "gold": [
+    {
+     "type": "require_skill",
+     "skill": "food_safety_manager",
+     "at": "all_shifts"
+    },
+    {
+     "type": "require_skill",
+     "skill": "keyholder",
+     "at": "open"
+    },
+    {
+     "type": "require_skill",
+     "skill": "keyholder",
+     "at": "close"
+    },
+    {
+     "type": "unavailable",
+     "employee_id": "emp_ivy",
+     "days": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri"
+     ]
+    },
+    {
+     "type": "max_hours",
+     "role": "server",
+     "hours": 30
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 2,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "unavailable",
+     "employee_id": "emp_malik",
+     "days": [
+      "Sun"
+     ],
+     "start": "11:00",
+     "end": "22:00"
+    },
+    {
+     "type": "unavailable",
+     "employee_id": "emp_malik",
+     "days": [
+      "Mon"
+     ],
+     "start": "11:00",
+     "end": "22:00"
+    }
+   ],
+   "questions": [],
+   "id": "r17",
+   "business_id": "biz_maple",
+   "text": "Malik can't do Sunday or Monday",
+   "gold": [
+    {
+     "type": "unavailable",
+     "employee_id": "emp_malik",
+     "days": [
+      "Sun",
+      "Mon"
+     ]
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "unavailable",
+     "employee_id": "emp_rosa",
+     "days": [
+      "Fri"
+     ],
+     "start": "17:00",
+     "end": "23:00"
+    }
+   ],
+   "questions": [],
+   "id": "r18",
+   "business_id": "biz_maple",
+   "text": "Rosa is off Friday night from 5pm",
+   "gold": [
+    {
+     "type": "unavailable",
+     "employee_id": "emp_rosa",
+     "days": [
+      "Fri"
+     ],
+     "start": "17:00"
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "fixed_assignment",
+     "employee_id": "emp_zoe",
+     "day": "Sat",
+     "start": "16:00",
+     "end": "23:00"
+    }
+   ],
+   "questions": [],
+   "id": "r19",
+   "business_id": "biz_maple",
+   "text": "@Zoe works Saturday 4pm to 11pm",
+   "gold": [
+    {
+     "type": "fixed_assignment",
+     "employee_id": "emp_zoe",
+     "day": "Sat",
+     "start": "16:00",
+     "end": "23:00"
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 2,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": true,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "max_hours",
+     "employee_id": null,
+     "role": "line_cook",
+     "hours": 36.0
+    },
+    {
+     "type": "min_rest",
+     "hours": 12.0
+    }
+   ],
+   "questions": [
+    "Does the '12 hours between shifts' rule apply to all employees or only to line cooks?"
+   ],
+   "id": "r20",
+   "business_id": "biz_maple",
+   "text": "line cooks max 36 hours, and 12 hours between shifts",
+   "gold": [
+    {
+     "type": "max_hours",
+     "role": "line_cook",
+     "hours": 36
+    },
+    {
+     "type": "min_rest",
+     "hours": 12
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "budget_cap",
+     "dollars": 6500.0
+    }
+   ],
+   "questions": [],
+   "id": "r21",
+   "business_id": "biz_maple",
+   "text": "Budget is $6,500 for the week",
+   "gold": [
+    {
+     "type": "budget_cap",
+     "dollars": 6500
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 5,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "prefer",
+     "employee_id": "emp_grace",
+     "days": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri"
+     ],
+     "kind": "prefer",
+     "weight": 3
+    }
+   ],
+   "questions": [],
+   "id": "r22",
+   "business_id": "biz_maple",
+   "text": "Grace prefers weekdays",
+   "gold": [
+    {
+     "type": "prefer",
+     "employee_id": "emp_grace",
+     "days": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri"
+     ],
+     "kind": "prefer"
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 2,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "max_hours",
+     "employee_id": "emp_hana",
+     "role": null,
+     "hours": 24.0
+    },
+    {
+     "type": "unavailable",
+     "employee_id": "emp_hana",
+     "days": [
+      "Tue"
+     ],
+     "start": null,
+     "end": null
+    }
+   ],
+   "questions": [],
+   "id": "r23",
+   "business_id": "biz_maple",
+   "text": "Hana max 24 hours, and she's off Tuesday",
+   "gold": [
+    {
+     "type": "max_hours",
+     "employee_id": "emp_hana",
+     "hours": 24
+    },
+    {
+     "type": "unavailable",
+     "employee_id": "emp_hana",
+     "days": [
+      "Tue"
+     ]
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": false,
+   "pass": true,
+   "predicted": [
+    {
+     "type": "require_skill",
+     "skill": "alcohol_service",
+     "at": "all_shifts",
+     "days": [
+      "Fri",
+      "Sat"
+     ],
+     "at_least": 1
+    }
+   ],
+   "questions": [],
+   "id": "r24",
+   "business_id": "biz_maple",
+   "text": "someone with alcohol service on every shift Friday and Saturday",
+   "gold": [
+    {
+     "type": "require_skill",
+     "skill": "alcohol_service",
+     "at": "all_shifts",
+     "days": [
+      "Fri",
+      "Sat"
+     ]
+    }
+   ],
+   "expect_question": false,
+   "seconds": 0.01,
+   "note": ""
+  },
+  {
+   "tp": 0,
+   "fp": 0,
+   "fn": 0,
+   "exact": true,
+   "asked": true,
+   "pass": true,
+   "predicted": [],
+   "questions": [
+    "@Ben (emp_ben) is marked 'off' but no days/times specified - which days and hours should Ben be unavailable?"
+   ],
+   "id": "r25",
+   "business_id": "biz_maple",
+   "text": "@Ben is off",
+   "gold": [],
+   "expect_question": true,
+   "seconds": 0.01,
+   "note": "no day given: ask which day"
+  }
+ ],
+ "summary": {
+  "cases": 25,
+  "pass_rate": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "asked_when_unclear": 1.0,
+  "invented_rules_on_unclear": 0,
+  "avg_seconds": null
+ },
+ "suite": "rules",
+ "provider": "baseten",
+ "model": "meta-models/muse-spark-open-1026",
+ "run_at": "2026-11-01 20:40",
+ "seconds": 0.1,
+ "cost_usd": 0.0836,
+ "model_calls": 28,
+ "partial": false
+}

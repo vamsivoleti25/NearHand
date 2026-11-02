@@ -119,7 +119,12 @@ class FillSession:
                 "added_cost": _money(added), "added_cost_note": "added_cost = added_wages + booking_fees",
                 "week_total": _money(r["bill"]["total_cents"]),
                 "remaining_gaps": [self.alias_of.get(sid, sid) for sid in r["gaps"]],
-                "remaining_gap_hours": self._gap_hours(r)}
+                "remaining_gap_hours": self._gap_hours(r),
+                # counts the explanation needs, so the model quotes them instead of doing arithmetic
+                "gaps_total": len(self.gap_alias),
+                "gaps_filled": len(self.gap_alias) - len(r["gaps"]),
+                "gap_hours_total": self._gap_hours(self.staff_result),
+                "covered_gap_hours": self._gap_hours(self.staff_result) - self._gap_hours(r)}
 
     # ---------------------------------------------------------------- tools
 
@@ -259,7 +264,9 @@ How to work:
 
 Write for the owner: people's first names and plain job names ("shift lead", "dishwasher", "drive-thru"),
 never ids like emp_ana, pt_080 or dishwasher_busser, and days and times as written ("Sat 7am-12pm" is fine).
-Rules: every number you write must come from a tool result. Never invent names, rates or totals.
+Rules: every number you write must be copied from a tool result. Never invent names, rates or totals, and never
+do arithmetic yourself: no sums, differences, counts or ranges ("2-6 miles") you worked out. For how much got
+covered, quote gaps_filled, gaps_total, covered_gap_hours and remaining_gap_hours from the latest result.
 Never judge people on anything except role, skills, availability, rate and distance."""
 
 TOOLS = [

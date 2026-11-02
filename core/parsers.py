@@ -10,7 +10,7 @@ import json
 from core import llm
 from core.schemas import (
     Business, ConstraintSet, Employee, PartTimerProfile, SearchFilter, StaffingBlock, StaffingGrid,
-    TeamParse,
+    TeamParse, Unavailable,
 )
 from core.taxonomy import DAYS, ROLE_REQUIRED_SKILLS, ROLES, SKILLS, TEMPLATES, from_q, roles_for, to_q
 
@@ -153,8 +153,34 @@ def parse_rules(text: str, employees: list[Employee], business: Business | None 
             out.ambiguities.append(f"Rule mentions unknown employee '{eid}'; who is this?")
             continue
         kept.append(c)
-    out.constraints = kept
+    out.constraints = tidy_constraints(kept, business)
     return out
+
+
+def tidy_constraints(constraints: list, business: Business | None) -> list:
+    """Merge time-off rules that say the same thing: 'Sat 07:00-17:00' on a day open 07:00-17:00 is the whole
+    day; 'Sat+Sun' and 'Sat' and 'Sun' together are one rule. Other constraints pass through, deduplicated."""
+    hours = business.hours if business else {}
+    whole: dict[str, set] = {}
+    partial, other, seen = [], [], set()
+    for c in constraints:
+        if c.type != "unavailable":
+            key = c.model_dump_json()
+            if key not in seen:
+                seen.add(key)
+                other.append(c)
+            continue
+        for d in c.days:
+            o, z = (to_q(hours[d][0]), to_q(hours[d][1])) if d in hours else (0, 96)
+            if (c.start is None or to_q(c.start) <= o) and (c.end is None or to_q(c.end) >= z):
+                whole.setdefault(c.employee_id, set()).add(d)
+            else:
+                partial.append((c.employee_id, d, c.start, c.end))
+    out = [Unavailable(employee_id=e, days=sorted(ds, key=DAYS.index)) for e, ds in whole.items()]
+    for e, d, s, z in dict.fromkeys(partial):
+        if d not in whole.get(e, set()):
+            out.append(Unavailable(employee_id=e, days=[d], start=s, end=z))
+    return out + other
 
 
 # ---------------------------------------------------------------- 4. work history -> part-timer profile

@@ -78,3 +78,22 @@ def test_advice_suite_cases_and_scoring(monkeypatch):
     monkeypatch.setattr(offers.llm, "call_json", fake)
     s = h.run_advice(workers=1, progress=lambda *a: None)["summary"]
     assert s["accuracy"] == 1.0 and s["unsafe_take_it"] == 0 and s["fell_back_to_template"] == 0
+
+
+def test_split_or_repeated_time_off_scores_as_the_same_rule():
+    gold = [{"type": "unavailable", "employee_id": "emp_leo", "days": ["Sat", "Sun"]}]
+    seen = [{"type": "unavailable", "employee_id": "emp_leo", "days": ["Sat", "Sun"], "start": "07:00", "end": "17:00"},
+            {"type": "unavailable", "employee_id": "emp_leo", "days": ["Sat"], "start": "07:00", "end": "17:00"},
+            {"type": "unavailable", "employee_id": "emp_leo", "days": ["Sun"]}]
+    assert h.match(seen, gold, BEAN)["exact"]
+
+
+def test_parser_tidies_time_off_into_one_rule_per_person():
+    from core.schemas import Unavailable
+    got = parsers.tidy_constraints([
+        Unavailable(employee_id="emp_leo", days=["Sat", "Sun"], start="07:00", end="17:00"),
+        Unavailable(employee_id="emp_leo", days=["Sat"]),
+        Unavailable(employee_id="emp_kai", days=["Fri"], start="12:00"),
+        Unavailable(employee_id="emp_kai", days=["Fri"], start="12:00")], BEAN)
+    assert [(c.employee_id, c.days, c.start) for c in got] == [("emp_leo", ["Sat", "Sun"], None),
+                                                              ("emp_kai", ["Fri"], "12:00")]

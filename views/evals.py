@@ -25,6 +25,10 @@ def pct(x):
     return "–" if x is None else f"{x:.0%}"
 
 
+def num(x, fmt=".1f"):
+    return "–" if x is None else format(x, fmt)
+
+
 def load() -> dict:
     out: dict = {}
     for p in sorted(RESULTS.glob("*.json")) if RESULTS.exists() else []:
@@ -45,7 +49,7 @@ else:
 
     def stamp(r):
         st.caption(md(f"{r['model']} · run {r['run_at']} · {r['model_calls']} model calls · "
-                      f"${r['cost_usd']:.2f} · {r['seconds']:.0f}s"))
+                      f"${r['cost_usd']:.2f}"))
 
     # ------------------------------------------------------------ rules
     if r := res.get("rules"):
@@ -60,7 +64,7 @@ else:
                         f"recall {s['recall']:.2f}, counted constraint by constraint")
             c[2].metric("Asked when unclear", pct(s["asked_when_unclear"]),
                         help="Rules that can't be turned into numbers should come back as a question")
-            c[3].metric("Seconds per rule set", f"{s['avg_seconds']:.1f}")
+            c[3].metric("Seconds per rule set", num(s["avg_seconds"]))
             with st.expander("Every case"):
                 st.dataframe(pd.DataFrame([{
                     "": "✓" if x["pass"] else "✗", "Rules": x["text"], "Missed": x["fn"], "Extra": x["fp"],
@@ -83,19 +87,19 @@ else:
                         help="Covered as many hours, at no more than 1% extra cost")
             c[1].metric("Hours covered", pct(s["coverage_agent"]),
                         help=f"The optimizer covers {pct(s['coverage_optimizer'])} of open hours")
-            c[2].metric("Extra hours left open", f"{s['extra_open_hours_vs_optimizer']:+g} h",
+            c[2].metric("Extra hours left open", num(s["extra_open_hours_vs_optimizer"], "+g") + " h",
                         help="Average per week. When both cover the same hours, the agent costs "
                         + ("–" if s["avg_extra_cost_same_coverage"] is None
                            else f"${s['avg_extra_cost_same_coverage']:,.2f} more on average"))
             c[3].metric("Explanations checked", pct(s["grounded"]),
                         help="Every number in the agent's explanation found in a tool result")
             c = st.columns(4)
-            c[0].metric("Turns per plan", f"{s['avg_turns']:.1f}" if s["avg_turns"] else "–")
+            c[0].metric("Turns per plan", num(s["avg_turns"]))
             c[1].metric("Widened the search", pct(s["widened_search"]),
                         help="Searched past the default 5 miles when shifts were still open")
             c[2].metric("Tried a what-if", pct(s["used_what_if"]),
                         help=f"Needed the fixed fallback sequence: {pct(s['fallback'])}")
-            c[3].metric("Seconds per plan", f"{s['avg_seconds']:.0f}")
+            c[3].metric("Seconds per plan", num(s["avg_seconds"], ".0f"))
 
             def week(x):
                 name = x["business_id"].removeprefix("biz_").capitalize()
@@ -150,6 +154,22 @@ else:
                     "Expected": x["expected"], "Got": x["got"], "Decided by": x["decided_by"],
                     "Reasons": " ".join(x["reasons"])} for x in r["cases"]]), hide_index=True, width="stretch")
             stamp(r)
+
+    # ------------------------------------------------------------ history
+    hist_path = RESULTS / "history.jsonl"
+    hist = [json.loads(x) for x in hist_path.read_text().splitlines() if x.strip()] if hist_path.exists() else []
+    hist = [h for h in hist if h["provider"] == who]
+    if len(hist) > 1:
+        HEADLINE = {"rules": ("Rules read exactly right", "pass_rate"),
+                    "agent": ("Explanations checked", "grounded"),
+                    "advice": ("Right call", "accuracy")}
+        st.subheader("How it improved")
+        st.caption("Each run of the evals, newest first. The note says what changed before that run.")
+        st.dataframe(pd.DataFrame([{
+            "Run": h["run_at"], "Suite": h["suite"], "What changed": h.get("note") or "–",
+            "Headline": f"{HEADLINE[h['suite']][0]}: {pct(h['summary'].get(HEADLINE[h['suite']][1]))}",
+            "Agent matched optimizer": pct(h["summary"].get("matches_optimizer")) if h["suite"] == "agent" else "",
+            "Cost": f"${h['cost_usd']:.2f}"} for h in reversed(hist)]), hide_index=True, width="stretch")
 
     # ------------------------------------------------------------ comparison
     if len(runs) > 1:

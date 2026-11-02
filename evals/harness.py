@@ -86,9 +86,26 @@ def canon(c: dict, business: Business) -> tuple:
     return (t, json.dumps(c, sort_keys=True))
 
 
+def atoms(cs: list, business: Business) -> Counter:
+    """Time off and preferences split into one atom per day, and repeats count once: 'Sat+Sun' equals
+    'Sat' plus 'Sun'. Everything else is counted as written."""
+    out: Counter = Counter()
+    seen = set()
+    for c in cs:
+        c = c if isinstance(c, dict) else c.model_dump()
+        if c["type"] in ("unavailable", "prefer"):
+            for d in c["days"]:
+                k = canon(dict(c, days=[d]), business)
+                if k not in seen:
+                    seen.add(k)
+                    out[k] += 1
+        else:
+            out[canon(c, business)] += 1
+    return out
+
+
 def match(pred: list, gold: list, business: Business) -> dict:
-    p = Counter(canon(c, business) for c in pred)
-    g = Counter(canon(c, business) for c in gold)
+    p, g = atoms(pred, business), atoms(gold, business)
     tp = sum((p & g).values())
     return {"tp": tp, "fp": sum(p.values()) - tp, "fn": sum(g.values()) - tp, "exact": p == g}
 
@@ -120,6 +137,7 @@ def run_rules(provider=None, workers: int = 3, only: list[str] | None = None, pr
             res = {"tp": 0, "fp": 0, "fn": len(case["gold"]), "exact": False, "asked": False, "pass": False,
                    "predicted": [], "questions": [], "error": str(e)[:300]}
         res.update(id=case["id"], business_id=case["business_id"], text=case["text"], gold=case["gold"],
+                   note=case.get("note", ""),
                    expect_question=bool(case.get("expect_question")), seconds=round(time.perf_counter() - t0, 2))
         progress(f"  {case['id']} {'pass' if res['pass'] else 'FAIL'}  {case['text'][:60]}")
         return res
@@ -223,6 +241,7 @@ def run_agent(provider=None, n_per_business: int = 5, workers: int = 1, only: li
             "matches_oracle": (plan["remaining_gap_hours"] <= best["remaining_gap_hours"] + 1e-9
                                and added <= best["added_cents"] / 100 * 1.01 + 0.01),
             "grounded": bool(plan.get("grounded")), "fallback": plan.get("turns") is None,
+            "ungrounded_numbers": plan.get("ungrounded_numbers", []),
             "hours_left_vs_oracle": round(plan["remaining_gap_hours"] - best["remaining_gap_hours"], 2),
             "widest_search_miles": widest,
             "turns": plan.get("turns"), "tools": [n for n, _ in steps],

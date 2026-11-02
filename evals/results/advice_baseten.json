@@ -1,0 +1,291 @@
+{
+ "cases": [
+  {
+   "id": "eval-fits-pt_001",
+   "kind": "fits",
+   "expected": "take it",
+   "got": "take it",
+   "correct": true,
+   "decided_by": "model",
+   "reasons": [
+    "You're free Mon 05:30-09:30 with no clashes",
+    "It's $23.50 which meets your asking rate for $94.00 total",
+    "It's 3.4 miles away and keeps you at 4.0 hours within your 16.0 max"
+   ],
+   "seconds": 0.01
+  },
+  {
+   "id": "eval-fits-pt_003",
+   "kind": "fits",
+   "expected": "take it",
+   "got": "take it",
+   "correct": true,
+   "decided_by": "model",
+   "reasons": [
+    "You're free for Mon 15:00-19:00 with no clashes",
+    "It pays $19.25 which meets your asking $19.25 for $77.00 total",
+    "It's 4.8 miles away and keeps you at 4.0 hours for the week under your 24.0 max"
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "eval-fits-pt_005",
+   "kind": "fits",
+   "expected": "take it",
+   "got": "take it",
+   "correct": true,
+   "decided_by": "model",
+   "reasons": [
+    "You're free then with no clashes on Mon 06:00-10:00",
+    "It meets your $18.50 asking rate for $74.00 total pay",
+    "It's 3.3 miles away and keeps you at 4.0 hours of your 24.0 max"
+   ],
+   "seconds": 0.01
+  },
+  {
+   "id": "eval-fits-pt_006",
+   "kind": "fits",
+   "expected": "take it",
+   "got": "take it",
+   "correct": true,
+   "decided_by": "model",
+   "reasons": [
+    "You're free at Mon 15:00-19:00 with no clashes",
+    "It's 0.6 miles away and pays $20.00 which matches your $20.00 asking rate for $80.00",
+    "It's 4.0 hours keeping you at 4.0 hours for the week within your 20.0 max"
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "eval-clash-pt_001",
+   "kind": "clash",
+   "expected": "pass",
+   "got": "pass",
+   "correct": true,
+   "decided_by": "code",
+   "reasons": [
+    "It clashes with something you're already committed to: Mon 09:30-13:30."
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "eval-clash-pt_003",
+   "kind": "clash",
+   "expected": "pass",
+   "got": "pass",
+   "correct": true,
+   "decided_by": "code",
+   "reasons": [
+    "It clashes with something you're already committed to: Tue 18:30-22:30."
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "eval-clash-pt_005",
+   "kind": "clash",
+   "expected": "pass",
+   "got": "pass",
+   "correct": true,
+   "decided_by": "code",
+   "reasons": [
+    "It clashes with something you're already committed to: Sat 07:30-11:30."
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "eval-clash-pt_006",
+   "kind": "clash",
+   "expected": "pass",
+   "got": "pass",
+   "correct": true,
+   "decided_by": "code",
+   "reasons": [
+    "It clashes with something you're already committed to: Tue 16:30-20:30."
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "eval-outside_availability-pt_001",
+   "kind": "outside_availability",
+   "expected": "worth a look",
+   "got": "worth a look",
+   "correct": true,
+   "decided_by": "code",
+   "reasons": [
+    "It's outside your stated availability for Sat 11:00-15:00",
+    "It pays $23.50 which meets your asking rate of $23.50 for $94.00 total",
+    "It's 3.4 miles away, 4.0 hours and you'd be at 4.0 of your 16.0 weekly max with no clashes"
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "eval-outside_availability-pt_005",
+   "kind": "outside_availability",
+   "expected": "worth a look",
+   "got": "worth a look",
+   "correct": true,
+   "decided_by": "code",
+   "reasons": [
+    "It's outside your stated availability for Wed 11:00-15:00",
+    "It pays $18.50 matching your asking rate of $18.50 for 4.0 hours totaling $74.00",
+    "You have no clashes and you'd be at 4.0 hours of your 24.0 weekly max, and it's 3.3 miles away"
+   ],
+   "seconds": 0.02
+  },
+  {
+   "id": "eval-outside_availability-pt_012",
+   "kind": "outside_availability",
+   "expected": "worth a look",
+   "got": "worth a look",
+   "correct": true,
+   "decided_by": "code",
+   "reasons": [
+    "It's outside your stated availability at Sat 07:00-11:00",
+    "It pays your asking rate of $18.50 for $74.00 total",
+    "It's 0.9 miles away and keeps you at 4.0 hours for the week under your 16.0 max"
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "eval-outside_availability-pt_014",
+   "kind": "outside_availability",
+   "expected": "worth a look",
+   "got": "worth a look",
+   "correct": true,
+   "decided_by": "code",
+   "reasons": [
+    "It's outside your stated availability on Sat 07:00-11:00",
+    "You're offered $22.00 matching your asking rate for $88.00 total pay",
+    "You'd be at 4.0 hours after accepting, under your 30.0 weekly max with no clashes"
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "eval-over_max-pt_001",
+   "kind": "over_max",
+   "expected": "worth a look",
+   "got": "worth a look",
+   "correct": true,
+   "decided_by": "code",
+   "reasons": [
+    "It pays $23.50 which matches your asking rate of $23.50",
+    "It's 3.4 miles away with no clashes",
+    "You'd be at 20.0 hours for $470.00, which is over your weekly max of 16.0"
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "eval-over_max-pt_003",
+   "kind": "over_max",
+   "expected": "worth a look",
+   "got": "worth a look",
+   "correct": true,
+   "decided_by": "code",
+   "reasons": [
+    "You're free then with no clashes and nothing outside your stated availability",
+    "It pays $19.25 which matches your asking rate of $19.25 for $539.00 total pay and it's 4.8 miles away",
+    "You'd be at 28.0 hours which is over your 24.0 weekly max, so weigh if you want the extra hours"
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "eval-over_max-pt_005",
+   "kind": "over_max",
+   "expected": "worth a look",
+   "got": "worth a look",
+   "correct": true,
+   "decided_by": "code",
+   "reasons": [
+    "You're free then with no clashes and it stays inside your stated availability",
+    "It pays $18.50 which meets your asking rate of $18.50 for $518.00 total",
+    "It's 28.0 hours total putting you at 28.0 hours after accepting which is over your weekly max of 24.0 and it is 3.3 miles away"
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "eval-over_max-pt_006",
+   "kind": "over_max",
+   "expected": "worth a look",
+   "got": "worth a look",
+   "correct": true,
+   "decided_by": "code",
+   "reasons": [
+    "It pays $20.00 which meets your $20.00 asking rate and is 0.6 miles away with no clashes",
+    "It puts you at 24.0 hours, over your 20.0 weekly max of 20.0 hours"
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "eval-below_asking-pt_001",
+   "kind": "below_asking",
+   "expected": "worth a look",
+   "got": "worth a look",
+   "correct": true,
+   "decided_by": "model",
+   "reasons": [
+    "It's $22.00 an hour, below your $23.50 asking rate for $88.00 total",
+    "You're free then with no clashes and it's 3.4 miles away",
+    "It's 4.0 hours, keeping you at 4.0 hours of your 16.0 weekly max"
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "eval-below_asking-pt_003",
+   "kind": "below_asking",
+   "expected": "worth a look",
+   "got": "worth a look",
+   "correct": true,
+   "decided_by": "model",
+   "reasons": [
+    "You're free then with no clashes and it's inside your 24.0 hour weekly max at 4.0 hours total",
+    "It pays $17.75 per hour which is below your asking rate of $19.25 for $71.00 total",
+    "It's 4.8 miles away for the Mon 15:00-19:00 barista shift"
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "eval-below_asking-pt_005",
+   "kind": "below_asking",
+   "expected": "worth a look",
+   "got": "worth a look",
+   "correct": true,
+   "decided_by": "model",
+   "reasons": [
+    "You're offered $17.00 vs your $18.50 asking rate \u2014 $68.00 total for 4.0 hours",
+    "You're free Mon 06:00-10:00 with no clashes and you'd stay within your 24.0 weekly max at 4.0 hours",
+    "It's 3.3 miles away and you have 0.0 hours booked this week"
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "eval-below_asking-pt_006",
+   "kind": "below_asking",
+   "expected": "worth a look",
+   "got": "worth a look",
+   "correct": true,
+   "decided_by": "model",
+   "reasons": [
+    "It's $18.50 offered vs your $20.00 asking rate for 4.0 hours totaling $74.00",
+    "You're free then with no clashes and it's 0.6 miles away",
+    "You'd be at 4.0 hours after accepting within your 20.0 max"
+   ],
+   "seconds": 0.0
+  }
+ ],
+ "summary": {
+  "cases": 20,
+  "accuracy": 1.0,
+  "model_decided_accuracy": 1.0,
+  "fell_back_to_template": 0.0,
+  "unsafe_take_it": 0,
+  "avg_seconds": null
+ },
+ "suite": "advice",
+ "provider": "baseten",
+ "model": "meta-models/muse-spark-open-1026",
+ "run_at": "2026-11-01 20:40",
+ "seconds": 0.0,
+ "cost_usd": 0.0859,
+ "model_calls": 17,
+ "partial": false
+}
