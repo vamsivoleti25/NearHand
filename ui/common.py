@@ -163,6 +163,11 @@ CSS = """
   [data-testid="stElementContainer"]:has(.nh-home-section:empty) {display:none;}
   .st-key-nh-home-numbers, .st-key-nh-home-doors, .st-key-nh-home-steps, .st-key-nh-home-under,
   .st-key-nh-home-close {margin-top:3.5rem;}
+  /* pictures are part of the page, not something to open full screen */
+  [data-testid="stElementContainer"]:has([data-testid="stImage"]) [data-testid="stElementToolbar"] {display:none !important;}
+  [data-testid="stImage"] img {border-radius:14px;}
+  /* pictures in a row of cards share one frame shape, so the text under them starts level */
+  [class*="st-key-nh-card-"] [data-testid="stImage"] img {aspect-ratio:3/2; object-fit:cover; width:100%;}
 </style>
 """
 

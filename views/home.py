@@ -31,7 +31,7 @@ def _results(name: str):
 
 # ---------------------------------------------------------------- hero
 with st.container(key="nh-home-hero"):
-    left, right = st.columns([1.1, 1], gap="large")
+    left, right = st.columns([1.1, 1], gap="large", vertical_alignment="center")
     with left:
         st.markdown('<div class="nh-home-eyebrow">Scheduling + a neighborhood part-timer network</div>',
                     unsafe_allow_html=True)

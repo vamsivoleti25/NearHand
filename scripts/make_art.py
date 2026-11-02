@@ -59,6 +59,23 @@ SIZES = {"wide": [{"size": "1536x1024"}, {"extra_body": {"aspect_ratio": "16:9"}
          "square": [{"size": "1024x1024"}, {"extra_body": {"aspect_ratio": "1:1"}}, {}]}
 
 
+def trim(png: bytes, pad: int = 6) -> bytes:
+    """Crop the empty white margin the model sometimes leaves around a scene, so it fills its space."""
+    import io
+    import numpy as np
+    from PIL import Image
+    im = Image.open(io.BytesIO(png)).convert("RGB")
+    ink = np.asarray(im).min(axis=2) < 235
+    rows, cols = np.where(ink.mean(axis=1) > 0.02)[0], np.where(ink.mean(axis=0) > 0.02)[0]
+    if not len(rows) or not len(cols):
+        return png
+    box = (max(0, cols[0] - pad), max(0, rows[0] - pad), min(im.width, cols[-1] + pad + 1),
+           min(im.height, rows[-1] + pad + 1))
+    out = io.BytesIO()
+    im.crop(box).save(out, "PNG")
+    return out.getvalue()
+
+
 def generate(c, prompt: str, shape: str) -> bytes:
     last = None
     for extra in SIZES[shape]:
@@ -78,7 +95,13 @@ def main():
     ap.add_argument("--only", choices=sorted(set(ART) | set(PHOTOS)))
     ap.add_argument("--photo", action="store_true", help="photo-style pictures")
     ap.add_argument("--comic", action="store_true", help="comic-style pictures (the site look)")
+    ap.add_argument("--trim", action="store_true", help="just crop white margins off the existing pictures")
     args = ap.parse_args()
+    if args.trim:
+        for f in sorted((ASSETS / "home").glob("*.png")):
+            f.write_bytes(trim(f.read_bytes()))
+            print(f"trimmed {f.name}")
+        return
     out = ASSETS / "home"
     out.mkdir(parents=True, exist_ok=True)
     c = client()
@@ -89,7 +112,7 @@ def main():
             continue
         print(f"{name}: generating…", flush=True)
         try:
-            (out / f"{name}.png").write_bytes(generate(c, f"{scene} {style}", shape))
+            (out / f"{name}.png").write_bytes(trim(generate(c, f"{scene} {style}", shape)))
             print(f"  saved assets/home/{name}.png")
         except Exception as e:
             print(f"  failed: {str(e)[:400]}")
