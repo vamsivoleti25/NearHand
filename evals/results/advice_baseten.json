@@ -8,11 +8,11 @@
    "correct": true,
    "decided_by": "model",
    "reasons": [
-    "You're free Mon 05:30-09:30 with no clashes",
-    "It's $23.50 which meets your asking rate for $94.00 total",
-    "It's 3.4 miles away and keeps you at 4.0 hours within your 16.0 max"
+    "You're free for Mon 05:30-09:30 with no clashes",
+    "It pays $23.50 which meets your asking rate of $23.50 for $94.00 total",
+    "It's 3.4 miles away and at 4.0 hours keeps you within your 16.0 hour weekly max"
    ],
-   "seconds": 0.01
+   "seconds": 2.23
   },
   {
    "id": "eval-fits-pt_003",
@@ -22,11 +22,11 @@
    "correct": true,
    "decided_by": "model",
    "reasons": [
-    "You're free for Mon 15:00-19:00 with no clashes",
-    "It pays $19.25 which meets your asking $19.25 for $77.00 total",
+    "You're free Mon 15:00-19:00 with no clashes and it's inside your stated availability",
+    "It pays $19.25 which matches your asking rate for $77.00 total",
     "It's 4.8 miles away and keeps you at 4.0 hours for the week under your 24.0 max"
    ],
-   "seconds": 0.0
+   "seconds": 3.81
   },
   {
    "id": "eval-fits-pt_005",
@@ -36,11 +36,11 @@
    "correct": true,
    "decided_by": "model",
    "reasons": [
-    "You're free then with no clashes on Mon 06:00-10:00",
-    "It meets your $18.50 asking rate for $74.00 total pay",
-    "It's 3.3 miles away and keeps you at 4.0 hours of your 24.0 max"
+    "You're free then with 0 clashes and 0 overlaps",
+    "It pays $18.50 meeting your $18.50 asking rate for $74.00 total",
+    "It's 3.3 miles away and keeps you at 4.0 hours for the week under your 24.0 max"
    ],
-   "seconds": 0.01
+   "seconds": 3.02
   },
   {
    "id": "eval-fits-pt_006",
@@ -50,11 +50,11 @@
    "correct": true,
    "decided_by": "model",
    "reasons": [
-    "You're free at Mon 15:00-19:00 with no clashes",
-    "It's 0.6 miles away and pays $20.00 which matches your $20.00 asking rate for $80.00",
-    "It's 4.0 hours keeping you at 4.0 hours for the week within your 20.0 max"
+    "You're free on Mon 15:00-19:00 with no clashes",
+    "It's 0.6 miles away and pays $20.00 which meets your asking rate of $20.00 for $80.00 total",
+    "It's 4.0 hours and keeps you at 4.0 hours for the week under your 20.0 max"
    ],
-   "seconds": 0.0
+   "seconds": 2.89
   },
   {
    "id": "eval-clash-pt_001",
@@ -113,10 +113,10 @@
    "decided_by": "code",
    "reasons": [
     "It's outside your stated availability for Sat 11:00-15:00",
-    "It pays $23.50 which meets your asking rate of $23.50 for $94.00 total",
-    "It's 3.4 miles away, 4.0 hours and you'd be at 4.0 of your 16.0 weekly max with no clashes"
+    "It meets your asking rate of $23.50 for $94.00 total",
+    "You'd be at 4.0 hours of your 16.0 weekly max with 3.4 miles distance"
    ],
-   "seconds": 0.0
+   "seconds": 4.49
   },
   {
    "id": "eval-outside_availability-pt_005",
@@ -126,11 +126,11 @@
    "correct": true,
    "decided_by": "code",
    "reasons": [
-    "It's outside your stated availability for Wed 11:00-15:00",
-    "It pays $18.50 matching your asking rate of $18.50 for 4.0 hours totaling $74.00",
-    "You have no clashes and you'd be at 4.0 hours of your 24.0 weekly max, and it's 3.3 miles away"
+    "It's outside your stated availability on Wed 11:00-15:00, so check if that time works for you.",
+    "It meets your asking rate of $18.50 for 4.0 hours totaling $74.00 and is 3.3 miles away.",
+    "You have no clashes and you'd be at 4.0 hours for the week under your 24.0 max."
    ],
-   "seconds": 0.02
+   "seconds": 3.11
   },
   {
    "id": "eval-outside_availability-pt_012",
@@ -140,11 +140,11 @@
    "correct": true,
    "decided_by": "code",
    "reasons": [
-    "It's outside your stated availability at Sat 07:00-11:00",
-    "It pays your asking rate of $18.50 for $74.00 total",
-    "It's 0.9 miles away and keeps you at 4.0 hours for the week under your 16.0 max"
+    "It's outside your stated availability on Sat 07:00-11:00",
+    "You're free then with no clashes",
+    "It pays $18.50 meeting your asking rate and is 0.9 miles away for 4.0 hours, keeping you within your 16.0 weekly max at $74.00 total pay"
    ],
-   "seconds": 0.0
+   "seconds": 3.28
   },
   {
    "id": "eval-outside_availability-pt_014",
@@ -154,11 +154,11 @@
    "correct": true,
    "decided_by": "code",
    "reasons": [
-    "It's outside your stated availability on Sat 07:00-11:00",
-    "You're offered $22.00 matching your asking rate for $88.00 total pay",
-    "You'd be at 4.0 hours after accepting, under your 30.0 weekly max with no clashes"
+    "It's outside your stated availability on Sat 07:00-11:00.",
+    "It pays $22.00 which meets your asking rate of $22.00.",
+    "It's 4.8 miles away and at 4.0 hours you'd be at 4.0 hours for the week under your 30.0 hour max."
    ],
-   "seconds": 0.0
+   "seconds": 3.44
   },
   {
    "id": "eval-over_max-pt_001",
@@ -168,11 +168,11 @@
    "correct": true,
    "decided_by": "code",
    "reasons": [
-    "It pays $23.50 which matches your asking rate of $23.50",
-    "It's 3.4 miles away with no clashes",
-    "You'd be at 20.0 hours for $470.00, which is over your weekly max of 16.0"
+    "You're free then with 0 clashes and no shifts outside your availability",
+    "It pays $23.50 which meets your $23.50 asking rate for $470.00 total",
+    "But it's 20.0 hours total which puts you over your 16.0 weekly max from 0.0 hours booked"
    ],
-   "seconds": 0.0
+   "seconds": 1.95
   },
   {
    "id": "eval-over_max-pt_003",
@@ -182,11 +182,11 @@
    "correct": true,
    "decided_by": "code",
    "reasons": [
-    "You're free then with no clashes and nothing outside your stated availability",
-    "It pays $19.25 which matches your asking rate of $19.25 for $539.00 total pay and it's 4.8 miles away",
-    "You'd be at 28.0 hours which is over your 24.0 weekly max, so weigh if you want the extra hours"
+    "You're free then with no clashes and no shifts outside your stated availability.",
+    "It pays $19.25 which meets your asking rate of $19.25 for $539.00 total.",
+    "But at 28.0 hours it puts you over your weekly max of 24.0 hours."
    ],
-   "seconds": 0.0
+   "seconds": 2.48
   },
   {
    "id": "eval-over_max-pt_005",
@@ -196,11 +196,11 @@
    "correct": true,
    "decided_by": "code",
    "reasons": [
-    "You're free then with no clashes and it stays inside your stated availability",
-    "It pays $18.50 which meets your asking rate of $18.50 for $518.00 total",
-    "It's 28.0 hours total putting you at 28.0 hours after accepting which is over your weekly max of 24.0 and it is 3.3 miles away"
+    "It pays $18.50 which meets your asking rate of $18.50 and you're free then with 0 clashes",
+    "It's for 28.0 hours total which would put you at 28.0 hours for the week",
+    "That's over your weekly max of 24.0 hours to weigh"
    ],
-   "seconds": 0.0
+   "seconds": 3.08
   },
   {
    "id": "eval-over_max-pt_006",
@@ -210,10 +210,11 @@
    "correct": true,
    "decided_by": "code",
    "reasons": [
-    "It pays $20.00 which meets your $20.00 asking rate and is 0.6 miles away with no clashes",
-    "It puts you at 24.0 hours, over your 20.0 weekly max of 20.0 hours"
+    "You're free then with no clashes and it pays your asking rate of $20.00",
+    "It's 0.6 miles away",
+    "It would put you at 24.0 hours for the week, over your weekly max of 20.0 hours"
    ],
-   "seconds": 0.0
+   "seconds": 8.9
   },
   {
    "id": "eval-below_asking-pt_001",
@@ -223,11 +224,11 @@
    "correct": true,
    "decided_by": "model",
    "reasons": [
-    "It's $22.00 an hour, below your $23.50 asking rate for $88.00 total",
-    "You're free then with no clashes and it's 3.4 miles away",
-    "It's 4.0 hours, keeping you at 4.0 hours of your 16.0 weekly max"
+    "You're free Mon 05:30-09:30 with no clashes.",
+    "It's offered at $22.00 which is below your asking $23.50 for $88.00 total.",
+    "It's 3.4 miles away and keeps you at 4.0 hours of your 16.0 weekly max."
    ],
-   "seconds": 0.0
+   "seconds": 2.62
   },
   {
    "id": "eval-below_asking-pt_003",
@@ -237,11 +238,11 @@
    "correct": true,
    "decided_by": "model",
    "reasons": [
-    "You're free then with no clashes and it's inside your 24.0 hour weekly max at 4.0 hours total",
-    "It pays $17.75 per hour which is below your asking rate of $19.25 for $71.00 total",
-    "It's 4.8 miles away for the Mon 15:00-19:00 barista shift"
+    "You're free then with no clashes for Mon 15:00-19:00",
+    "It pays $17.75 which is below your asking rate of $19.25 for $71.00 total for 4.0 hours",
+    "It's 4.8 miles away and keeps you at 4.0 hours for the week under your 24.0 max"
    ],
-   "seconds": 0.0
+   "seconds": 5.75
   },
   {
    "id": "eval-below_asking-pt_005",
@@ -251,11 +252,11 @@
    "correct": true,
    "decided_by": "model",
    "reasons": [
-    "You're offered $17.00 vs your $18.50 asking rate \u2014 $68.00 total for 4.0 hours",
-    "You're free Mon 06:00-10:00 with no clashes and you'd stay within your 24.0 weekly max at 4.0 hours",
-    "It's 3.3 miles away and you have 0.0 hours booked this week"
+    "You're free then with no clashes and it's inside your stated availability",
+    "It's 3.3 miles away and is 4.0 hours, keeping you at 4.0 hours of your 24.0 weekly max",
+    "Offered rate is $17.00 below your asking rate of $18.50 for $68.00 total pay"
    ],
-   "seconds": 0.0
+   "seconds": 5.67
   },
   {
    "id": "eval-below_asking-pt_006",
@@ -265,11 +266,11 @@
    "correct": true,
    "decided_by": "model",
    "reasons": [
-    "It's $18.50 offered vs your $20.00 asking rate for 4.0 hours totaling $74.00",
-    "You're free then with no clashes and it's 0.6 miles away",
-    "You'd be at 4.0 hours after accepting within your 20.0 max"
+    "You're free on Mon 15:00-19:00 with no clashes",
+    "It's 0.6 miles away and 4.0 hours",
+    "It pays $18.50 while you're asking $20.00 for $74.00 total"
    ],
-   "seconds": 0.0
+   "seconds": 4.66
   }
  ],
  "summary": {
@@ -278,14 +279,14 @@
   "model_decided_accuracy": 1.0,
   "fell_back_to_template": 0.0,
   "unsafe_take_it": 0,
-  "avg_seconds": null
+  "avg_seconds": 3.069
  },
  "suite": "advice",
  "provider": "baseten",
  "model": "meta-models/muse-spark-open-1026",
- "run_at": "2026-11-01 20:40",
- "seconds": 0.0,
- "cost_usd": 0.0859,
+ "run_at": "2026-11-02 11:33",
+ "seconds": 23.0,
+ "cost_usd": 0.075,
  "model_calls": 17,
  "partial": false
 }

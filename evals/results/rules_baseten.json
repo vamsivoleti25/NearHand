@@ -90,9 +90,9 @@
      "hours": 10
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.02,
-   "note": ""
+   "seconds": 4.85
   },
   {
    "tp": 2,
@@ -109,26 +109,8 @@
       "Sat",
       "Sun"
      ],
-     "start": "07:00",
-     "end": "17:00"
-    },
-    {
-     "type": "unavailable",
-     "employee_id": "emp_leo",
-     "days": [
-      "Sat"
-     ],
-     "start": "07:00",
-     "end": "17:00"
-    },
-    {
-     "type": "unavailable",
-     "employee_id": "emp_leo",
-     "days": [
-      "Sun"
-     ],
-     "start": "07:00",
-     "end": "17:00"
+     "start": null,
+     "end": null
     }
    ],
    "questions": [],
@@ -145,9 +127,9 @@
      ]
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.02,
-   "note": ""
+   "seconds": 2.73
   },
   {
    "tp": 1,
@@ -181,9 +163,9 @@
      "start": "12:00"
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.02,
-   "note": ""
+   "seconds": 2.87
   },
   {
    "tp": 1,
@@ -210,9 +192,9 @@
      "hours": 35
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 3.0
   },
   {
    "tp": 1,
@@ -243,16 +225,16 @@
      "end": "13:00"
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 2.59
   },
   {
    "tp": 1,
    "fp": 0,
    "fn": 0,
    "exact": true,
-   "asked": true,
+   "asked": false,
    "pass": true,
    "predicted": [
     {
@@ -260,9 +242,7 @@
      "dollars": 9000.0
     }
    ],
-   "questions": [
-    "Does the $9,000 labor cap apply per-week for this schedule? Please confirm timeframe."
-   ],
+   "questions": [],
    "id": "r06",
    "business_id": "biz_bean",
    "text": "Keep total labor under $9,000",
@@ -272,9 +252,9 @@
      "dollars": 9000
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 3.38
   },
   {
    "tp": 1,
@@ -291,7 +271,7 @@
       "Mon"
      ],
      "kind": "avoid",
-     "weight": 3
+     "weight": 1
     }
    ],
    "questions": [],
@@ -308,9 +288,9 @@
      "kind": "avoid"
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 2.79
   },
   {
    "tp": 1,
@@ -327,7 +307,7 @@
       "Sat"
      ],
      "kind": "prefer",
-     "weight": 1
+     "weight": 5
     }
    ],
    "questions": [],
@@ -344,9 +324,9 @@
      "kind": "prefer"
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 3.63
   },
   {
    "tp": 1,
@@ -371,9 +351,9 @@
      "hours": 8
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 3.75
   },
   {
    "tp": 1,
@@ -410,9 +390,9 @@
      "at_least": 2
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 2.03
   },
   {
    "tp": 2,
@@ -451,9 +431,9 @@
      "hours": 20
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 2.01
   },
   {
    "tp": 3,
@@ -499,9 +479,9 @@
      "hours": 30
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 7.12
   },
   {
    "tp": 0,
@@ -512,15 +492,15 @@
    "pass": true,
    "predicted": [],
    "questions": [
-    "'@Alex is off Sunday' refers to 'Alex' who is not found in the provided team list - please clarify the full name or employee_id for this employee"
+    "@Alex is not on the team list \u2014 which employee did you mean? No employee named Alex found, so Sunday off request could not be applied."
    ],
    "id": "r13",
    "business_id": "biz_bean",
    "text": "@Alex is off Sunday",
    "gold": [],
+   "note": "Alex is not on the team: no rule, ask who this is",
    "expect_question": true,
-   "seconds": 0.01,
-   "note": "Alex is not on the team: no rule, ask who this is"
+   "seconds": 2.35
   },
   {
    "tp": 2,
@@ -546,11 +526,11 @@
       "Sat"
      ],
      "kind": "avoid",
-     "weight": 7
+     "weight": 1
     }
    ],
    "questions": [
-    "'shouldn\u2019t close on Saturday' captured as a soft preference to avoid a closing shift on Sat \u2013 confirm if this should be a hard unavailable for the closing period instead, and what start time counts as 'close' given Sat hours are 07:00-17:00"
+    "Should 'shouldn't close on Saturday' be a hard unavailable for closing shifts or a preference to avoid? Interpreted as avoid preference."
    ],
    "id": "r14",
    "business_id": "biz_bean",
@@ -572,9 +552,9 @@
      "start": "12:00"
     }
    ],
+   "note": "'shouldn't close' can be the second half of Saturday off, a soft 'avoid Saturday', or a question",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": "'shouldn't close' can be the second half of Saturday off, a soft 'avoid Saturday', or a question"
+   "seconds": 4.37
   },
   {
    "tp": 0,
@@ -585,15 +565,15 @@
    "pass": true,
    "predicted": [],
    "questions": [
-    "'keep Maya\\'s hours down' for Maya Patel (emp_maya) is vague - what weekly max_hours cap should apply? Please specify e.g. 'max 20h/week'."
+    "Rule 'keep Maya's hours down' is vague - what maximum hours per week should apply to Maya Patel (emp_maya)? Please specify a number (e.g., max 20h)."
    ],
    "id": "r15",
    "business_id": "biz_bean",
    "text": "keep Maya's hours down",
    "gold": [],
+   "note": "no number given: ask how many hours",
    "expect_question": true,
-   "seconds": 0.01,
-   "note": "no number given: ask how many hours"
+   "seconds": 1.91
   },
   {
    "tp": 9,
@@ -603,6 +583,19 @@
    "asked": false,
    "pass": true,
    "predicted": [
+    {
+     "type": "unavailable",
+     "employee_id": "emp_ivy",
+     "days": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri"
+     ],
+     "start": null,
+     "end": null
+    },
     {
      "type": "require_skill",
      "skill": "food_safety_manager",
@@ -649,19 +642,6 @@
      "at_least": 1
     },
     {
-     "type": "unavailable",
-     "employee_id": "emp_ivy",
-     "days": [
-      "Mon",
-      "Tue",
-      "Wed",
-      "Thu",
-      "Fri"
-     ],
-     "start": null,
-     "end": null
-    },
-    {
      "type": "max_hours",
      "employee_id": null,
      "role": "server",
@@ -705,9 +685,9 @@
      "hours": 30
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 3.36
   },
   {
    "tp": 2,
@@ -721,19 +701,11 @@
      "type": "unavailable",
      "employee_id": "emp_malik",
      "days": [
+      "Mon",
       "Sun"
      ],
-     "start": "11:00",
-     "end": "22:00"
-    },
-    {
-     "type": "unavailable",
-     "employee_id": "emp_malik",
-     "days": [
-      "Mon"
-     ],
-     "start": "11:00",
-     "end": "22:00"
+     "start": null,
+     "end": null
     }
    ],
    "questions": [],
@@ -750,9 +722,9 @@
      ]
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 2.84
   },
   {
    "tp": 1,
@@ -786,9 +758,9 @@
      "start": "17:00"
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 2.9
   },
   {
    "tp": 1,
@@ -819,9 +791,9 @@
      "end": "23:00"
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 2.29
   },
   {
    "tp": 2,
@@ -843,7 +815,7 @@
     }
    ],
    "questions": [
-    "Does the '12 hours between shifts' rule apply to all employees or only to line cooks?"
+    "Does the 12 hours between shifts apply to all employees or only line cooks? Applied to everyone - please confirm if it should be line_cooks only."
    ],
    "id": "r20",
    "business_id": "biz_maple",
@@ -859,9 +831,9 @@
      "hours": 12
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 4.21
   },
   {
    "tp": 1,
@@ -886,9 +858,9 @@
      "dollars": 6500
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 1.48
   },
   {
    "tp": 5,
@@ -930,9 +902,9 @@
      "kind": "prefer"
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 1.95
   },
   {
    "tp": 2,
@@ -943,12 +915,6 @@
    "pass": true,
    "predicted": [
     {
-     "type": "max_hours",
-     "employee_id": "emp_hana",
-     "role": null,
-     "hours": 24.0
-    },
-    {
      "type": "unavailable",
      "employee_id": "emp_hana",
      "days": [
@@ -956,6 +922,12 @@
      ],
      "start": null,
      "end": null
+    },
+    {
+     "type": "max_hours",
+     "employee_id": "emp_hana",
+     "role": null,
+     "hours": 24.0
     }
    ],
    "questions": [],
@@ -976,9 +948,9 @@
      ]
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 2.96
   },
   {
    "tp": 1,
@@ -1014,9 +986,9 @@
      ]
     }
    ],
+   "note": "",
    "expect_question": false,
-   "seconds": 0.01,
-   "note": ""
+   "seconds": 2.55
   },
   {
    "tp": 0,
@@ -1027,15 +999,15 @@
    "pass": true,
    "predicted": [],
    "questions": [
-    "@Ben (emp_ben) is marked 'off' but no days/times specified - which days and hours should Ben be unavailable?"
+    "Rule '@Ben is off' is incomplete - which days and/or times is Ben Taylor (emp_ben) unavailable?"
    ],
    "id": "r25",
    "business_id": "biz_maple",
    "text": "@Ben is off",
    "gold": [],
+   "note": "no day given: ask which day",
    "expect_question": true,
-   "seconds": 0.01,
-   "note": "no day given: ask which day"
+   "seconds": 2.21
   }
  ],
  "summary": {
@@ -1046,14 +1018,14 @@
   "f1": 1.0,
   "asked_when_unclear": 1.0,
   "invented_rules_on_unclear": 0,
-  "avg_seconds": null
+  "avg_seconds": 3.045
  },
  "suite": "rules",
  "provider": "baseten",
  "model": "meta-models/muse-spark-open-1026",
- "run_at": "2026-11-01 20:40",
- "seconds": 0.1,
- "cost_usd": 0.0836,
- "model_calls": 28,
+ "run_at": "2026-11-02 11:30",
+ "seconds": 25.8,
+ "cost_usd": 0.0714,
+ "model_calls": 26,
  "partial": false
 }
