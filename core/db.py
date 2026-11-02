@@ -11,7 +11,7 @@ import sqlite3
 from pathlib import Path
 
 from core import llm
-from core.schemas import Booking, Business, Employee, PartTimer, StaffingGrid
+from core.schemas import Booking, Business, Employee, Offer, PartTimer, StaffingGrid
 
 SEED_DIR = Path(__file__).resolve().parent.parent / "data" / "seed"
 
@@ -21,6 +21,8 @@ TABLES = {
     "part_timers": "id TEXT PRIMARY KEY, json TEXT",
     "bookings": "id TEXT PRIMARY KEY, part_timer_id TEXT, business_id TEXT, json TEXT",
     "grids": "business_id TEXT PRIMARY KEY, json TEXT",
+    "schedules": "business_id TEXT PRIMARY KEY, json TEXT",  # the planner's saved week (ui/common.py)
+    "offers": "id TEXT PRIMARY KEY, business_id TEXT, part_timer_id TEXT, status TEXT, json TEXT",
 }
 
 
@@ -136,3 +138,42 @@ def add_booking(b: Booking) -> None:
     with connect() as con:
         con.execute("INSERT INTO bookings VALUES (?, ?, ?, ?)",
                     (b.id, b.part_timer_id, b.business_id, b.model_dump_json()))
+
+
+# ---------------------------------------------------------------- the planner's saved week
+
+def schedule(business_id: str) -> dict:
+    with connect() as con:
+        row = con.execute("SELECT json FROM schedules WHERE business_id = ?", (business_id,)).fetchone()
+    return json.loads(row[0]) if row else {}
+
+
+def save_schedule(business_id: str, state: dict) -> None:
+    with connect() as con:
+        con.execute("INSERT OR REPLACE INTO schedules VALUES (?, ?)", (business_id, json.dumps(state, default=str)))
+
+
+# ---------------------------------------------------------------- offers
+
+def save_offer(o: Offer) -> None:
+    with connect() as con:
+        con.execute("INSERT OR REPLACE INTO offers VALUES (?, ?, ?, ?, ?)",
+                    (o.id, o.business_id, o.part_timer_id, o.status, o.model_dump_json()))
+
+
+def offers(business_id: str | None = None, part_timer_id: str | None = None, status: str | None = None) -> list[Offer]:
+    q, args = "SELECT json FROM offers WHERE 1=1", []
+    for col, val in (("business_id", business_id), ("part_timer_id", part_timer_id), ("status", status)):
+        if val:
+            q, args = q + f" AND {col} = ?", args + [val]
+    with connect() as con:
+        out = [Offer.model_validate_json(r[0]) for r in con.execute(q, args)]
+    return sorted(out, key=lambda o: o.created_ts)
+
+
+def offer(offer_id: str) -> Offer:
+    with connect() as con:
+        row = con.execute("SELECT json FROM offers WHERE id = ?", (offer_id,)).fetchone()
+    if not row:
+        raise KeyError(offer_id)
+    return Offer.model_validate_json(row[0])

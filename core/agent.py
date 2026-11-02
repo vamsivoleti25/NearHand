@@ -41,16 +41,21 @@ class FillSession:
 
     def __init__(self, business: Business, grid: StaffingGrid, employees: list[Employee],
                  constraints: ConstraintSet, part_timers: list[PartTimer], bookings: list[Booking],
-                 booking_fee_cents: int = BOOKING_FEE_CENTS):
+                 booking_fee_cents: int = BOOKING_FEE_CENTS, staff_result: dict | None = None,
+                 covered: dict[str, int] | None = None):
         self.business, self.part_timers, self.bookings = business, part_timers, bookings
         self.pt_by_id = {p.id: p for p in part_timers}
         self.fee = booking_fee_cents
         self.inp = build_inputs(business, grid, employees, constraints)
         self.staff = self.inp["workers"]
-        self.slots = self.inp["slots"]
+        # Shifts already covered by live offers are taken out (replacement rounds fill only what reopened).
+        covered = covered or {}
+        self.slots = [dict(s, need=s["need"] - covered.get(s["id"], 0)) for s in self.inp["slots"]
+                      if s["need"] - covered.get(s["id"], 0) > 0]
         self.slot_by_id = {s["id"]: s for s in self.slots}
         self.kw = {"min_rest_q": self.inp["min_rest_q"]}
-        self.staff_result = solve_staff_only(self.staff, self.slots, fixed=self.inp["fixed"], **self.kw)
+        # Reuse the schedule the manager is looking at, so the agent fills exactly those gaps.
+        self.staff_result = staff_result or solve_staff_only(self.staff, self.slots, fixed=self.inp["fixed"], **self.kw)
         gap_ids = sorted(self.staff_result["gaps"], key=lambda sid: (DAYS.index(self.slot_by_id[sid]["day"]),
                                                                       self.slot_by_id[sid]["start_q"]))
         self.gap_alias = {f"g{i + 1}": sid for i, sid in enumerate(gap_ids)}   # short ids for the model

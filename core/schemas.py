@@ -166,6 +166,34 @@ class Booking(BaseModel):
     rate_cents: int
 
 
+class OfferShift(BaseModel):
+    slot_id: str
+    day: Day
+    start: HHMM
+    end: HHMM
+    role: Role
+
+
+class Offer(BaseModel):
+    """One business offering one part-timer a bundle of shifts. Accepting books them all."""
+    id: str
+    business_id: str
+    part_timer_id: str
+    shifts: list[OfferShift]
+    rate_cents: int
+    status: Literal["pending", "accepted", "declined", "unavailable"] = "pending"
+    round: int = 1                # 1 = first plan; 2+ = replacement rounds after a decline
+    message: str = ""             # a short note from the business
+    created_ts: float = 0.0
+    responded_ts: float | None = None
+
+
+class Advice(BaseModel):
+    """Muse Spark Open's take on an offer, written from facts computed in code."""
+    recommendation: Literal["take it", "worth a look", "pass"]
+    reasons: list[str] = Field(description="2-3 short reasons, each grounded in the facts given", max_length=3)
+
+
 class SearchFilter(BaseModel):
     roles: list[Role] = []
     skills: list[Skill] = []

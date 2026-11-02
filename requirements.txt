@@ -6,3 +6,4 @@ python-dotenv
 pandas
 pytest
 numpy
+jinja2>=3.1.2
