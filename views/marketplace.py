@@ -36,9 +36,10 @@ st.markdown(f"**{len(results)} people** · cheapest first, then nearest")
 all_pts = {p.id: p for p in db.part_timers()}
 neighborhood_map(biz, [{"pt": all_pts[c["id"]], "kind": "candidate",
                         "info": f"{money(c['rate_cents'])}/h · {c['distance_miles']} mi"} for c in results])
-cols = st.columns(3)
-for i, c in enumerate(results):
-    with cols[i % 3].container(border=True):
+
+
+def _card(col, c):
+    with col.container(border=True, key=f"nh-card-mp-{c['id']}"):
         st.markdown(avatar(c["name"]) + md(f" **{c['name']}**"), unsafe_allow_html=True)
         st.markdown(md(f"<span class=\"nh-rate\">{money(c['rate_cents'])}/h</span> · "
                        f"{c['distance_miles']} mi away"), unsafe_allow_html=True)
@@ -50,4 +51,11 @@ for i, c in enumerate(results):
         if bio:
             with st.expander("In their words"):
                 st.markdown(md(bio))
+
+
+for row in range(0, len(results), 3):   # one row of three at a time, so cards in a row line up
+    with st.container(key=f"nh-cards-mp-{row}"):
+        cols = st.columns(3)
+    for col, c in zip(cols, results[row:row + 3]):
+        _card(col, c)
 footer()

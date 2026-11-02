@@ -46,18 +46,18 @@ with st.container(key="nh-auth"):
         side = st.session_state.get("signup_side")
         if side is None:
             st.markdown("Which describes you?")
-            a, b = st.columns(2)
-            with a.container(border=True, key="nh-auth-side-biz"):
+            with st.container(key="nh-cards-signup"):
+                a, b = st.columns(2)
+            with a.container(border=True, key="nh-card-signup-biz"):
                 st.markdown("**I run a business**")
-                st.caption("Café, restaurant, bakery, quick service or a shop. Schedule your team and fill "
-                           "open shifts from nearby.")
+                st.caption("Schedule your team, then fill open shifts with people from nearby.")
                 if st.button("I need staff", key="side_biz", type="primary", width="stretch"):
                     st.session_state.signup_side = "business"
                     st.rerun()
-            with b.container(border=True, key="nh-auth-side-pt"):
+            with b.container(border=True, key="nh-card-signup-pt"):
                 st.markdown("**I'm looking for shifts**")
-                st.caption("Pick up hourly shifts at places near you, at your rate, around your calendar.")
-                if st.button("I want shifts", key="side_pt", width="stretch"):
+                st.caption("Pick up hourly shifts near you, at your rate, around your calendar.")
+                if st.button("I want shifts", key="side_pt", type="primary", width="stretch"):
                     st.session_state.signup_side = "part_timer"
                     st.rerun()
 

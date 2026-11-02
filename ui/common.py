@@ -94,7 +94,7 @@ CSS = """
   .nh-home-steptitle {font-family:'Plus Jakarta Sans','Inter',sans-serif; font-weight:700; color:#0F172A;
     margin-bottom:.25rem;}
   .nh-home-under {color:#475569; font-size:.95rem; line-height:1.6;}
-  .st-key-nh-home-door-staff, .st-key-nh-home-door-shifts {background:#FFFFFF;}
+
   /* sign-in: one centered card, like a marketplace's log-in page */
   .st-key-nh-auth {max-width:480px; margin:2rem auto 0 auto; background:#FFFFFF; border:1px solid #E2E8F0;
     border-radius:12px; padding:1.6rem 1.6rem 1.2rem 1.6rem;}
@@ -105,6 +105,23 @@ CSS = """
   .st-key-nh-auth [data-testid="stNumberInputContainer"] {
     background:#FAF7F2 !important; border:1px solid #E2E8F0 !important;}
   .st-key-nh-auth input, .st-key-nh-auth textarea {background:transparent !important;}
+  /* Rows of cards share one height, with their last element (usually the button) on the bottom edge.
+     Wrap the columns in st.container(key="nh-cards-...") and give each card key="nh-card-...". */
+  [class*="st-key-nh-cards-"] [data-testid="stHorizontalBlock"] {align-items:stretch;}
+  [class*="st-key-nh-cards-"] [data-testid="stColumn"] > [data-testid="stVerticalBlock"] {height:100%;}
+  [data-testid="stLayoutWrapper"]:has(> [class*="st-key-nh-card-"]) {flex:1 1 auto; display:flex; flex-direction:column;}
+  [class*="st-key-nh-card-"] {flex:1 1 auto; background:#FFFFFF;}
+  [class*="st-key-nh-card-"] > :last-child {margin-top:auto;}
+  /* metric tiles in a row share one height too */
+  [data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) {align-items:stretch;}
+  [data-testid="stColumn"]:has([data-testid="stMetric"]) > [data-testid="stVerticalBlock"] {height:100%;}
+  [data-testid="stElementContainer"]:has(> [data-testid="stMetric"]) {flex:1 1 auto;}
+  div[data-testid="stMetric"] {height:100%; box-sizing:border-box;}
+  div[data-testid="stMetric"] label p, div[data-testid="stMetric"] label div {white-space:normal !important;
+    overflow:visible !important; text-overflow:clip !important;}
+  div[data-testid="stMetric"] {display:flex; flex-direction:column;}
+  div[data-testid="stMetric"] > div {flex:1 1 auto; display:flex; flex-direction:column;}
+  div[data-testid="stMetric"] [data-testid="stMetricValue"] {margin-top:auto;}   /* numbers line up across a row */
 </style>
 """
 

@@ -182,14 +182,15 @@ if projected is not view or sent:
     b_gaps, b_h = len(base["gaps"]), gap_hours(slots, base["gaps"])
     a_gaps, a_h = len(projected["gaps"]), gap_hours(slots, projected["gaps"])
     b_cost, a_cost = base["bill"]["total_cents"], projected["bill"]["total_cents"]
-    booked = sum(1 for s in projected["status"].values() if s == "accepted")
+    booked = sum(o.status == "accepted" for o in sent)          # part-timers and team members alike
+    waiting = sum(o.status == "pending" for o in sent)
     with st.container(border=True, key="nh-impact"):
         st.markdown("**Impact** · " + ("if you send these offers" if projected is not view
-                                         else f"{booked} booked, {len(projected['status']) - booked} waiting"))
+                                         else f"{booked} booked, {waiting} waiting"))
         i1, i2, i3, i4 = st.columns(4)
         i1.metric("Open shifts", a_gaps, a_gaps - b_gaps, delta_color="inverse",
                   help="Compared with your own staff only.")
-        i2.metric("Hours covered", f"{b_h - a_h:g} of {b_h:g}")
+        i2.metric("Hours covered", f"{b_h - a_h:g} of {b_h:g}", f"+{b_h - a_h:g} h")
         i3.metric("Coverage", f"{100 * (1 - a_h / need):.1f}%", f"{100 * (b_h - a_h) / need:+.1f} pts")
         i4.metric("Added to the week", money(a_cost - b_cost), f"{100 * (a_cost - b_cost) / b_cost:+.1f}% of labor",
                   delta_color="off")

@@ -43,10 +43,12 @@ with st.container(key="nh-home-hero"):
                     'their phone.</div>', unsafe_allow_html=True)
         hero_a, hero_b = st.columns(2)
         with hero_a:
-            if st.button("I need staff", type="primary", key="hero_staff", on_click=go, args=("Manager",)):
+            if st.button("I need staff", type="primary", key="hero_staff", on_click=go, args=("Manager",),
+                         width="stretch"):
                 st.switch_page("views/planner.py")
         with hero_b:
-            if st.button("I'm looking for shifts", key="hero_shifts", on_click=go, args=("Part-timer",)):
+            if st.button("I'm looking for shifts", key="hero_shifts", on_click=go, args=("Part-timer",),
+                         width="stretch"):
                 st.switch_page("views/offers.py")
     with right:
         if os.path.exists("assets/home/hero.png"):
@@ -57,11 +59,11 @@ with st.container(key="nh-home-numbers"):
     st.markdown('<div class="nh-home-section">', unsafe_allow_html=True)
     figures: list[tuple[str, str]] = []
     try:
-        figures.append((str(len(db.part_timers())), "part-timers in the demo network"))
+        figures.append((str(len(db.part_timers())), "part-timers nearby"))
     except Exception:  # noqa: BLE001
         pass
     try:
-        figures.append((str(len(TEMPLATES)), "business types supported"))
+        figures.append((str(len(TEMPLATES)), "business types"))
     except Exception:  # noqa: BLE001
         pass
     agent = _results("agent_baseten.json")
@@ -71,18 +73,18 @@ with st.container(key="nh-home-numbers"):
             scenarios = int(s["scenarios"])
             matched = int(round(float(s["matches_optimizer"]) * scenarios))
             figures.append((f"{matched} of {scenarios}",
-                            "test weeks covered as well as the optimizer"))
+                            "test weeks matched the optimizer"))
         except (KeyError, TypeError, ValueError):
             pass
         try:
             cost = float(agent["cost_usd"]) / int(s["scenarios"])
-            figures.append((f"${cost:.2f}", "eval cost per plan"))
+            figures.append((f"${cost:.2f}", "AI cost per plan"))
         except (KeyError, TypeError, ValueError, ZeroDivisionError):
             pass
     rules = _results("rules_baseten.json")
     if rules and isinstance(rules.get("summary"), dict):
         try:
-            figures.append((f"{float(rules['summary']['pass_rate']):.0%}", "rule sets read exactly right"))
+            figures.append((f"{float(rules['summary']['pass_rate']):.0%}", "rule sets read right"))
         except (KeyError, TypeError, ValueError):
             pass
     if figures:
@@ -96,32 +98,33 @@ with st.container(key="nh-home-numbers"):
 # ---------------------------------------------------------------- two doors
 with st.container(key="nh-home-doors"):
     st.markdown('<div class="nh-home-section">', unsafe_allow_html=True)
-    door_a, door_b = st.columns(2, gap="large")
+    with st.container(key="nh-cards-home"):
+        door_a, door_b = st.columns(2, gap="large")
     with door_a:
-        with st.container(border=True, key="nh-home-door-staff"):
+        with st.container(border=True, key="nh-card-home-staff"):
             if os.path.exists("assets/home/staff.png"):
                 st.markdown('<div class="nh-home-door-img">', unsafe_allow_html=True)
                 st.image("assets/home/staff.png")
                 st.markdown("</div>", unsafe_allow_html=True)
-            st.subheader("For owners and shift managers")
+            st.subheader("For businesses")
             st.markdown("- Write rules the way you say them\n"
                        "- Get the cheapest week that follows them\n"
-                       "- Fill open shifts with nearby, qualified people, with the cost shown "
-                       "before anything is sent")
+                       "- Fill open shifts nearby, with the cost shown before anything is sent")
             if st.button("Open the planner", type="primary", key="door_planner", on_click=go,
-                         args=("Manager",)):
+                         args=("Manager",), width="stretch"):
                 st.switch_page("views/planner.py")
     with door_b:
-        with st.container(border=True, key="nh-home-door-shifts"):
+        with st.container(border=True, key="nh-card-home-shifts"):
             if os.path.exists("assets/home/shifts.png"):
                 st.markdown('<div class="nh-home-door-img">', unsafe_allow_html=True)
                 st.image("assets/home/shifts.png")
                 st.markdown("</div>", unsafe_allow_html=True)
             st.subheader("For part-timers")
-            st.markdown("- Shifts from places down the street, with your rate and your calendar respected\n"
-                       "- One tap to accept, and an honest answer when you ask if a shift is worth it\n"
+            st.markdown("- Shifts down the street, at your rate, around your calendar\n"
+                       "- One tap to accept, and an honest answer on whether it's worth it\n"
                        "- Nothing is booked without your yes")
-            if st.button("See my offers", key="door_offers", on_click=go, args=("Part-timer",)):
+            if st.button("See my offers", type="primary", key="door_offers", on_click=go, args=("Part-timer",),
+                         width="stretch"):
                 st.switch_page("views/offers.py")
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -161,10 +164,12 @@ with st.container(key="nh-home-close"):
     st.markdown("Pick a door and try the demo on fictional data.")
     close_a, close_b = st.columns(2)
     with close_a:
-        if st.button("I need staff", type="primary", key="close_staff", on_click=go, args=("Manager",)):
+        if st.button("I need staff", type="primary", key="close_staff", on_click=go, args=("Manager",),
+                     width="stretch"):
             st.switch_page("views/planner.py")
     with close_b:
-        if st.button("I'm looking for shifts", key="close_shifts", on_click=go, args=("Part-timer",)):
+        if st.button("I'm looking for shifts", key="close_shifts", on_click=go, args=("Part-timer",),
+                     width="stretch"):
             st.switch_page("views/offers.py")
     st.markdown("</div>", unsafe_allow_html=True)
 
