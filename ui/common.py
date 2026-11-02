@@ -78,6 +78,33 @@ CSS = """
   .st-key-nh-timeline [data-testid="stMarkdown"] {position:relative; font-size:.9rem;}
   .st-key-nh-timeline [data-testid="stMarkdown"]::before {content:""; position:absolute; left:-24px; top:7px;
     width:10px; height:10px; border-radius:999px; background:#6D28D9;}
+  /* home page */
+  .st-key-nh-home-hero, .st-key-nh-home-numbers, .st-key-nh-home-doors, .st-key-nh-home-steps,
+  .st-key-nh-home-under, .st-key-nh-home-close {max-width:1100px; margin-left:auto; margin-right:auto;}
+  .nh-home-eyebrow {color:#6D28D9; font-weight:700; font-size:.85rem; margin-bottom:.4rem;}
+  .nh-home-h1 {font-family:'Plus Jakarta Sans','Inter',sans-serif; font-weight:700; font-size:3rem;
+    line-height:1.08; letter-spacing:-0.02em; color:#0F172A; margin:.2rem 0 .8rem 0;}
+  @media (max-width:640px) { .nh-home-h1 {font-size:2rem;} }
+  .nh-home-sub {color:#475569; font-size:1.08rem; line-height:1.55; max-width:38rem; margin-bottom:1.2rem;}
+  .nh-home-section {margin:3.5rem 0;}
+  .nh-home-caption {color:#475569; font-size:.85rem; margin-top:.4rem;}
+  .nh-home-door-img img {border-radius:12px 12px 0 0;}
+  .nh-home-stepnum {display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px;
+    border-radius:999px; background:#6D28D9; color:#FFFFFF; font-weight:700; font-size:.95rem; margin-bottom:.5rem;}
+  .nh-home-steptitle {font-family:'Plus Jakarta Sans','Inter',sans-serif; font-weight:700; color:#0F172A;
+    margin-bottom:.25rem;}
+  .nh-home-under {color:#475569; font-size:.95rem; line-height:1.6;}
+  .st-key-nh-home-door-staff, .st-key-nh-home-door-shifts {background:#FFFFFF;}
+  /* sign-in: one centered card, like a marketplace's log-in page */
+  .st-key-nh-auth {max-width:480px; margin:2rem auto 0 auto; background:#FFFFFF; border:1px solid #E2E8F0;
+    border-radius:12px; padding:1.6rem 1.6rem 1.2rem 1.6rem;}
+  .nh-auth-title {font-family:"Plus Jakarta Sans",sans-serif; font-weight:700; font-size:1.6rem; margin:.4rem 0 .6rem 0;}
+  .st-key-nh-who {background:#FFFFFF;}
+  .st-key-nh-auth [data-testid="stTextInputRootElement"], .st-key-nh-auth [data-testid="stTextAreaRootElement"],
+  .st-key-nh-auth [data-baseweb="select"], .st-key-nh-auth [data-baseweb="select"] > div,
+  .st-key-nh-auth [data-testid="stNumberInputContainer"] {
+    background:#FAF7F2 !important; border:1px solid #E2E8F0 !important;}
+  .st-key-nh-auth input, .st-key-nh-auth textarea {background:transparent !important;}
 </style>
 """
 
@@ -212,10 +239,14 @@ def save_state(business_id: str, s: dict) -> None:
 MP_SUFFIX = {"accepted": " ✓", "pending": " ⏳"}
 
 
-def schedule_frame(slots, assignments, gaps, workers, market_status: dict | None = None):
+def schedule_frame(slots, assignments, gaps, workers, market_status: dict | None = None,
+                   extra_cells: dict | None = None):
     """One row per person, one column per day, then one row per open shift. Returns a pandas Styler.
-    market_status: part-timer id -> "pending" (offer sent) or "accepted" (booked)."""
+    market_status: part-timer id -> "pending" (offer sent) or "accepted" (booked).
+    extra_cells: (employee id, slot id) -> "pending"/"accepted" for open shifts offered to the team."""
     market_status = market_status or {}
+    extra_cells = extra_cells or {}
+    amber: dict[tuple[str, str], str] = {}
     by_slot = {s["id"]: s for s in slots}
     names = {w["id"]: w["name"] for w in workers}
     hours = {}
@@ -225,6 +256,9 @@ def schedule_frame(slots, assignments, gaps, workers, market_status: dict | None
         label = names.get(wid, wid) + MP_SUFFIX.get(market_status.get(wid), "")
         rows.setdefault(label, {d: "" for d in DAYS})
         rows[label][s["day"]] = f"{hm(s['start_q'])}–{hm(s['end_q'])} {role(s['role'])}"
+        if (wid, sid) in extra_cells:
+            rows[label][s["day"]] += " · extra" + MP_SUFFIX[extra_cells[(wid, sid)]]
+            amber[(label, day_label(s["day"]))] = extra_cells[(wid, sid)]   # columns get dated labels below
         hours[label] = hours.get(label, 0) + (s["end_q"] - s["start_q"]) / 4
     gap_cells = {d: [] for d in DAYS}  # one "Open shift" row per gap, so every gap is visible
     for sid, n in sorted(gaps.items(), key=lambda kv: by_slot[kv[0]]["start_q"]):
@@ -250,7 +284,10 @@ def schedule_frame(slots, assignments, gaps, workers, market_status: dict | None
             return ["background-color: rgba(147,51,234,.08); font-style: italic" if v and c != "Hours" else ""
                     for c, v in row.items()]
         over = row["Hours"] != "" and float(row["Hours"]) > 40
-        return [("background-color: rgba(245,158,11,.18)" if over and c == "Hours" else "") for c in row.index]
+        return [("background-color: rgba(245,158,11,.18)" if over and c == "Hours" else
+                 "background-color: rgba(245,158,11,.22); font-weight: 600" if amber.get((row.name, c)) == "accepted" else
+                 "background-color: rgba(245,158,11,.12); font-style: italic" if amber.get((row.name, c)) else "")
+                for c in row.index]
 
     df.columns = ["Hours"] + [day_label(d) for d in DAYS]
     return df.style.apply(color, axis=1)

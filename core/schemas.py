@@ -175,10 +175,16 @@ class OfferShift(BaseModel):
 
 
 class Offer(BaseModel):
-    """One business offering one part-timer a bundle of shifts. Accepting books them all."""
+    """One business offering one person a bundle of shifts. Accepting books them all.
+
+    kind "shift": a marketplace part-timer (part_timer_id), booked through the marketplace.
+    kind "extra_hours": the business's own employee (employee_id), asked to work open shifts beyond their
+    usual weekly hours; hours past 40 in the week are paid at their overtime rate."""
     id: str
     business_id: str
-    part_timer_id: str
+    kind: Literal["shift", "extra_hours"] = "shift"
+    part_timer_id: str = ""
+    employee_id: str = ""
     shifts: list[OfferShift]
     rate_cents: int
     status: Literal["pending", "accepted", "declined", "unavailable"] = "pending"
@@ -186,6 +192,17 @@ class Offer(BaseModel):
     message: str = ""             # a short note from the business
     created_ts: float = 0.0
     responded_ts: float | None = None
+
+
+class Account(BaseModel):
+    """Who is signed in. Demo accounts have no password; the app is a demo with fictional people."""
+    id: str
+    role: Literal["owner", "staff", "part_timer"]
+    name: str
+    email: str
+    business_id: str = ""      # owner and staff
+    employee_id: str = ""      # staff
+    part_timer_id: str = ""    # part-timer
 
 
 class Advice(BaseModel):

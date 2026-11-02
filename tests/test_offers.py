@@ -105,7 +105,7 @@ def test_decline_reopens_the_gap_and_replacement_skips_the_decliner(planned, see
     rest = [gone] + made[1:]
     view2 = offers.week_view(s.inp, s.staff_result, rest, pts)
     assert sum(view2["gaps"].values()) == len(gone.shifts)
-    sr, pool, held, covered = offers.replacement_inputs(s.staff_result, view2, rest, seeded.part_timers(),
+    sr, pool, held, covered, _ = offers.replacement_inputs(s.staff_result, view2, rest, seeded.part_timers(),
                                                         seeded.bookings(), "biz_bean")
     assert gone.part_timer_id not in {p.id for p in pool}
     s2 = agent.FillSession(s.business, seeded.grid("biz_bean"), seeded.team("biz_bean"), CAFE_RULES, pool, held,

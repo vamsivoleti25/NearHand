@@ -42,7 +42,8 @@ class FillSession:
     def __init__(self, business: Business, grid: StaffingGrid, employees: list[Employee],
                  constraints: ConstraintSet, part_timers: list[PartTimer], bookings: list[Booking],
                  booking_fee_cents: int = BOOKING_FEE_CENTS, staff_result: dict | None = None,
-                 covered: dict[str, int] | None = None):
+                 covered: dict[str, int] | None = None, staff_extra_hours: float = 0, overtime_ok: bool = True,
+                 no_extra_for=()):
         self.business, self.part_timers, self.bookings = business, part_timers, bookings
         self.pt_by_id = {p.id: p for p in part_timers}
         self.fee = booking_fee_cents
@@ -54,6 +55,9 @@ class FillSession:
                       if s["need"] - covered.get(s["id"], 0) > 0]
         self.slot_by_id = {s["id"]: s for s in self.slots}
         self.kw = {"min_rest_q": self.inp["min_rest_q"]}
+        # "Ask my team first": staff may take open shifts beyond their usual hours when that's cheaper
+        self.extra = {"staff_extra_q": int(round(staff_extra_hours * 4)), "overtime_ok": overtime_ok,
+                      "no_extra_for": tuple(no_extra_for)}
         # Reuse the schedule the manager is looking at, so the agent fills exactly those gaps.
         self.staff_result = staff_result or solve_staff_only(self.staff, self.slots, fixed=self.inp["fixed"], **self.kw)
         gap_ids = sorted(self.staff_result["gaps"], key=lambda sid: (DAYS.index(self.slot_by_id[sid]["day"]),
@@ -103,9 +107,18 @@ class FillSession:
 
     def _summarize_fill(self, r: dict) -> dict:
         staff_ids = {w["id"] for w in self.staff}
-        bookings = []
+        gaps = set(self.staff_result["gaps"])
+        bookings, extra = [], []
+        lines = {ln["worker_id"]: ln for ln in r["bill"]["lines"]}
+        before = {ln["worker_id"]: ln for ln in self.staff_result["bill"]["lines"]}
         for wid, sid in r["assignments"]:
             if wid in staff_ids:
+                if sid in gaps:   # a team member picking up an open shift as extra hours
+                    s = self.slot_by_id[sid]
+                    extra.append({"employee_id": wid, "name": next(w["name"] for w in self.staff if w["id"] == wid),
+                                  "gap_id": self.alias_of.get(sid, sid), "day": s["day"],
+                                  "time": f"{from_q(s['start_q'])}-{from_q(s['end_q'])}", "role": s["role"],
+                                  "hours": (s["end_q"] - s["start_q"]) / 4})
                 continue
             p, s = self.pt_by_id[wid], self.slot_by_id[sid]
             bookings.append({"part_timer_id": wid, "name": p.name, "gap_id": self.alias_of.get(sid, sid),
@@ -114,7 +127,17 @@ class FillSession:
                              "distance_miles": marketplace.distance_miles(p, self.business)})
         added = r["bill"]["total_cents"] - self.staff_result["bill"]["total_cents"]
         fees = r["bill"]["booking_fees_cents"]
+        team = {}
+        for e in extra:
+            t = team.setdefault(e["employee_id"], {"employee_id": e["employee_id"], "name": e["name"]})
+            ln, b0 = lines[e["employee_id"]], before.get(e["employee_id"], {})
+            t.update(hours_before=b0.get("hours", 0.0), hours_after=ln["hours"],
+                     extra_hours=ln["hours"] - b0.get("hours", 0.0),
+                     overtime_hours=ln["overtime_hours"] - b0.get("overtime_hours", 0.0),
+                     extra_pay=_money(ln["base_cents"] + ln["overtime_cents"]
+                                      - b0.get("base_cents", 0) - b0.get("overtime_cents", 0)))
         return {"bookings": bookings, "people_booked": len({b["part_timer_id"] for b in bookings}),
+                "team_extra_shifts": extra, "team_extra_hours": list(team.values()),
                 "added_wages": _money(added - fees), "booking_fees": _money(fees),
                 "added_cost": _money(added), "added_cost_note": "added_cost = added_wages + booking_fees",
                 "week_total": _money(r["bill"]["total_cents"]),
@@ -157,7 +180,7 @@ class FillSession:
     def _fill(self, ids: list[str] | None, staff=None, staff_result=None) -> dict:
         pool = [self.candidates[i] for i in (ids or self.candidates) if i in self.candidates]
         return fill_gaps(staff or self.staff, pool, self.slots, staff_result or self.staff_result,
-                         booking_fee_cents=self.fee, **self.kw)
+                         booking_fee_cents=self.fee, **self.extra, **self.kw)
 
     def solve_with(self, candidate_ids: list[str] | None = None) -> dict:
         r = self._fill(candidate_ids)
@@ -257,6 +280,9 @@ How to work:
 4. If a near miss suggests a staff member could cover a gap with a small change (a few extra hours, a day back),
    test at most two of those with what_if. Only suggest overtime or a changed day off as an alternative
    for the owner to decide; the plan you propose uses the marketplace.
+   If results list team_extra_shifts, the owner chose to ask the team first: those open shifts go to the
+   business's own staff as extra hours (paid at their rate, overtime past 40 hours), because that is
+   cheaper or nobody nearby qualifies. Mention them first, by first name, with extra_pay from the results.
 5. Call propose_plan with the candidate ids to book and a 3-4 sentence explanation for a busy café owner:
    which gaps get filled by whom, what it adds to the week, and why these people (cost, distance, skills).
    Put the what-if that saves the most (if any saves money) in `alternative`, in one sentence.

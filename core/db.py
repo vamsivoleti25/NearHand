@@ -11,7 +11,7 @@ import sqlite3
 from pathlib import Path
 
 from core import llm
-from core.schemas import Booking, Business, Employee, Offer, PartTimer, StaffingGrid
+from core.schemas import Account, Booking, Business, Employee, Offer, PartTimer, StaffingGrid
 
 SEED_DIR = Path(__file__).resolve().parent.parent / "data" / "seed"
 
@@ -23,7 +23,12 @@ TABLES = {
     "grids": "business_id TEXT PRIMARY KEY, json TEXT",
     "schedules": "business_id TEXT PRIMARY KEY, json TEXT",  # the planner's saved week (ui/common.py)
     "offers": "id TEXT PRIMARY KEY, business_id TEXT, part_timer_id TEXT, status TEXT, json TEXT",
+    "accounts": "id TEXT PRIMARY KEY, email TEXT UNIQUE, json TEXT",
 }
+
+# Fictional owners for the two demo businesses (sign-in shows them as demo accounts).
+OWNERS = {"biz_bean": "Dana Okafor", "biz_maple": "Marcus Bell"}
+DOMAINS = {"biz_bean": "beanandco.example", "biz_maple": "mapletable.example"}
 
 
 def connect() -> sqlite3.Connection:
@@ -42,6 +47,9 @@ def load_seed(force: bool = False) -> None:
     """Fill the database from data/seed/ if it is empty (or always, with force=True)."""
     with connect() as con:
         if not force and con.execute("SELECT COUNT(*) FROM part_timers").fetchone()[0]:
+            if not con.execute("SELECT COUNT(*) FROM accounts").fetchone()[0]:   # databases made before accounts
+                for a in seed_accounts():
+                    con.execute("INSERT OR IGNORE INTO accounts VALUES (?, ?, ?)", (a.id, a.email, a.model_dump_json()))
             return
         for t in TABLES:
             con.execute(f"DELETE FROM {t}")
@@ -54,6 +62,28 @@ def load_seed(force: bool = False) -> None:
             con.execute("INSERT INTO grids VALUES (?, ?)", (business_id, json.dumps(grid)))
         for p in _seed("part_timers.json"):
             con.execute("INSERT INTO part_timers VALUES (?, ?)", (p["id"], json.dumps(p)))
+        for a in seed_accounts():
+            con.execute("INSERT OR IGNORE INTO accounts VALUES (?, ?, ?)", (a.id, a.email, a.model_dump_json()))
+
+
+def _slug(name: str) -> str:
+    return "".join(ch for ch in name.lower().replace(" ", ".") if ch.isalnum() or ch == ".")
+
+
+def seed_accounts() -> list[Account]:
+    """An account for every owner, every employee (so they can get extra-hours offers) and every part-timer."""
+    out = []
+    for bid, owner in OWNERS.items():
+        out.append(Account(id=f"acct_owner_{bid}", role="owner", name=owner, business_id=bid,
+                           email=f"{_slug(owner.split()[0])}@{DOMAINS[bid]}"))
+    for bid, team in _seed("teams.json").items():
+        for e in team:
+            out.append(Account(id=f"acct_{bid}_{e['id']}", role="staff", name=e["name"], business_id=bid,
+                               employee_id=e["id"], email=f"{_slug(e['name'])}@{DOMAINS.get(bid, 'shop.example')}"))
+    for p in _seed("part_timers.json"):
+        out.append(Account(id=f"acct_{p['id']}", role="part_timer", name=p["name"], part_timer_id=p["id"],
+                           email=f"{_slug(p['name'])}.{p['id'].split('_')[1]}@example.com"))
+    return out
 
 
 def reset_demo() -> None:
@@ -156,19 +186,55 @@ def save_schedule(business_id: str, state: dict) -> None:
 # ---------------------------------------------------------------- offers
 
 def save_offer(o: Offer) -> None:
+    who = o.employee_id if o.kind == "extra_hours" else o.part_timer_id   # the column holds the recipient
     with connect() as con:
         con.execute("INSERT OR REPLACE INTO offers VALUES (?, ?, ?, ?, ?)",
-                    (o.id, o.business_id, o.part_timer_id, o.status, o.model_dump_json()))
+                    (o.id, o.business_id, who, o.status, o.model_dump_json()))
 
 
-def offers(business_id: str | None = None, part_timer_id: str | None = None, status: str | None = None) -> list[Offer]:
+def offers(business_id: str | None = None, part_timer_id: str | None = None, status: str | None = None,
+           employee_id: str | None = None) -> list[Offer]:
+    """Offers, oldest first. part_timer_id: marketplace offers for that person; employee_id (with
+    business_id): extra-hours offers for that team member."""
     q, args = "SELECT json FROM offers WHERE 1=1", []
-    for col, val in (("business_id", business_id), ("part_timer_id", part_timer_id), ("status", status)):
+    for col, val in (("business_id", business_id), ("part_timer_id", part_timer_id or employee_id),
+                     ("status", status)):
         if val:
             q, args = q + f" AND {col} = ?", args + [val]
     with connect() as con:
         out = [Offer.model_validate_json(r[0]) for r in con.execute(q, args)]
+    if part_timer_id:
+        out = [o for o in out if o.kind == "shift"]
+    if employee_id:
+        out = [o for o in out if o.kind == "extra_hours"]
     return sorted(out, key=lambda o: o.created_ts)
+
+
+# ---------------------------------------------------------------- accounts
+
+def accounts(role: str | None = None, business_id: str | None = None) -> list[Account]:
+    with connect() as con:
+        out = [Account.model_validate_json(r[0]) for r in con.execute("SELECT json FROM accounts")]
+    return [a for a in out if (not role or a.role == role) and (not business_id or a.business_id == business_id)]
+
+
+def account(account_id: str) -> Account:
+    with connect() as con:
+        row = con.execute("SELECT json FROM accounts WHERE id = ?", (account_id,)).fetchone()
+    if not row:
+        raise KeyError(account_id)
+    return Account.model_validate_json(row[0])
+
+
+def account_by_email(email: str) -> Account | None:
+    with connect() as con:
+        row = con.execute("SELECT json FROM accounts WHERE lower(email) = ?", (email.strip().lower(),)).fetchone()
+    return Account.model_validate_json(row[0]) if row else None
+
+
+def save_account(a: Account) -> None:
+    with connect() as con:
+        con.execute("INSERT OR REPLACE INTO accounts VALUES (?, ?, ?)", (a.id, a.email.lower(), a.model_dump_json()))
 
 
 def offer(offer_id: str) -> Offer:

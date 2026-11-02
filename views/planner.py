@@ -26,8 +26,10 @@ def step_line(tool: str, args: dict, out: dict) -> str:
         return (f"📍 **Searched the neighborhood** within {out['max_distance_miles']:g} mi: {n} qualified, free people"
                 + (f" · nobody for {', '.join(empty)}" if empty else ""))
     if tool == "solve_with":
-        return (f"🧮 **Optimizer**: {out['people_booked']} people cover it for {out['added_cost']} "
-                f"· {len(out['remaining_gaps'])} still open")
+        team = len({t["employee_id"] for t in out.get("team_extra_hours", [])})
+        return (f"🧮 **Optimizer**: {out['people_booked']} people nearby"
+                + (f" and {team} of your team" if team else "")
+                + f" cover it for {out['added_cost']} · {len(out['remaining_gaps'])} still open")
     if tool == "what_if":
         ch = out["change"]
         what = f"{ch['extra_hours']:g} more hours" if ch.get("extra_hours") else f"{ch.get('give_back_day')} back"
@@ -47,11 +49,13 @@ def run_fill(biz, grid, team, state, pts, replacement: bool) -> None:
     sent = db.offers(business_id=biz.id)
     if replacement:
         view = offers.week_view(state["inputs"], state["staff_result"], sent, pts)
-        sr, pool, held, covered = offers.replacement_inputs(state["staff_result"], view, sent, list(pts.values()),
-                                                            db.bookings(), biz.id)
+        sr, pool, held, covered, no_extra = offers.replacement_inputs(state["staff_result"], view, sent,
+                                                                      list(pts.values()), db.bookings(), biz.id)
     else:
-        sr, pool, held, covered = state["staff_result"], list(pts.values()), db.bookings(), None
-    session = FillSession(biz, grid, team, chosen_constraints(state), pool, held, staff_result=sr, covered=covered)
+        sr, pool, held, covered, no_extra = state["staff_result"], list(pts.values()), db.bookings(), None, set()
+    extra = state.get("extra_hours", 8) if state.get("team_first", True) else 0
+    session = FillSession(biz, grid, team, chosen_constraints(state), pool, held, staff_result=sr, covered=covered,
+                          staff_extra_hours=extra, overtime_ok=state.get("overtime_ok", True), no_extra_for=no_extra)
     trace, clock = [], {"t": time.time()}
     with st.status("Muse Spark Open is working on it…", expanded=True) as status:
         def on_step(tool, args, out):
@@ -64,6 +68,7 @@ def run_fill(biz, grid, team, state, pts, replacement: bool) -> None:
     state["plan"] = {k: v for k, v in plan.items() if k != "result"}
     state["plan_result"] = plan["result"]
     state["plan_slots"] = session.slots
+    state["plan_gaps"] = list(session.staff_result["gaps"])
     state["trace"] = trace
     save_state(biz.id, state)
 
@@ -71,7 +76,9 @@ def run_fill(biz, grid, team, state, pts, replacement: bool) -> None:
 def send_offers(biz, state, pts) -> int:
     round_ = 1 + max((o.round for o in db.offers(business_id=biz.id)), default=0)
     made = offers.make_offers(biz, state["plan_result"]["assignments"], state["plan_slots"], pts, round_,
-                              message=f"Hi! {biz.name} would love your help this week.")
+                              message=f"Hi! {biz.name} would love your help this week.",
+                              employees={e.id: e for e in db.team(biz.id)}, gaps=state.get("plan_gaps", ()),
+                              team_message="We have open shifts this week and wanted to ask you first.")
     for o in made:
         db.save_offer(o)
     state["plan"] = None
@@ -167,7 +174,8 @@ c4.metric("Open shifts", f"{len(view['gaps'])} · {gh:g} h" if gh else "None")
 plan_now = state.get("plan")
 projected = view
 if plan_now and state.get("plan_result"):  # show what the proposal would do, before it is sent
-    draft = offers.make_offers(biz, state["plan_result"]["assignments"], state["plan_slots"], pts)
+    draft = offers.make_offers(biz, state["plan_result"]["assignments"], state["plan_slots"], pts,
+                               employees={e.id: e for e in team}, gaps=state.get("plan_gaps", ()))
     projected = offers.week_view(state["inputs"], state["staff_result"], sent + draft, pts, BOOKING_FEE_CENTS)
 base = state["staff_result"]
 if projected is not view or sent:
@@ -186,18 +194,24 @@ if projected is not view or sent:
         i4.metric("Added to the week", money(a_cost - b_cost), f"{100 * (a_cost - b_cost) / b_cost:+.1f}% of labor",
                   delta_color="off")
 
-legend([("✓", "booked"), ("⏳", "offer sent"), ("#EF4444", "open shift")])
-frame = schedule_frame(slots, view["assignments"], view["gaps"], view["workers"], view["status"])
+legend([("✓", "booked"), ("⏳", "offer sent"), ("#F59E0B", "extra hours for your team"),
+        ("#EF4444", "open shift")])
+frame = schedule_frame(slots, view["assignments"], view["gaps"], view["workers"], view["status"],
+                       extra_cells=view.get("extra_cells"))
 st.dataframe(frame, width="stretch", height=35 * (len(frame.data) + 1) + 3)
-st.caption("Purple rows are marketplace part-timers: ⏳ offer sent, ✓ booked. "
-           "Red rows are shifts nobody has covered yet.")
+st.caption("Purple rows are marketplace part-timers: ⏳ offer sent, ✓ booked. Amber cells are open shifts "
+           "offered to your own team as extra hours. Red rows are shifts nobody has covered yet.")
 
 # ---------------------------------------------------------------- offers already out
 if sent:
     st.subheader("Offers")
     rows = []
+    team_names = {e.id: e.name for e in team}
     for o in sorted(sent, key=lambda o: (o.round, o.created_ts)):
-        rows.append({"Round": o.round, "Who": pts[o.part_timer_id].name,
+        rows.append({"Round": o.round,
+                     "Who": team_names.get(o.employee_id, o.employee_id) + " (your team)" if o.kind == "extra_hours"
+                     else pts[o.part_timer_id].name,
+                     "Kind": "Extra hours" if o.kind == "extra_hours" else "Marketplace",
                      "Shifts": ", ".join(f"{s.day} {s.start}-{s.end}" for s in o.shifts),
                      "Role": ", ".join(sorted({role(s.role) for s in o.shifts})), "Rate": money(o.rate_cents) + "/h",
                      "Status": STATUS_BADGE[o.status]})
@@ -205,20 +219,33 @@ if sent:
     kind = {"accepted": "booked", "pending": "offered", "declined": "declined", "unavailable": "declined"}
     latest = {}
     for o in sorted(sent, key=lambda o: o.created_ts):
-        latest[o.part_timer_id] = o
+        if o.kind == "shift":
+            latest[o.part_timer_id] = o
     with st.expander("Map: who's coming in", expanded=False):
         neighborhood_map(biz, [{"pt": pts[i], "kind": kind[o.status],
                                 "info": f"{STATUS_BADGE[o.status]} · {money(o.rate_cents)}/h"}
                                for i, o in latest.items()], height=320)
     waiting = sum(o.status == "pending" for o in sent)
     if waiting:
-        st.caption(f"{waiting} waiting for an answer. Switch to **View as: Part-timer** to answer as them.")
+        st.caption(f"{waiting} waiting for an answer. Use **Switch demo account** in the sidebar to answer as them.")
 
 reopened = bool(view["gaps"] and sent)
 if view["gaps"] and not state.get("plan"):
     st.subheader("Find replacements" if reopened else "Fill the open shifts")
     if reopened:
         st.caption("Some offers were declined. The agent fills only the reopened shifts and skips anyone who said no.")
+    c1, c2, c3 = st.columns([1.3, 1, 1], vertical_alignment="center")
+    team_first = c1.toggle("Ask my team first", value=state.get("team_first", True),
+                           help="Offer open shifts to your own staff as extra hours when that's cheaper than a "
+                                "part-timer plus the booking fee, or when nobody nearby qualifies. They can say no.")
+    extra_h = c2.number_input("Extra hours each, at most", min_value=2, max_value=16, step=2,
+                              value=int(state.get("extra_hours", 8)), disabled=not team_first)
+    ot_ok = c3.checkbox("Allow overtime past 40 h", value=state.get("overtime_ok", True), disabled=not team_first,
+                        help="Hours past 40 in a week are paid at the overtime rate (1.5x)")
+    if (team_first, extra_h, ot_ok) != (state.get("team_first", True), state.get("extra_hours", 8),
+                                        state.get("overtime_ok", True)):
+        state.update(team_first=team_first, extra_hours=extra_h, overtime_ok=ot_ok)
+        save_state(biz.id, state)
     if st.button("Find replacements with AI" if reopened else "Fill gaps with AI", type="primary"):
         run_fill(biz, grid, team, state, pts, replacement=reopened)
         st.rerun()
@@ -236,14 +263,27 @@ if plan:
         if plan.get("grounded"):
             st.markdown('<span class="nh-badge-ok">✓ Every number above was checked against the optimizer\'s '
                         "results.</span>", unsafe_allow_html=True)
-        rows = [{"Day": b["day"], "Time": b["time"], "Role": role(b["role"]), "Who": b["name"],
-                 "Rate": b["rate"] + "/h", "Distance": f"{b['distance_miles']} mi"} for b in plan["bookings"]]
-        st.dataframe(rows, hide_index=True, width="stretch")
-        who = {}
-        for b in plan["bookings"]:
-            who.setdefault(b["part_timer_id"], []).append(f"{b['day']} {b['time']}")
-        neighborhood_map(biz, [{"pt": pts[i], "kind": "offered", "info": ", ".join(t)} for i, t in who.items()],
-                         height=300)
+        if plan.get("team_extra_hours"):
+            st.markdown("**Your team first** · extra hours, asked before anyone nearby")
+            shifts = {}
+            for t in plan.get("team_extra_shifts", []):
+                shifts.setdefault(t["employee_id"], []).append(f"{t['day']} {t['time']} {role(t['role'])}")
+            st.dataframe([{"Who": t["name"], "Shifts": ", ".join(shifts.get(t["employee_id"], [])),
+                           "Week": f"{t['hours_before']:g} → {t['hours_after']:g} h",
+                           "Overtime": f"{t['overtime_hours']:g} h" if t["overtime_hours"] else "–",
+                           "Extra pay": t["extra_pay"]} for t in plan["team_extra_hours"]],
+                         hide_index=True, width="stretch")
+        if plan["bookings"]:
+            if plan.get("team_extra_hours"):
+                st.markdown("**From the neighborhood**")
+            rows = [{"Day": b["day"], "Time": b["time"], "Role": role(b["role"]), "Who": b["name"],
+                     "Rate": b["rate"] + "/h", "Distance": f"{b['distance_miles']} mi"} for b in plan["bookings"]]
+            st.dataframe(rows, hide_index=True, width="stretch")
+            who = {}
+            for b in plan["bookings"]:
+                who.setdefault(b["part_timer_id"], []).append(f"{b['day']} {b['time']}")
+            neighborhood_map(biz, [{"pt": pts[i], "kind": "offered", "info": ", ".join(t)} for i, t in who.items()],
+                             height=300)
         if plan.get("note"):
             st.caption(plan["note"])
         if state.get("trace"):

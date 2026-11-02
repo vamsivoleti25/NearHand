@@ -217,14 +217,28 @@ def solve_with_pool(staff, pool, slots, booking_fee_cents=0, platform_fee=0.0, *
     return solve(list(staff) + market, slots, booking_fee_cents=booking_fee_cents, **kw)
 
 
-def fill_gaps(staff, pool, slots, staff_result: dict, booking_fee_cents=0, platform_fee=0.0, **kw) -> dict:
+def fill_gaps(staff, pool, slots, staff_result: dict, booking_fee_cents=0, platform_fee=0.0,
+              staff_extra_q: int = 0, overtime_ok: bool = True, no_extra_for=(), **kw) -> dict:
     """Pass 2 as a manager expects it: the staff schedule stays exactly as it is, and
-    marketplace workers may only take the gap shifts left by pass 1."""
+    marketplace workers may only take the gap shifts left by pass 1.
+
+    staff_extra_q > 0: staff may also take open shifts, up to that many extra quarter-hours past their usual
+    weekly cap (never past 40 hours unless overtime_ok). The optimizer then picks, shift by shift, whichever
+    is cheaper: a team member's extra hours (overtime paid at their overtime rate) or a part-timer plus the
+    booking fee. Employees in no_extra_for (they said no this week) only keep their own shifts."""
     keep = list(staff_result["assignments"]) + list(kw.pop("fixed", ()))
     gaps = set(staff_result["gaps"])
-    # Staff may only work the shifts they already have; part-timers may only take gaps.
-    # That keeps this solve tiny (it runs on every agent tool call).
+    # Staff may only work the shifts they already have (plus gaps, when extra hours are allowed);
+    # part-timers may only take gaps. That keeps this solve tiny (it runs on every agent tool call).
     restrict = {w["id"]: {sid for wid, sid in keep if wid == w["id"]} for w in staff}
+    if staff_extra_q > 0:
+        staff = [dict(w, max_q=w["max_q"] if w["id"] in set(no_extra_for) else
+                      (w["max_q"] + staff_extra_q if overtime_ok else max(w["max_q"], min(w["max_q"] + staff_extra_q,
+                                                                                         OT_THRESHOLD_Q))))
+                 for w in staff]
+        for w in staff:
+            if w["id"] not in set(no_extra_for):
+                restrict[w["id"]] |= gaps
     return solve_with_pool(staff, pool, slots, booking_fee_cents, platform_fee,
                            fixed=keep, market_slots=gaps, restrict=restrict, **kw)
 

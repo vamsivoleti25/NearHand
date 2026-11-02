@@ -55,11 +55,82 @@ def test_every_screen_renders(page):
     assert not at.exception, at.exception
 
 
-def test_app_shell_renders_both_views():
-    at = run("app.py")
+def test_app_shell_renders_for_every_kind_of_account():
+    at = run("app.py")                                   # signed out: home and log in
     assert not at.exception, at.exception
-    at.sidebar.segmented_control[0].set_value("Part-timer").run()
+    for acct in ("acct_owner_biz_bean", "acct_biz_bean_emp_ana", "acct_pt_001"):
+        at = run("app.py", account_id=acct)
+        assert not at.exception, (acct, at.exception)
+
+
+def click(app, label, **match):
+    btn = next(b for b in app.button if b.label == label and all(getattr(b, k) == v for k, v in match.items()))
+    return btn.click().run()
+
+
+def test_log_in_by_email_and_unknown_email():
+    at = run("views/signin.py")
+    at.text_input[0].input("nobody@example.com")
+    at.button[0].click().run()
+    assert any("No account" in e.value for e in at.error)
+    at.text_input[0].input("dana@beanandco.example")
+    at.button[0].click().run()
+    assert at.session_state["account_id"] == "acct_owner_biz_bean" and at.session_state["view"] == "Manager"
+
+
+def test_sign_up_as_a_part_timer_reads_experience_and_creates_the_account():
+    at = run("views/signin.py", signin_mode="Create an account")
+    click(at, "I want shifts")
+    at.text_input[0].input("Robin Lee")
+    at.text_input[1].input("robin@example.com")
+    at.text_area[0].input("Three years as a barista, keyholder, about $20/hour")
+    click(at, "Read my experience")
     assert not at.exception, at.exception
+    click(at, "Create my account")
+    assert not at.exception, at.exception
+    a = db.account_by_email("robin@example.com")
+    assert a and a.role == "part_timer" and at.session_state["account_id"] == a.id
+    p = db.part_timer(a.part_timer_id)
+    assert [r.role for r in p.roles] == ["barista"] and p.availability
+
+
+def test_sign_up_a_business():
+    at = run("views/signin.py", signin_mode="Create an account")
+    click(at, "I need staff")
+    for i, v in enumerate(["Sam Rivera", "sam@riverabakes.example", "Rivera Bakes"]):
+        at.text_input[i].input(v)
+    click(at, "Create my account")
+    assert not at.exception, at.exception
+    a = db.account_by_email("sam@riverabakes.example")
+    assert a.role == "owner" and db.business(a.business_id).name == "Rivera Bakes"
+
+
+def test_team_first_extra_hours_story():
+    """Owner asks the team first; a team member accepts, another declines; the agent replaces the decline
+    without asking that person again."""
+    at = run("views/planner.py", business_id="biz_bean")
+    for label in ["Read my rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
+        click(at, label)
+        assert not at.exception, (label, at.exception)
+    extra = [o for o in db.offers(business_id="biz_bean") if o.kind == "extra_hours"]
+    assert extra, "with 'Ask my team first' on, some open shifts go to the team as extra hours"
+
+    yes = extra[0]
+    me = run("views/my_shifts.py", business_id="biz_bean", employee_id=yes.employee_id)
+    assert not me.exception, me.exception
+    click(me, "Accept")
+    assert db.offer(yes.id).status == "accepted"
+    if len(extra) > 1:
+        no = extra[1]
+        them = run("views/my_shifts.py", business_id="biz_bean", employee_id=no.employee_id)
+        click(them, "Decline")
+        assert db.offer(no.id).status == "declined"
+        at = run("views/planner.py", business_id="biz_bean")
+        click(at, "Find replacements with AI")
+        assert not at.exception, at.exception
+        click(at, "Send offers")
+        round2 = [o for o in db.offers(business_id="biz_bean") if o.round == 2]
+        assert no.employee_id not in {o.employee_id for o in round2}
 
 
 def test_full_story_offers_accept_decline_replace(monkeypatch):
@@ -70,9 +141,11 @@ def test_full_story_offers_accept_decline_replace(monkeypatch):
     at = run("views/planner.py", business_id="biz_bean")
     click = lambda app, label: next(b for b in app.button if b.label == label).click().run()  # noqa: E731
     for label in ["Read my rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
+        if label == "Fill gaps with AI":
+            at.toggle[0].set_value(False).run()   # marketplace only: this story is about part-timers
         click(at, label)
         assert not at.exception, (label, at.exception)
-    sent = db.offers(business_id="biz_bean")
+    sent = [o for o in db.offers(business_id="biz_bean") if o.kind == "shift"]
     assert sent and all(o.status == "pending" for o in sent)
 
     # first part-timer accepts (after asking for advice), second declines
