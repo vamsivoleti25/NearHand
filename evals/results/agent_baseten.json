@@ -18,6 +18,7 @@
    "matches_oracle": true,
    "grounded": true,
    "fallback": false,
+   "ungrounded_numbers": [],
    "hours_left_vs_oracle": 0.0,
    "widest_search_miles": 5.0,
    "turns": 5,
@@ -30,8 +31,8 @@
     "propose_plan"
    ],
    "used_what_if": true,
-   "explanation": "Plan books 2 people to cover all 4 gaps: Mateo covers Tue 06:00-12:00 drive-thru and Sat 07:00-12:00 cashier at $17.75/hr, and Yara covers Sat 12:00-17:00 dishwasher and Sun 07:00-12:00 dishwasher at $17.25/hr. This adds $367.75 in wages plus $10.00 in booking fees for a total added cost of $377.75, bringing the week total to $9,006.25. These two were the cheapest qualified pair within 5 miles and reusing the same two people keeps booking fees low while filling all 21 hours.",
-   "seconds": 0.1
+   "explanation": "Mateo will cover Tue 06:00-12:00 drive-thru and Sat 07:00-12:00 cashier, and Yara will cover Sat 12:00-17:00 dishwasher and Sun 07:00-12:00 dishwasher. This fills 4 of 4 gaps covering 21.0 hours with 0.0 hours remaining, adding $377.75 to the week for a week total of $9,006.25. They were chosen for low rates ($17.75 and $17.25), close distance (4.3 and 4.4 miles), and matching skills for cashier, drive-thru and dishwasher shifts.",
+   "seconds": 9.5
   },
   {
    "id": "biz_bean-out-chris-priya",
@@ -54,6 +55,7 @@
    "matches_oracle": true,
    "grounded": true,
    "fallback": false,
+   "ungrounded_numbers": [],
    "hours_left_vs_oracle": 0.0,
    "widest_search_miles": 10.0,
    "turns": 6,
@@ -67,8 +69,8 @@
     "propose_plan"
    ],
    "used_what_if": true,
-   "explanation": "All 11 gaps are filled with 6 people for $1,210 added cost this week (week total $9,036). Tyler covers Tue 06:00-12:00, Wed 06:00-12:00 and Fri 06:00-12:00 as shift lead and Jasmine covers Mon 12:00-18:00 and Fri 12:00-18:00 as shift lead, both have keyholder skills; Sara covers Mon 06:00-10:00 cashier, Theo covers Sat 12:00-17:00 drive-thru, Andre covers Sat 07:00-12:00 and Sun 07:00-12:00 dishwasher, and Yara covers Sat 12:00-17:00 and Sun 12:00-17:00 dishwasher. This group keeps wages low \u2014 Theo at $18.00 only 0.4 miles away, Sara at $17.50 only 0.8 miles away, Andre and Yara at $17.25 \u2014 and consolidates shifts to fewer people to save booking fees.",
-   "seconds": 0.1
+   "explanation": "This plan fills all 11 gaps (59.0 hours) with 6 people and no gaps remaining \u2014 Sara Evans covers Mon 6am-10am cashier, Tyler Shah covers Tue 6am-12pm, Wed 6am-12pm and Fri 6am-12pm shift lead, Jasmine Hughes covers Mon 12pm-6pm and Fri 12pm-6pm shift lead, Andre Thomas covers Sat 7am-12pm and Sun 7am-12pm dishwasher, Yara Murphy covers Sat 12pm-5pm and Sun 12pm-5pm dishwasher, and Theo Young covers Sat 12pm-5pm drive-thru. Added cost is $1,210.00 bringing the week total to $9,036.00, which already includes $30.00 in booking fees. These 6 were the cheapest qualified options nearby, with Sara at 0.8 miles and Theo at 0.4 miles for the front-of-house, and Tyler and Jasmine qualified with keyholder skills for all shift lead gaps.",
+   "seconds": 8.2
   },
   {
    "id": "biz_bean-out-ana",
@@ -90,13 +92,12 @@
    "matches_oracle": true,
    "grounded": true,
    "fallback": false,
+   "ungrounded_numbers": [],
    "hours_left_vs_oracle": 0.0,
    "widest_search_miles": 10.0,
-   "turns": 8,
+   "turns": 6,
    "tools": [
     "get_gaps",
-    "search_marketplace",
-    "search_marketplace",
     "search_marketplace",
     "search_marketplace",
     "solve_with",
@@ -105,8 +106,8 @@
     "propose_plan"
    ],
    "used_what_if": true,
-   "explanation": "This plan fills 8 of 9 open shifts: Sara covers Mon 6am-12pm drive-thru and Thu 6am-12pm cashier, Tyler covers Tue 6am-12pm shift lead, Liam covers Tue 12pm-6pm dishwasher, Darius covers Wed 12pm-6pm cashier, Jasmine covers both Wed 12pm-6pm and Thu 6am-12pm shift lead, and Theo covers Sun 7am-12pm drive-thru. It adds $947.25 to the week for a week total of $8,839.75 including $30.00 in booking fees, leaving one Tue 12pm-6pm shift lead gap uncovered with no qualified marketplace candidates. These are the cheapest qualified people closest to Bean & Co., reusing Sara for two shifts and Jasmine for two shift-lead gaps to keep booking fees low.",
-   "seconds": 0.1
+   "explanation": "Plan books 6 people to fill 8 of your 9 gaps for 47.0 of 53.0 gap hours, leaving 6.0 hours uncovered on Tue 12pm-6pm shift lead, with added cost $947.25 for a week total of $8,839.75. Sara Evans covers Mon 06:00-12:00 drive-thru and Thu 06:00-12:00 cashier, Jada Cohen covers Sun 07:00-12:00 drive-thru, Liam Price covers Tue 12:00-18:00 dishwasher, Nathan Ibrahim covers Wed 12:00-18:00 cashier, and Tyler Shah and Jasmine Hughes cover the shift lead needs on Tue 06:00-12:00, Wed 12:00-18:00 and Thu 06:00-12:00. These choices keep rates and distance low where possible and meet the keyholder skill for all shift lead gaps.",
+   "seconds": 9.3
   },
   {
    "id": "biz_bean-out-diego",
@@ -128,6 +129,7 @@
    "matches_oracle": true,
    "grounded": true,
    "fallback": false,
+   "ungrounded_numbers": [],
    "hours_left_vs_oracle": 0.0,
    "widest_search_miles": 10.0,
    "turns": 6,
@@ -141,8 +143,8 @@
     "propose_plan"
    ],
    "used_what_if": true,
-   "explanation": "All 10 gaps (51 hours) are covered: Brandon takes Mon 12pm-6pm shift lead and Shay takes Mon 12pm-6pm drive-thru, Sara covers Tue 6am-10am drive-thru and Thu 6am-10am cashier, Wes does Tue 12pm-6pm barista, Tyler handles Wed 6am-12pm shift lead, Bianca does Wed 6am-10am drive-thru, Theo takes Sat 12pm-5pm drive-thru, and Yara covers both Sat and Sun 12pm-5pm dishwasher. They are the cheapest qualified people nearby \u2014 Sara and Yara each take two shifts to save booking fees, and Brandon and Tyler have the keyholder skill needed for the shift-lead gaps. This adds $964.00 in wages plus $40.00 in booking fees for a total added cost of $1,004.00, bringing your week to $9,100.00 with no gaps left.",
-   "seconds": 0.1
+   "explanation": "This plan fills all 10 gaps (10 of 10 gaps filled, 51.0 hours covered, 0.0 hours remaining) with 8 part-timers: Brandon covers Mon 12:00-18:00 shift lead, Shay covers Mon 12:00-18:00 drive-thru, Sara covers Tue 06:00-10:00 drive-thru and Thu 06:00-10:00 cashier, Wes covers Tue 12:00-18:00 barista, Tyler covers Wed 06:00-12:00 shift lead, Bianca covers Wed 06:00-10:00 drive-thru, Theo covers Sat 12:00-17:00 drive-thru, and Yara covers Sat 12:00-17:00 and Sun 12:00-17:00 dishwasher. Together this adds $964.00 in wages plus $40.00 in booking fees for a total added cost of $1,004.00, bringing the week total to $9,100.00. These people were chosen because they are the cheapest qualified options nearby with the right skills, including keyholder for both shift lead gaps, and keep travel short with Sara at 0.8 miles and Theo at 0.4 miles.",
+   "seconds": 9.8
   },
   {
    "id": "biz_bean-out-chris",
@@ -164,6 +166,7 @@
    "matches_oracle": true,
    "grounded": true,
    "fallback": false,
+   "ungrounded_numbers": [],
    "hours_left_vs_oracle": 0.0,
    "widest_search_miles": 10.0,
    "turns": 6,
@@ -177,8 +180,8 @@
     "propose_plan"
    ],
    "used_what_if": true,
-   "explanation": "This plan books 6 people to cover 8 of your 9 open shifts for an added cost of $875.75, bringing the week total to $8,874.25. Yara Murphy covers Mon 12pm-6pm and Sun 12pm-5pm as dishwasher, Sara Evans covers Tue 6am-10am as cashier, Tyler Shah covers Tue 6am-12pm as shift lead, Jasmine Hughes covers Wed 12pm-6pm and Thu 12pm-6pm as shift lead, Liam Torres covers Sat 7am-12pm as barista, and Andre Thomas covers Sat 7am-12pm as dishwasher. These were the cheapest qualified and closest options for each gap \u2014 for example Andre at $17.25 only 0.9 miles away and Yara at $17.25 covering two shifts \u2014 and Tue 12pm-6pm shift lead remains unfilled as no one was available within 10 miles.",
-   "seconds": 0.1
+   "explanation": "This plan fills 8 of 9 gaps covering 43.0 hours with 6.0 hours remaining uncovered on Tue 12:00-18:00 shift lead. Yara covers Mon 12:00-18:00 and Sun 12:00-17:00 dishwasher, Andre covers Sat 07:00-12:00 dishwasher, Sara covers Tue 06:00-10:00 cashier, Liam covers Sat 07:00-12:00 barista, Tyler covers Tue 06:00-12:00 shift lead, and Jasmine covers Wed 12:00-18:00 and Thu 12:00-18:00 shift lead. It adds $875.75 to the week for a week total of $8,874.25, which already includes $30.00 in booking fees for 6 people booked. These people were picked for low rates, close distances, and the right keyholder skills for the shift lead gaps.",
+   "seconds": 11.0
   },
   {
    "id": "biz_maple-normal",
@@ -198,6 +201,7 @@
    "matches_oracle": true,
    "grounded": true,
    "fallback": false,
+   "ungrounded_numbers": [],
    "hours_left_vs_oracle": 0.0,
    "widest_search_miles": 10.0,
    "turns": 6,
@@ -211,8 +215,8 @@
     "propose_plan"
    ],
    "used_what_if": true,
-   "explanation": "This plan books 16 people to cover 36 gaps including Mon 11am-4pm server with Maria, Mon 4pm-10pm line cook with Olivia Park, Thu-Sun host shifts with Theo and Laila, and bartending Mon/Tue/Thu/Sun with Bianca and Yusuf. It adds $3,889.25 to the week ($3,809.25 in wages + $80.00 in booking fees) for a week total of $9,819.75, leaving 12 gaps (63.0 hours) unfilled with no qualified candidates nearby such as shift lead roles. These 16 were the cheapest qualified and closest available within 5-10 miles for their roles and skills, keeping rates low from $17.25 to $21.50 and reusing the same people across multiple days to limit booking fees.",
-   "seconds": 8.4
+   "explanation": "Booking 16 people covers 36 of 48 gaps for 202.0 hours, leaving 63.0 hours uncovered: Maria Perez covers Mon and Tue server plus Sun host, Dev Santos covers Mon host and Thu/Fri server, Liam Price covers Mon dishwasher and Tue/Sun prep cook, and Bianca Sullivan covers all four bartender gaps Mon/Tue/Thu/Sun, with Theo Evans, Laila Santos, Yara Murphy, Sofia Russo and others filling the remaining host, dishwasher, prep cook and line cook shifts across the week. Added wages are $3,809.25 plus $80.00 in booking fees for an added cost of $3,889.25, making the week total $9,819.75. These are the cheapest qualified candidates found within 5 to 6.4 miles for each gap, including food handler and alcohol service skills where needed.",
+   "seconds": 20.0
   },
   {
    "id": "biz_maple-out-ben",
@@ -232,8 +236,9 @@
    "coverage_oracle": 0.77,
    "extra_cost_vs_oracle": 14.0,
    "matches_oracle": true,
-   "grounded": false,
+   "grounded": true,
    "fallback": false,
+   "ungrounded_numbers": [],
    "hours_left_vs_oracle": 0.0,
    "widest_search_miles": 10.0,
    "turns": 6,
@@ -247,8 +252,8 @@
     "propose_plan"
    ],
    "used_what_if": true,
-   "explanation": "42 of 55 open shifts are covered by Ahmed Vargas, Bianca Hughes, Bianca Sullivan, Brandon Bailey, Dev Santos, Esme Adams, Hailey Park, Laila Santos, Liam Price, Maria Perez, Olivia Khan, Olivia Park, Olivia Ross, Sofia Russo, Theo Evans, Yara Murphy, Yusuf Cohen, Yusuf Murphy, Yusuf Ross, adding $4,596.75 to the week (including $95.00 in booking fees). They are the lowest-cost qualified people nearby who are free at those times.",
-   "seconds": 8.9
+   "explanation": "This plan books 19 part-timers to fill 42 of 55 gaps covering 235.0 hours and leaving 70.0 hours uncovered, mostly shift manager shifts requiring food_safety_manager + keyholder that have no qualified marketplace candidates within 10 miles. Coverage includes Olivia Park on 4 line cook shifts (Mon 16:00-22:00, Thu 16:00-22:00, Fri 11:00-17:00, Sat 11:00-17:00), Dev on 4 host/server shifts (Mon 11:00-16:00, Thu 11:00-16:00, Fri 11:00-17:00, Sat 11:00-17:00), Bianca Sullivan on 4 bartender shifts (Mon, Tue, Thu and Sun evenings), Liam on dishwasher/prep, Yara on dishwasher/prep, and the remaining team filling host, server, prep and dishwasher gaps across the week. The week total is $9,667.25 with added cost $4,596.75 including $95.00 booking fees \u2014 these are the cheapest qualified candidates nearby for their roles and skills, keeping distance low and using the same people across multiple shifts to save booking fees.",
+   "seconds": 18.2
   },
   {
    "id": "biz_maple-out-ben-ivy-luis",
@@ -270,8 +275,9 @@
    "coverage_oracle": 0.8,
    "extra_cost_vs_oracle": 34.5,
    "matches_oracle": true,
-   "grounded": false,
+   "grounded": true,
    "fallback": false,
+   "ungrounded_numbers": [],
    "hours_left_vs_oracle": 0.0,
    "widest_search_miles": 10.0,
    "turns": 6,
@@ -285,8 +291,8 @@
     "propose_plan"
    ],
    "used_what_if": true,
-   "explanation": "49 of 62 open shifts are covered by Ahmed Vargas, Amara Edwards, Bianca Hughes, Bianca Sullivan, Brandon Bailey, Camila Santos, Dev Santos, Esme Adams, Hailey Park, Laila Santos, Liam Price, Maria Perez, Olivia Khan, Olivia Park, Olivia Ross, Sofia Russo, Theo Evans, Yara Murphy, Yusuf Cohen, Yusuf Murphy, Zion Bennett, adding $5,425.75 to the week (including $105.00 in booking fees). They are the lowest-cost qualified people nearby who are free at those times.",
-   "seconds": 12.3
+   "explanation": "This plan books 21 people to fill 49 of 62 gaps and cover 276.0 hours, leaving 69.0 hours uncovered where no qualified part-timers were available, for an added cost of $5,425.75 and a week total of $9,757.25. Theo and Laila cover your host shifts, Maria and Yusuf cover servers, Olivia, Bianca, Amara, Camila and Ahmed cover line cooks, Esme, Olivia, Liam and Zion cover prep cooks, Liam, Brandon, Yara and Sofia cover dishwashers, and Bianca and Yusuf cover bartenders across Mon-Sun as listed. These candidates were chosen as the cheapest qualified and closest available for each gap, all within 6.4 miles and with the right skills like food handler and alcohol service.",
+   "seconds": 23.5
   },
   {
    "id": "biz_maple-out-rosa",
@@ -308,11 +314,13 @@
    "matches_oracle": true,
    "grounded": true,
    "fallback": false,
+   "ungrounded_numbers": [],
    "hours_left_vs_oracle": 0.0,
    "widest_search_miles": 10.0,
    "turns": 6,
    "tools": [
     "get_gaps",
+    "search_marketplace",
     "search_marketplace",
     "search_marketplace",
     "solve_with",
@@ -321,8 +329,8 @@
     "propose_plan"
    ],
    "used_what_if": true,
-   "explanation": "This plan books 18 part-timers to cover 42 of your 53 open shifts for $4,566.75 in added pay and fees, bringing the week total to $9,979.75. Maria, Dev, Theo and Laila cover host and server gaps Mon-Thu and Sun, Liam, Yara, Brandon and Sofia handle most dishwasher shifts, Bianca, Olivia and Ahmed cover line cook, Esme, Yusuf and Olivia cover prep cook, and Yusuf and Bianca cover bartender shifts across the week. These are the cheapest qualified people within 5-6 miles for each slot, which keeps extra wages at $4,476.75 plus $90.00 in booking fees. 11 gaps totaling 58 hours remain unfilled with no qualified marketplace candidates, including shift manager and Fri-Sun host/bartender shifts.",
-   "seconds": 8.5
+   "explanation": "This plan fills 42 of 53 gaps (237.0 hours covered, 58.0 hours still open) for an added cost of $4,566.75, bringing the week total to $9,979.75. Liam, Yara, Brandon, Maria, Theo, Dev, Laila, Yusuf, Bianca, Olivia Park, Yusuf Murphy and others cover dishwasher, host, server, line cook, prep cook and bartender shifts across Mon-Sun based on lowest rate, distance and required skills. Remaining unfilled shifts are mainly shift manager roles requiring food safety manager and keyholder skills plus Fri-Sun host/bartender. Added cost already includes $90.00 in booking fees for 18 people booked.",
+   "seconds": 21.1
   },
   {
    "id": "biz_maple-out-ben-grace-luis",
@@ -344,11 +352,12 @@
    "coverage_oracle": 0.774,
    "extra_cost_vs_oracle": 48.0,
    "matches_oracle": true,
-   "grounded": false,
+   "grounded": true,
    "fallback": false,
+   "ungrounded_numbers": [],
    "hours_left_vs_oracle": 0.0,
    "widest_search_miles": 10.0,
-   "turns": 6,
+   "turns": 5,
    "tools": [
     "get_gaps",
     "search_marketplace",
@@ -359,8 +368,8 @@
     "propose_plan"
    ],
    "used_what_if": true,
-   "explanation": "50 of 65 open shifts are covered by Ahmed Vargas, Amara Edwards, Bianca Hughes, Bianca Sullivan, Brandon Bailey, Camila Santos, Dev Santos, Esme Adams, Hailey Park, Laila Santos, Liam Price, Maria Perez, Olivia Khan, Olivia Park, Olivia Ross, Sofia Russo, Theo Evans, Yara Murphy, Yusuf Cohen, Yusuf Murphy, Yusuf Ross, adding $5,517.25 to the week (including $105.00 in booking fees). They are the lowest-cost qualified people nearby who are free at those times.",
-   "seconds": 8.8
+   "explanation": "This books 21 nearby part-timers to fill 50 of 65 gaps covering 281.0 hours, leaving 82.0 hours still open \u2014 mostly shift manager shifts that had no qualified candidates nearby. Maria, Dev, Theo, Laila and Yusuf cover host and server on Mon 11am-4pm through Sun 11am-4pm; Yara, Liam, Brandon, Olivia and Sofia cover dishwasher; Esme, Liam, Yusuf, Olivia and Olivia cover prep cook; Bianca, Amara, Olivia, Camila, Ahmed and Hailey cover line cook Mon 11am-4pm through Sun 4pm-10pm; and Yusuf and Bianca cover bartender evenings. They were the cheapest qualified and closest for each slot on skills, rate and distance, keeping added cost to $5,517.25 for a week total of $9,215.75.",
+   "seconds": 22.0
   }
  ],
  "summary": {
@@ -372,18 +381,18 @@
   "extra_open_hours_vs_optimizer": 0.0,
   "avg_extra_cost_same_coverage": 14.475,
   "widened_search": 0.9,
-  "grounded": 0.7,
+  "grounded": 1.0,
   "fallback": 0.0,
-  "avg_turns": 6.1,
+  "avg_turns": 5.8,
   "used_what_if": 1.0,
-  "avg_seconds": null
+  "avg_seconds": 15.26
  },
  "suite": "agent",
  "provider": "baseten",
  "model": "meta-models/muse-spark-open-1026",
- "run_at": "2026-11-01 20:40",
- "seconds": 74.9,
- "cost_usd": 0.3103,
- "model_calls": 57,
+ "run_at": "2026-11-01 20:55",
+ "seconds": 177.1,
+ "cost_usd": 0.2645,
+ "model_calls": 50,
  "partial": false
 }
