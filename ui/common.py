@@ -168,6 +168,7 @@ CSS = """
   [data-testid="stImage"] img {border-radius:14px;}
   /* pictures in a row of cards share one frame shape, so the text under them starts level */
   [class*="st-key-nh-card-"] [data-testid="stImage"] img {aspect-ratio:3/2; object-fit:cover; width:100%;}
+  img[data-testid="stHeaderLogo"] {height:2.25rem !important; max-height:2.25rem !important; width:auto !important;}
 </style>
 """
 
