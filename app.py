@@ -3,16 +3,25 @@
     streamlit run app.py
 """
 
+import os
+
 import streamlit as st
 
 from core import db
 from ui.common import boot, business_label
 
-st.set_page_config(page_title="Nearhand", page_icon="🤝", layout="wide")
+_HAS_LOGO = os.path.exists("assets/logo.png")
+_HAS_FAVICON = os.path.exists("assets/favicon.png")
+
+st.set_page_config(page_title="Nearhand", page_icon="assets/favicon.png" if _HAS_FAVICON else "🤝",
+                   layout="wide")
 boot()
 
+if _HAS_LOGO:
+    st.logo("assets/logo.png", icon_image="assets/favicon.png" if _HAS_FAVICON else "assets/logo.png")
+
 with st.sidebar:
-    st.markdown("## 🤝 Nearhand")
+    st.markdown("## Nearhand" if _HAS_LOGO else "## 🤝 Nearhand")
     st.caption("Your week, scheduled. Your gaps, filled from down the street.")
     view = st.segmented_control("View as", ["Manager", "Part-timer"], default="Manager", key="view") or "Manager"
     if view == "Manager":

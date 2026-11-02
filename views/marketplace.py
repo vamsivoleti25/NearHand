@@ -3,7 +3,8 @@
 import streamlit as st
 
 from core import db, marketplace, parsers
-from ui.common import SKILL_LABELS, chips, current_business, footer, md, money, neighborhood_map, role, setup_page
+from ui.common import (SKILL_LABELS, avatar, chips, current_business, footer, md, money,
+                      neighborhood_map, role, setup_page)
 
 setup_page()
 biz = current_business()
@@ -38,7 +39,9 @@ neighborhood_map(biz, [{"pt": all_pts[c["id"]], "kind": "candidate",
 cols = st.columns(3)
 for i, c in enumerate(results):
     with cols[i % 3].container(border=True):
-        st.markdown(md(f"**{c['name']}** · {money(c['rate_cents'])}/h · {c['distance_miles']} mi"))
+        st.markdown(avatar(c["name"]) + md(f" **{c['name']}**"), unsafe_allow_html=True)
+        st.markdown(md(f"<span class=\"nh-rate\">{money(c['rate_cents'])}/h</span> · "
+                       f"{c['distance_miles']} mi away"), unsafe_allow_html=True)
         chips([f"{role(r['role'])} {r['years']:g}y" for r in c["roles"]])
         chips([SKILL_LABELS.get(s, s) for s in c["skills"]], "warn")
         if c["free_days"]:

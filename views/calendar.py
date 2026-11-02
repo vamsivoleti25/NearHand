@@ -5,7 +5,7 @@ import streamlit as st
 
 from core import db, marketplace
 from core.taxonomy import DAYS, to_q
-from ui.common import SKILL_LABELS, chips, footer, money, role, setup_page
+from ui.common import SKILL_LABELS, chips, footer, legend, money, role, setup_page
 
 setup_page()
 p = db.part_timer(st.session_state.get("part_timer_id", "pt_001"))
@@ -37,14 +37,15 @@ for b in bookings:
 
 def color(v):
     if v.startswith("Booked"):
-        return "background-color: rgba(147,51,234,.28); font-weight: 600"
+        return "background-color: rgba(109,40,217,.14); font-weight: 600"
     if v == "Free":
-        return "background-color: rgba(34,197,94,.14)"
+        return "background-color: rgba(22,163,74,.08)"
     if v == "Busy elsewhere":
-        return "background-color: rgba(148,163,184,.25)"
+        return "background-color: rgba(148,163,184,.15)"
     return ""
 
 
+legend([("#16A34A", "free"), ("#94A3B8", "busy elsewhere"), ("#6D28D9", "booked")])
 st.dataframe(grid.style.map(color), width="stretch", height=36 * len(hours) + 40)
 
 st.subheader("Booked through Nearhand")

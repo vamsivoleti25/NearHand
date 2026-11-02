@@ -28,12 +28,27 @@ DAY_LONG = dict(zip(DAYS, ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday
 
 CSS = """
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Plus+Jakarta+Sans:wght@600;700&display=swap');
   .block-container {padding-top: 2.2rem; max-width: 1400px;}
+  html, body, p, div, span, li, caption {font-family: 'Inter', sans-serif;}
+  h1, h2, h3, h4, h5, h6 {font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;}
+  div[data-testid="stMetricValue"] {font-variant-numeric: tabular-nums;}
+  /* cards: white, 12px radius, 1px slate-200 border, one soft shadow */
+  div[data-testid="stVerticalBlockBorderWrapper"] {border-color:#E2E8F0; border-radius:12px;
+    box-shadow:0 1px 3px rgba(15,23,42,.06);}
+  /* metric cards */
+  div[data-testid="stMetric"] {background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px;
+    padding:.7rem 1rem; box-shadow:0 1px 3px rgba(15,23,42,.06);}
+  div[data-testid="stMetric"] label {color:#475569 !important; font-size:.8rem;}
+  div[data-testid="stMetricValue"] {font-size:1.5rem; font-variant-numeric: tabular-nums;}
   .nh-chip {display:inline-block; padding:2px 10px; margin:2px 4px 2px 0; border-radius:999px;
-            font-size:0.82rem; background:rgba(99,102,241,.12); color:inherit; border:1px solid rgba(99,102,241,.35);}
-  .nh-chip.warn {background:rgba(245,158,11,.12); border-color:rgba(245,158,11,.45);}
-  .nh-chip.mp {background:rgba(147,51,234,.12); border-color:rgba(147,51,234,.45);}
-  .nh-muted {opacity:.7; font-size:.85rem;}
+            font-size:0.82rem; background:#F5F3FF; color:#0F172A; border:1px solid #E2E8F0;}
+  .nh-chip.warn {background:#FFFFFF; border-color:#F59E0B; color:#0F172A;}
+  .nh-chip.mp {background:#F5F3FF; border-color:rgba(109,40,217,.45);}
+  .nh-pill, .nh-rate {display:inline-block; padding:2px 12px; border-radius:999px; font-size:.82rem;
+    font-weight:600; background:#F5F3FF; border:1px solid rgba(109,40,217,.4); color:#0F172A;
+    white-space:nowrap;}
+  .nh-muted {opacity:.7; font-size:.85rem; color:#475569;}
   .nh-footer {opacity:.6; font-size:.8rem; margin-top:2rem;}
   div[data-testid="stButtonGroup"] > div {flex-wrap: wrap !important; overflow: visible !important;}
   .nh-steps {display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:-.4rem 0 1rem 0;}
@@ -43,8 +58,31 @@ CSS = """
   .nh-step.todo {opacity:.55;}
   .nh-arrow {opacity:.4;}
   .nh-rec {display:inline-block; padding:4px 14px; border-radius:999px; font-weight:700; font-size:.95rem;}
-  .nh-rec.take {background:rgba(34,197,94,.18);} .nh-rec.look {background:rgba(245,158,11,.2);}
-  .nh-rec.pass {background:rgba(239,68,68,.18);}
+  .nh-rec.take {background:rgba(22,163,74,.16);} .nh-rec.look {background:rgba(245,158,11,.2);}
+  .nh-rec.pass {background:rgba(239,68,68,.16);}
+  .nh-subtitle {color:#475569; font-size:1.05rem; margin:-.6rem 0 1rem 0;}
+  .nh-legend {display:flex; flex-wrap:wrap; gap:4px 14px; align-items:center; color:#475569;
+    font-size:.85rem; margin:.2rem 0 .6rem 0;}
+  .nh-legend .dot {display:inline-block; width:10px; height:10px; border-radius:999px; margin-right:5px;}
+  .nh-badge-ok {display:inline-block; padding:2px 10px; border-radius:999px; font-size:.78rem; font-weight:600;
+    background:rgba(22,163,74,.14); color:#15803D; border:1px solid rgba(22,163,74,.4);}
+  .nh-avatar {display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px;
+    border-radius:999px; color:#FFFFFF; font-weight:700; font-size:.85rem; margin-right:8px;
+    vertical-align:middle; flex:none;}
+  /* impact card: strongest element after the grid (violet-50, violet left border) */
+  div[data-testid="stVerticalBlockBorderWrapper"]:has(.nh-marker-impact) {background:#F5F3FF;
+    border-left:4px solid #6D28D9;}
+  /* agent plan card: white, violet left border */
+  div[data-testid="stVerticalBlockBorderWrapper"]:has(.nh-marker-plan) {background:#FFFFFF;
+    border-left:4px solid #6D28D9;}
+  /* phone-width offer cards, centered */
+  div[data-testid="stVerticalBlockBorderWrapper"]:has(.nh-marker-offer) {max-width:560px;
+    margin-left:auto; margin-right:auto; background:#FFFFFF;}
+  /* agent trace timeline inside the expander */
+  .nh-timeline {border-left:2px solid #E2E8F0; margin:.4rem 0 .4rem 6px; padding-left:0;}
+  .nh-timeline-item {position:relative; padding:2px 0 10px 18px; font-size:.9rem;}
+  .nh-timeline-item::before {content:""; position:absolute; left:-6px; top:8px; width:10px; height:10px;
+    border-radius:999px; background:#6D28D9;}
 </style>
 """
 
@@ -84,6 +122,34 @@ def role(r: str) -> str:
 def chips(items: list[str], kind: str = "") -> None:
     if items:
         st.markdown(" ".join(f'<span class="nh-chip {kind}">{md(i)}</span>' for i in items), unsafe_allow_html=True)
+
+
+_AVATAR_COLORS = ["#6D28D9", "#0E7490", "#15803D", "#B45309", "#BE123C", "#475569"]
+
+
+def avatar(name: str) -> str:
+    """Initials avatar circle; colour is picked from the name so it is stable. Returns html."""
+    parts = str(name).split()
+    initials = "".join(p[0] for p in parts[:2]).upper() or "?"
+    color = _AVATAR_COLORS[sum(ord(c) for c in str(name)) % len(_AVATAR_COLORS)]
+    return f'<span class="nh-avatar" style="background:{color}">{initials}</span>'
+
+
+def legend(items: list) -> None:
+    """One-line legend row. Each item is a (swatch, label) tuple: a '#...' color becomes a dot,
+    anything else is shown as a symbol. A plain string item is shown as-is."""
+    bits = []
+    for it in items:
+        if isinstance(it, str):
+            bits.append(md(it))
+            continue
+        swatch, label = it
+        if str(swatch).startswith("#"):
+            bits.append(f'<span><span class="dot" style="background:{swatch}"></span>{md(label)}</span>')
+        else:
+            bits.append(f"<span>{swatch} {md(label)}</span>")
+    if bits:
+        st.markdown('<div class="nh-legend">' + " · ".join(bits) + "</div>", unsafe_allow_html=True)
 
 
 def footer() -> None:

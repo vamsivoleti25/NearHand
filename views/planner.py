@@ -9,9 +9,9 @@ from core.schemas import ConstraintSet
 from core.solver import solve_staff_only
 import time
 
-from ui.common import (STATUS_BADGE, constraint_label, current_business, demand_hours, footer, gap_hours, load_state,
-                       md, money, neighborhood_map, progress, role, save_state, schedule_frame, seed_text, setup_page,
-                       week_label)
+from ui.common import (STATUS_BADGE, constraint_label, current_business, demand_hours, footer, gap_hours, legend,
+                       load_state, md, money, neighborhood_map, progress, role, save_state, schedule_frame,
+                       seed_text, setup_page, week_label)
 
 
 def step_line(tool: str, args: dict, out: dict) -> str:
@@ -88,7 +88,8 @@ names = {e.id: e.name.split()[0] for e in team}
 pts = {p.id: p for p in db.part_timers()}
 sent = db.offers(business_id=biz.id) if state.get("staff_result") else []
 
-st.title(f"{biz.name} · {week_label()}")
+st.title(biz.name)
+st.markdown(f'<div class="nh-subtitle">{week_label()}</div>', unsafe_allow_html=True)
 if grid is None or not team:
     st.info("Set up your business and team first (Setup and Team pages).")
     st.stop()
@@ -175,6 +176,7 @@ if projected is not view or sent:
     b_cost, a_cost = base["bill"]["total_cents"], projected["bill"]["total_cents"]
     booked = sum(1 for s in projected["status"].values() if s == "accepted")
     with st.container(border=True):
+        st.markdown('<span class="nh-marker-impact"></span>', unsafe_allow_html=True)
         st.markdown("**Impact** · " + ("if you send these offers" if projected is not view
                                          else f"{booked} booked, {len(projected['status']) - booked} waiting"))
         i1, i2, i3, i4 = st.columns(4)
@@ -185,6 +187,7 @@ if projected is not view or sent:
         i4.metric("Added to the week", money(a_cost - b_cost), f"{100 * (a_cost - b_cost) / b_cost:+.1f}% of labor",
                   delta_color="off")
 
+legend([("✓", "booked"), ("⏳", "offer sent"), ("#EF4444", "open shift")])
 frame = schedule_frame(slots, view["assignments"], view["gaps"], view["workers"], view["status"])
 st.dataframe(frame, width="stretch", height=35 * (len(frame.data) + 1) + 3)
 st.caption("Purple rows are marketplace part-timers: ⏳ offer sent, ✓ booked. "
@@ -225,6 +228,7 @@ if view["gaps"] and not state.get("plan"):
 plan = state.get("plan")
 if plan:
     with st.container(border=True):
+        st.markdown('<span class="nh-marker-plan"></span>', unsafe_allow_html=True)
         st.markdown(md(f"**Proposed plan** · adds **{plan['added_cost']}** "
                        f"({plan['added_wages']} wages + {plan['booking_fees']} booking fees) · "
                        f"week total {plan['week_total']}"))
@@ -232,7 +236,8 @@ if plan:
         if plan.get("alternative"):
             st.caption(md("Alternative: " + plan["alternative"]))
         if plan.get("grounded"):
-            st.caption("✓ Every number above was checked against the optimizer's results.")
+            st.markdown('<span class="nh-badge-ok">✓ Every number above was checked against the optimizer\'s '
+                        "results.</span>", unsafe_allow_html=True)
         rows = [{"Day": b["day"], "Time": b["time"], "Role": role(b["role"]), "Who": b["name"],
                  "Rate": b["rate"] + "/h", "Distance": f"{b['distance_miles']} mi"} for b in plan["bookings"]]
         st.dataframe(rows, hide_index=True, width="stretch")
@@ -245,8 +250,9 @@ if plan:
             st.caption(plan["note"])
         if state.get("trace"):
             with st.expander("How the agent got here"):
-                for line in state["trace"]:
-                    st.markdown(md(line))
+                st.markdown('<div class="nh-timeline">' + "".join(
+                    f'<div class="nh-timeline-item">{md(line)}</div>' for line in state["trace"]
+                ) + "</div>", unsafe_allow_html=True)
         a, b = st.columns(2)
         if a.button("Send offers", type="primary", width="stretch"):
             n = send_offers(biz, state, pts)

@@ -22,10 +22,10 @@ for o in pending:
     biz = businesses[o.business_id]
     facts = offers.offer_facts(o, p, biz, db.bookings(), mine)
     with st.container(border=True):
-        top_l, top_r = st.columns([3, 1])
-        top_l.markdown(md(f"### {biz.name}\n{facts['distance_miles']} mi away · {money(o.rate_cents)}/h"))
-        top_r.metric("You'd earn", facts["total_pay"])
-        top_r.caption(f"for {facts['total_hours']:g} hours")
+        st.markdown('<span class="nh-marker-offer"></span>', unsafe_allow_html=True)
+        st.markdown(md(f"### {biz.name}\n{facts['distance_miles']} mi away"))
+        st.markdown(md(f"## You'd earn {facts['total_pay']}"))
+        st.caption(md(f"for {facts['total_hours']:g} hours at {money(o.rate_cents)}/h"))
         for s in o.shifts:
             st.markdown(md(f"- **{s.day}** {s.start}–{s.end} · {role(s.role)}"))
         if o.message:
@@ -43,8 +43,7 @@ for o in pending:
                 st.markdown(md(f"- {r}"))
             st.caption("Based on your calendar, asking rate, weekly max and distance. Numbers checked against them.")
 
-        a, b = st.columns(2)
-        if a.button("Accept", key=f"yes_{o.id}", type="primary", width="stretch"):
+        if st.button("Accept", key=f"yes_{o.id}", type="primary", width="stretch"):
             done, made = offers.respond(o, True, p, biz, db.bookings())
             for bk in made:
                 db.add_booking(bk)
@@ -54,7 +53,7 @@ for o in pending:
             else:
                 st.toast("Those hours aren't free anymore, so the offer was closed.", icon="⚠️")
             st.rerun()
-        if b.button("Decline", key=f"no_{o.id}", width="stretch"):
+        if st.button("Decline", key=f"no_{o.id}", width="stretch"):
             db.save_offer(offers.respond(o, False, p, biz, db.bookings())[0])
             st.toast(f"Declined. {biz.name} will find someone else.", icon="👋")
             st.rerun()
