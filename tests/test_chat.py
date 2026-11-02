@@ -165,3 +165,31 @@ def test_not_a_change_request():
     o = owner_sends_offers()[0]
     f = changes.check(o, changes.ChangeRequest(is_change_request=False), [])
     assert not f["ok"] and "doesn't ask" in f["reason"]
+
+
+def test_refresh_keeps_the_same_demo_copy_and_account(tmp_path, monkeypatch):
+    """The demo copy's id and the signed-in account ride in the address, so a refresh or a new tab (a new
+    Streamlit session) comes back to the same data instead of a blank demo."""
+    from streamlit.testing.v1 import AppTest
+    from tests.test_ui import ROOT
+    from ui import session
+    monkeypatch.setenv("NEARHAND_PRIVATE_DEMO", "1")
+    monkeypatch.setattr(session, "SESSIONS_DIR", tmp_path / "sessions")
+    try:
+        first = AppTest.from_file(str(ROOT / "app.py"), default_timeout=120)
+        first.session_state["view"] = "Part-timer"           # the "I'm looking for shifts" door
+        first.run()
+        assert not first.exception, first.exception
+        demo, who = first.query_params["demo"], first.query_params["as"]
+        llm.use_db(tmp_path / "sessions" / f"{demo}.db")       # write into that visitor's copy
+        db.log_event("biz_bean", "note", "written before the refresh")
+        llm.use_db(None)
+        again = AppTest.from_file(str(ROOT / "app.py"), default_timeout=120)   # a fresh session
+        again.query_params["demo"], again.query_params["as"] = demo, who
+        again.run()
+        assert not again.exception, again.exception
+        assert again.session_state["account_id"] == who and again.query_params["demo"] == demo
+        llm.use_db(tmp_path / "sessions" / f"{demo}.db")
+        assert [e.text for e in db.events(business_id="biz_bean")] == ["written before the refresh"]
+    finally:
+        llm.use_db(None)

@@ -26,26 +26,56 @@ EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 SESSIONS_DIR = llm.ROOT / "data" / "sessions"
 
 
+_DEMO_ID = re.compile(r"^[0-9a-f]{12}$")
+
+
 def use_private_db() -> None:
-    """Give this browser session its own copy of the demo data, so visitors never see each other's offers.
-    Off with NEARHAND_PRIVATE_DEMO=0 (then everyone shares data/nearhand.db, as before)."""
+    """Give this visitor their own copy of the demo data, so visitors never see each other's offers.
+
+    The copy's id rides in the page address (?demo=…), so a refresh, a new tab or a shared link keeps the same
+    data instead of starting over. Off with NEARHAND_PRIVATE_DEMO=0 (everyone shares data/nearhand.db)."""
     if os.getenv("NEARHAND_PRIVATE_DEMO", "1") == "0":
         return
-    path = st.session_state.get("db_file")
-    if not path:
-        SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
-        cutoff = time.time() - 24 * 3600          # tidy up demos nobody has touched for a day
-        for f in SESSIONS_DIR.glob("*.db"):
-            try:
-                if f.stat().st_mtime < cutoff:
-                    f.unlink()
-            except OSError:
-                pass
-        path = str(SESSIONS_DIR / f"{uuid.uuid4().hex[:12]}.db")
-        st.session_state.db_file = path
+    demo = st.session_state.get("demo_id")
+    if not demo:
+        asked = str(st.query_params.get("demo", ""))
+        if _DEMO_ID.match(asked) and (SESSIONS_DIR / f"{asked}.db").exists():
+            demo = asked                           # back after a refresh or in a new tab: same data
+        else:
+            SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
+            cutoff = time.time() - 24 * 3600      # tidy up demos nobody has touched for a day
+            for f in SESSIONS_DIR.glob("*.db"):
+                try:
+                    if f.stat().st_mtime < cutoff:
+                        f.unlink()
+                except OSError:
+                    pass
+            demo = uuid.uuid4().hex[:12]
+        st.session_state.demo_id = demo
+    path = SESSIONS_DIR / f"{demo}.db"
+    st.session_state.db_file = str(path)
     llm.use_db(path)
-    if not Path(path).exists():
+    if not path.exists():
         db.load_seed(force=True)
+    if st.query_params.get("demo") != demo:
+        st.query_params["demo"] = demo
+    # Who was signed in survives a refresh too (demo accounts have no passwords).
+    if not st.session_state.get("account_id") and st.query_params.get("as"):
+        try:
+            sign_in(db.account(str(st.query_params["as"])))
+        except KeyError:
+            pass
+
+
+def remember_account() -> None:
+    """Keep the signed-in demo account in the address (called once the page list is built)."""
+    if os.getenv("NEARHAND_PRIVATE_DEMO", "1") == "0":
+        return
+    aid = st.session_state.get("account_id")
+    if aid and st.query_params.get("as") != aid:
+        st.query_params["as"] = aid
+    elif not aid and "as" in st.query_params:
+        del st.query_params["as"]
 
 
 def current() -> Account | None:
@@ -73,6 +103,8 @@ def sign_in(a: Account) -> None:
 def sign_out() -> None:
     for k in ("account_id", "view", "employee_id", "part_timer_id"):
         st.session_state.pop(k, None)
+    if "as" in st.query_params:     # or a refresh would sign them back in
+        del st.query_params["as"]
     st.session_state.goto = "home"
 
 

@@ -93,6 +93,7 @@ else:
              st.Page("views/calendar.py", title="My calendar", icon=":material/event:"),
              st.Page("views/profile.py", title="My profile", icon=":material/badge:")]
 pg = st.navigation(pages, position="top")
+session.remember_account()
 goto = st.session_state.pop("goto", None)   # set by sign-in, sign-out and switch buttons
 if goto == "signin" and acct is None:
     st.switch_page(signin)
