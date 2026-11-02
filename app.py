@@ -10,6 +10,15 @@ import streamlit as st
 from ui import session
 from ui.common import boot
 
+# On Streamlit Community Cloud the API keys live in the app's Secrets, not in a .env file.
+# core/llm.py reads keys from the environment, so copy any top-level secrets there first.
+try:
+    for _k, _v in st.secrets.items():
+        if isinstance(_v, str):
+            os.environ.setdefault(_k, _v)
+except Exception:  # no secrets file when running locally: .env is used instead
+    pass
+
 _HAS_LOGO = os.path.exists("assets/logo.png")
 _HAS_FAVICON = os.path.exists("assets/favicon.png")
 
