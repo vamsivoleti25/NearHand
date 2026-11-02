@@ -11,7 +11,10 @@ import sqlite3
 from pathlib import Path
 
 from core import llm
-from core.schemas import Account, Booking, Business, Employee, Offer, PartTimer, StaffingGrid
+import time
+import uuid
+
+from core.schemas import Account, Booking, Business, Employee, Event, Message, Offer, PartTimer, StaffingGrid
 
 SEED_DIR = Path(__file__).resolve().parent.parent / "data" / "seed"
 
@@ -24,6 +27,8 @@ TABLES = {
     "schedules": "business_id TEXT PRIMARY KEY, json TEXT",  # the planner's saved week (ui/common.py)
     "offers": "id TEXT PRIMARY KEY, business_id TEXT, part_timer_id TEXT, status TEXT, json TEXT",
     "accounts": "id TEXT PRIMARY KEY, email TEXT UNIQUE, json TEXT",
+    "messages": "id TEXT PRIMARY KEY, offer_id TEXT, business_id TEXT, worker_id TEXT, ts REAL, json TEXT",
+    "events": "id TEXT PRIMARY KEY, business_id TEXT, worker_id TEXT, ts REAL, json TEXT",
 }
 
 # Fictional owners for the two demo businesses (sign-in shows them as demo accounts).
@@ -32,8 +37,9 @@ DOMAINS = {"biz_bean": "beanandco.example", "biz_maple": "mapletable.example"}
 
 
 def connect() -> sqlite3.Connection:
-    llm.DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(llm.DB_PATH)
+    path = llm.db_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    con = sqlite3.connect(path)
     for name, cols in TABLES.items():
         con.execute(f"CREATE TABLE IF NOT EXISTS {name} ({cols})")
     return con
@@ -186,10 +192,46 @@ def save_schedule(business_id: str, state: dict) -> None:
 # ---------------------------------------------------------------- offers
 
 def save_offer(o: Offer) -> None:
+    """Save an offer; a new offer or a change of status is also written to the activity feed."""
     who = o.employee_id if o.kind == "extra_hours" else o.part_timer_id   # the column holds the recipient
     with connect() as con:
+        row = con.execute("SELECT status FROM offers WHERE id = ?", (o.id,)).fetchone()
         con.execute("INSERT OR REPLACE INTO offers VALUES (?, ?, ?, ?, ?)",
                     (o.id, o.business_id, who, o.status, o.model_dump_json()))
+    before = row[0] if row else None
+    if before != o.status:
+        _log_offer(o, before)
+
+
+def worker_name(o: Offer) -> str:
+    if o.kind == "extra_hours":
+        return next((e.name for e in team(o.business_id) if e.id == o.employee_id), o.employee_id)
+    try:
+        return part_timer(o.part_timer_id).name
+    except KeyError:
+        return o.part_timer_id
+
+
+def shifts_text(o: Offer) -> str:
+    def t(hhmm: str) -> str:
+        h, m = int(hhmm[:2]), hhmm[3:]
+        return f"{h % 12 or 12}{'' if m == '00' else ':' + m}{'a' if h < 12 else 'p'}"
+    return ", ".join(f"{s.day} {t(s.start)}–{t(s.end)}" for s in o.shifts)
+
+
+def _log_offer(o: Offer, before: str | None) -> None:
+    name, what = worker_name(o), shifts_text(o)
+    extra = o.kind == "extra_hours"
+    text = {
+        "pending": (f"Asked {name} (your team) to pick up extra hours: {what}" if extra
+                    else f"Offer sent to {name}: {what}"),
+        "accepted": f"{name} accepted {'extra hours ' if extra else ''}{what}",
+        "declined": f"{name} declined {what}",
+        "unavailable": (f"Offer to {name} withdrawn: the schedule was rebuilt" if before == "pending"
+                        and o.responded_ts is None else f"{name} is no longer free for {what}"),
+    }[o.status]
+    kind = "offer_sent" if o.status == "pending" else o.status
+    log_event(o.business_id, kind, text, worker_id=o.employee_id or o.part_timer_id, offer_id=o.id)
 
 
 def offers(business_id: str | None = None, part_timer_id: str | None = None, status: str | None = None,
@@ -243,3 +285,72 @@ def offer(offer_id: str) -> Offer:
     if not row:
         raise KeyError(offer_id)
     return Offer.model_validate_json(row[0])
+
+
+# ---------------------------------------------------------------- activity feed
+
+def log_event(business_id: str, kind: str, text: str, worker_id: str = "", offer_id: str = "") -> Event:
+    e = Event(id=f"ev_{uuid.uuid4().hex[:10]}", business_id=business_id, ts=time.time(), kind=kind, text=text,
+              worker_id=worker_id, offer_id=offer_id)
+    with connect() as con:
+        con.execute("INSERT INTO events VALUES (?, ?, ?, ?, ?)",
+                    (e.id, e.business_id, e.worker_id, e.ts, e.model_dump_json()))
+    return e
+
+
+def events(business_id: str | None = None, worker_id: str | None = None, limit: int = 30) -> list[Event]:
+    """Newest first."""
+    q, args = "SELECT json FROM events WHERE 1=1", []
+    for col, val in (("business_id", business_id), ("worker_id", worker_id)):
+        if val:
+            q, args = q + f" AND {col} = ?", args + [val]
+    with connect() as con:
+        rows = con.execute(q + " ORDER BY ts DESC LIMIT ?", args + [limit]).fetchall()
+    return [Event.model_validate_json(r[0]) for r in rows]
+
+
+# ---------------------------------------------------------------- chat on offers
+
+def send_message(o: Offer, from_business: bool, sender: str, text: str) -> Message:
+    m = Message(id=f"msg_{uuid.uuid4().hex[:10]}", offer_id=o.id, business_id=o.business_id,
+                worker_id=o.employee_id or o.part_timer_id, from_business=from_business, sender=sender,
+                text=text.strip()[:1000], ts=time.time())
+    with connect() as con:
+        con.execute("INSERT INTO messages VALUES (?, ?, ?, ?, ?, ?)",
+                    (m.id, m.offer_id, m.business_id, m.worker_id, m.ts, m.model_dump_json()))
+    short = m.text if len(m.text) <= 80 else m.text[:77] + "…"
+    log_event(o.business_id, "message", f"{sender}: “{short}”", worker_id=m.worker_id, offer_id=o.id)
+    return m
+
+
+def messages(offer_id: str) -> list[Message]:
+    with connect() as con:
+        rows = con.execute("SELECT json FROM messages WHERE offer_id = ? ORDER BY ts", (offer_id,)).fetchall()
+    return [Message.model_validate_json(r[0]) for r in rows]
+
+
+def unread(for_business: bool, business_id: str | None = None, worker_id: str | None = None) -> dict[str, int]:
+    """Unread messages per offer. for_business=True: messages workers wrote that the business hasn't read;
+    False: messages the business wrote that the worker hasn't read. Filter by business and/or worker."""
+    q, args = "SELECT json FROM messages WHERE 1=1", []
+    for col, val in (("business_id", business_id), ("worker_id", worker_id)):
+        if val:
+            q, args = q + f" AND {col} = ?", args + [val]
+    with connect() as con:
+        rows = [Message.model_validate_json(r[0]) for r in con.execute(q, args)]
+    out: dict[str, int] = {}
+    for m in rows:
+        if not m.read and m.from_business != for_business:
+            out[m.offer_id] = out.get(m.offer_id, 0) + 1
+    return out
+
+
+def mark_read(offer_id: str, by_business: bool) -> None:
+    """Mark the other side's messages on this offer as read."""
+    with connect() as con:
+        rows = con.execute("SELECT id, json FROM messages WHERE offer_id = ?", (offer_id,)).fetchall()
+        for mid, js in rows:
+            m = Message.model_validate_json(js)
+            if not m.read and m.from_business != by_business:
+                con.execute("UPDATE messages SET json = ? WHERE id = ?",
+                            (m.model_copy(update={"read": True}).model_dump_json(), mid))

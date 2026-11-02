@@ -169,6 +169,22 @@ CSS = """
   /* pictures in a row of cards share one frame shape, so the text under them starts level */
   [class*="st-key-nh-card-"] [data-testid="stImage"] img {aspect-ratio:3/2; object-fit:cover; width:100%;}
   img[data-testid="stHeaderLogo"] {height:2.25rem !important; max-height:2.25rem !important; width:auto !important;}
+  /* chat on offers */
+  .nh-thread {display:flex; flex-direction:column; gap:.45rem; margin:.25rem 0 .6rem 0;}
+  .nh-msg {max-width:82%; padding:.5rem .8rem; border-radius:14px; font-size:.95rem; line-height:1.45;}
+  .nh-msg.theirs {align-self:flex-start; background:#F1F5F9; border-top-left-radius:4px;}
+  .nh-msg.mine {align-self:flex-end; background:#F5F3FF; border:1px solid #E9E3FF; border-top-right-radius:4px;}
+  .nh-msg-who {font-size:.75rem; color:#64748B; margin-bottom:.15rem;}
+  /* activity feed */
+  .nh-feed {display:flex; flex-direction:column;}
+  .nh-ev {display:flex; gap:.6rem; align-items:baseline; padding:.45rem 0; border-bottom:1px solid #F1F5F9;}
+  .nh-ev-ic {flex:none; width:1.4rem; text-align:center;}
+  .nh-ev-tx {flex:1; font-size:.95rem;}
+  .nh-ev-t {flex:none; color:#94A3B8; font-size:.8rem; white-space:nowrap;}
+  [data-testid="stTabs"] button[role="tab"] p {font-size:1.02rem; font-weight:600;}
+  [data-testid="stTabs"] [role="tablist"] {gap:1.4rem;}
+  .nh-next {background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:.6rem .9rem;
+    margin:-.3rem 0 1rem 0; font-size:.95rem;}
 </style>
 """
 

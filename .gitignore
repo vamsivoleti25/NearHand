@@ -234,3 +234,6 @@ data/*.db
 .streamlit/secrets.toml
 .DS_Store
 evals/.cache/
+
+# each demo visitor gets a private copy of the data
+data/sessions/

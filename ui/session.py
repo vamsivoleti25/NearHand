@@ -6,18 +6,46 @@ so pages work the same whether you arrive by signing in, by a home-page button, 
 
 from __future__ import annotations
 
+import os
 import re
+import time
 import uuid
+from pathlib import Path
 
 import streamlit as st
 
-from core import db
+from core import db, llm
 from core.schemas import Account, Business, PartTimer, PartTimerProfile
 from core.taxonomy import TEMPLATES, ZIP_COORDS
 
 VIEW_OF = {"owner": "Manager", "staff": "Staff", "part_timer": "Part-timer"}
 ROLE_OF = {v: k for k, v in VIEW_OF.items()}
 EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+SESSIONS_DIR = llm.ROOT / "data" / "sessions"
+
+
+def use_private_db() -> None:
+    """Give this browser session its own copy of the demo data, so visitors never see each other's offers.
+    Off with NEARHAND_PRIVATE_DEMO=0 (then everyone shares data/nearhand.db, as before)."""
+    if os.getenv("NEARHAND_PRIVATE_DEMO", "1") == "0":
+        return
+    path = st.session_state.get("db_file")
+    if not path:
+        SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
+        cutoff = time.time() - 24 * 3600          # tidy up demos nobody has touched for a day
+        for f in SESSIONS_DIR.glob("*.db"):
+            try:
+                if f.stat().st_mtime < cutoff:
+                    f.unlink()
+            except OSError:
+                pass
+        path = str(SESSIONS_DIR / f"{uuid.uuid4().hex[:12]}.db")
+        st.session_state.db_file = path
+    llm.use_db(path)
+    if not Path(path).exists():
+        db.load_seed(force=True)
 
 
 def current() -> Account | None:
@@ -57,8 +85,21 @@ def switch_to_picked() -> None:
     """Sidebar 'Switch demo account' (a callback, so it runs before the page list is built)."""
     aid = st.session_state.get("demo_pick")
     if aid:
-        sign_in(db.account(aid))
-        st.session_state.goto = "home"
+        use_private_db()   # callbacks run before app.py, so point at this visitor's data first
+        try:
+            a = db.account(aid)
+        except KeyError:   # the widget handed back its label ("Name · Role · …") instead of the id
+            name = str(aid).split(" · ")[0]
+            a = next((x for x in demo_accounts() if x.name == name), None)
+            if a is None:
+                return
+        if a.id == st.session_state.get("account_id"):
+            return   # not a real switch: the label changed under the widget (a count went up or down)
+        sign_in(a)
+        st.session_state.goto = INBOX[a.role]   # straight to where this person acts: planner or inbox
+
+
+INBOX = {"owner": "views/planner.py", "staff": "views/my_shifts.py", "part_timer": "views/offers.py"}
 
 
 def demo_accounts() -> list[Account]:
@@ -76,11 +117,14 @@ def demo_accounts() -> list[Account]:
 
 
 def waiting_count(a: Account) -> int:
+    """Offers waiting for an answer plus unread messages: the number on the header's account button."""
     if a.role == "staff":
-        return len(db.offers(business_id=a.business_id, employee_id=a.employee_id, status="pending"))
+        return (len(db.offers(business_id=a.business_id, employee_id=a.employee_id, status="pending"))
+                + sum(db.unread(False, business_id=a.business_id, worker_id=a.employee_id).values()))
     if a.role == "part_timer":
-        return len(db.offers(part_timer_id=a.part_timer_id, status="pending"))
-    return 0
+        return (len(db.offers(part_timer_id=a.part_timer_id, status="pending"))
+                + sum(db.unread(False, worker_id=a.part_timer_id).values()))
+    return sum(db.unread(True, business_id=a.business_id).values())
 
 
 def describe(a: Account) -> str:
@@ -93,7 +137,7 @@ def describe(a: Account) -> str:
 
 def label(a: Account) -> str:
     n = waiting_count(a)
-    return f"{a.name} · {describe(a)}" + (f" · {n} offer{'s' if n > 1 else ''}" if n else "")
+    return f"{a.name} · {describe(a)}" + (f" · {n} new" if n else "")
 
 
 def demo_for(view: str) -> Account:

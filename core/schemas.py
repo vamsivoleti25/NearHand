@@ -194,6 +194,30 @@ class Offer(BaseModel):
     responded_ts: float | None = None
 
 
+class Message(BaseModel):
+    """One chat message on an offer, between the business and the person the offer is for."""
+    id: str
+    offer_id: str
+    business_id: str
+    worker_id: str                # the part-timer id or employee id the offer is for
+    from_business: bool           # True: the owner/manager wrote it; False: the worker did
+    sender: str                   # display name
+    text: str
+    ts: float
+    read: bool = False            # read by the other side
+
+
+class Event(BaseModel):
+    """One line of a business's activity feed: what happened, to whom, when."""
+    id: str
+    business_id: str
+    ts: float
+    kind: str                     # rules_read, schedule_built, plan_proposed, offer_sent, accepted, declined, ...
+    text: str
+    worker_id: str = ""
+    offer_id: str = ""
+
+
 class Account(BaseModel):
     """Who is signed in. Demo accounts have no password; the app is a demo with fictional people."""
     id: str

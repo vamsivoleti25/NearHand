@@ -4,6 +4,7 @@ import streamlit as st
 
 from core import db, offers
 from core.taxonomy import DAYS, from_q, to_q
+from ui.chat import badge, feed, thread
 from ui.common import STATUS_BADGE, footer, load_state, md, role, setup_page
 
 setup_page()
@@ -18,6 +19,7 @@ if me is None:
 state = load_state(bid)
 mine = db.offers(business_id=bid, employee_id=eid)
 pending = [o for o in mine if o.status == "pending"]
+new_msgs = db.unread(False, business_id=bid, worker_id=eid)
 
 st.title(f"Hi {me.name.split()[0]}")
 st.markdown(f'<div class="nh-subtitle">{biz.name} · team member</div>', unsafe_allow_html=True)
@@ -57,6 +59,8 @@ for o in pending:
             db.save_offer(offers.respond(o, False, None, biz, [])[0])
             st.toast(f"No problem. {biz.name} will find someone nearby.", icon="👋")
             st.rerun()
+        with st.expander(f"Message {biz.name}{badge(new_msgs.get(o.id, 0))}", expanded=bool(new_msgs.get(o.id))):
+            thread(o, as_business=False, me=me.name, other=biz.name, key=o.id)
 
 # ---------------------------------------------------------------- my week
 st.subheader("My week")
@@ -83,4 +87,12 @@ if past:
     st.subheader("Earlier asks")
     st.dataframe([{"Shifts": ", ".join(f"{s.day} {s.start}-{s.end}" for s in o.shifts),
                    "Status": STATUS_BADGE[o.status]} for o in past], hide_index=True, width="stretch")
+    for o in past:
+        if o.status == "accepted" or db.messages(o.id):
+            with st.expander(f"Messages · {db.shifts_text(o)}{badge(new_msgs.get(o.id, 0))}",
+                             expanded=bool(new_msgs.get(o.id))):
+                thread(o, as_business=False, me=me.name, other=biz.name, key=o.id)
+
+with st.expander("Your activity"):
+    feed(db.events(business_id=bid, worker_id=eid, limit=15), "Asks, answers and messages show up here.")
 footer()

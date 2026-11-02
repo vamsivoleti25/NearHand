@@ -19,6 +19,8 @@ try:
 except Exception:  # no secrets file when running locally: .env is used instead
     pass
 
+session.use_private_db()   # each visitor gets their own copy of the demo data
+
 _HAS_LOGO = os.path.exists("assets/logo.png")
 _HAS_FAVICON = os.path.exists("assets/favicon.png")
 

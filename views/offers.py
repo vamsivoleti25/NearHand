@@ -3,6 +3,7 @@
 import streamlit as st
 
 from core import db, offers
+from ui.chat import badge, feed, thread
 from ui.common import STATUS_BADGE, footer, md, money, role, setup_page
 
 REC_CLASS = {"take it": "take", "worth a look": "look", "pass": "pass"}
@@ -12,6 +13,7 @@ p = db.part_timer(st.session_state.get("part_timer_id", "pt_001"))
 mine = db.offers(part_timer_id=p.id)
 pending = [o for o in mine if o.status == "pending"]
 businesses = {b.id: b for b in db.businesses()}
+new_msgs = db.unread(False, worker_id=p.id)   # unread messages from businesses, per offer
 
 st.title(f"Offers for {p.name.split()[0]}")
 if not pending:
@@ -56,8 +58,23 @@ for o in pending:
             db.save_offer(offers.respond(o, False, p, biz, db.bookings())[0])
             st.toast(f"Declined. {biz.name} will find someone else.", icon="👋")
             st.rerun()
+        with st.expander(f"Message {biz.name}{badge(new_msgs.get(o.id, 0))}", expanded=bool(new_msgs.get(o.id))):
+            thread(o, as_business=False, me=p.name, other=biz.name, key=o.id)
 
-past = [o for o in mine if o.status != "pending"]
+booked = [o for o in mine if o.status == "accepted"]
+if booked:
+    st.subheader("Booked")
+    for o in booked:
+        biz = businesses[o.business_id]
+        with st.container(border=True, key=f"nh-booked-{o.id}"):
+            st.markdown(md(f"**{biz.name}** · {db.shifts_text(o)} · {money(o.rate_cents)}/h"))
+            with st.expander(f"Messages{badge(new_msgs.get(o.id, 0))}", expanded=bool(new_msgs.get(o.id))):
+                thread(o, as_business=False, me=p.name, other=biz.name, key=o.id)
+
+with st.expander("Your activity"):
+    feed(db.events(worker_id=p.id, limit=15), "Offers, answers and messages show up here.")
+
+past = [o for o in mine if o.status not in ("pending", "accepted")]
 if past:
     st.subheader("Earlier offers")
     st.dataframe([{"Business": businesses[o.business_id].name,

@@ -43,11 +43,13 @@ class FillSession:
                  constraints: ConstraintSet, part_timers: list[PartTimer], bookings: list[Booking],
                  booking_fee_cents: int = BOOKING_FEE_CENTS, staff_result: dict | None = None,
                  covered: dict[str, int] | None = None, staff_extra_hours: float = 0, overtime_ok: bool = True,
-                 no_extra_for=()):
+                 no_extra_for=(), slots: list[dict] | None = None):
         self.business, self.part_timers, self.bookings = business, part_timers, bookings
         self.pt_by_id = {p.id: p for p in part_timers}
         self.fee = booking_fee_cents
         self.inp = build_inputs(business, grid, employees, constraints)
+        if slots is not None:   # the week as the owner has it, e.g. with a shift split by an accepted change
+            self.inp["slots"] = [dict(x) for x in slots]
         self.staff = self.inp["workers"]
         # Shifts already covered by live offers are taken out (replacement rounds fill only what reopened).
         covered = covered or {}

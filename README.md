@@ -18,9 +18,9 @@ part-timers who live nearby. Everyone accepts or declines on their phone, and no
 
 | Who | What they get |
 | --- | --- |
-| **Owner / shift manager** | Rules in plain English become checkable rules. One click builds the cheapest week that follows them (OR-Tools CP-SAT). "Fill gaps with AI" proposes who covers each open shift and what it adds to the week, before anything is sent. |
-| **Team member** | "Bean & Co. is asking you first": open shifts offered as extra hours, with the pay, the overtime and how it changes their week. Accept, or say no and the shift goes to the neighborhood. |
-| **Part-timer** | Offers from places nearby at their asking rate, around their calendar. "Should I take this?" gives a short, honest recommendation checked against their calendar, weekly max, pay and distance. |
+| **Owner / shift manager** | Rules in plain English become checkable rules. One click builds the cheapest week that follows them (OR-Tools CP-SAT). "Fill gaps with AI" proposes who covers each open shift and what it adds to the week, before anything is sent. A next-step hint, a message thread with each person, and an Activity log of everything that happened this week. |
+| **Team member** | "Bean & Co. is asking you first": open shifts offered as extra hours, with the pay, the overtime and how it changes their week. Accept, or say no and the shift goes to the neighborhood. They can message the owner about any offer. |
+| **Part-timer** | Offers from places nearby at their asking rate, around their calendar. "Should I take this?" gives a short, honest recommendation checked against their calendar, weekly max, pay and distance. A message thread with the business on every offer. |
 
 | The owner's week, with the impact of a fill | A team member's extra-hours ask | A part-timer's offer |
 | --- | --- | --- |
@@ -98,12 +98,14 @@ pip install -r requirements.txt
 #   FIREWORKS_API_KEY=...  optional fallback host
 #   META_API_KEY=...       optional: Muse Image scripts
 streamlit run app.py
-python -m pytest -q          # 93 tests; model calls are faked, no keys needed
+python -m pytest -q          # 98 tests; model calls are faked, no keys needed
 python -m evals.run          # the evals, with real model calls
 ```
 
 Set `NEARHAND_PROVIDER=fireworks` to switch hosts during an outage. The app seeds itself from `data/seed/`
-(2 businesses, 26 staff, 150 part-timers, all fictional) and **Reset demo data** in the account menu puts it back.
+(2 businesses, 26 staff, 150 part-timers, all fictional). Every visitor gets a private copy of the demo
+data (`data/sessions/`, cleared after a day), so people trying the live app never see each other's offers or
+messages; **Reset demo data** in the account menu puts your copy back to the start.
 
 ## Repository
 

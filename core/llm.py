@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import contextvars
 import hashlib
 import json
 import os
@@ -25,6 +26,19 @@ load_dotenv()
 ROOT = Path(__file__).resolve().parent.parent
 CACHE_DIR = Path(os.getenv("NEARHAND_CACHE_DIR", ROOT / ".cache" / "llm"))
 DB_PATH = Path(os.getenv("NEARHAND_DB", ROOT / "data" / "nearhand.db"))
+# A visitor's private demo database (set per Streamlit session by ui/session.py); unset -> DB_PATH.
+_SESSION_DB: contextvars.ContextVar = contextvars.ContextVar("nearhand_session_db", default=None)
+
+
+def db_path() -> Path:
+    return _SESSION_DB.get() or DB_PATH
+
+
+def use_db(path) -> None:
+    """Point this thread's database calls at `path` (None goes back to DB_PATH)."""
+    _SESSION_DB.set(Path(path) if path else None)
+
+
 DEFAULT_PROVIDER = os.getenv("NEARHAND_PROVIDER", "baseten")  # flip to "fireworks" during an outage
 
 PROVIDERS = {  # name: (base_url, env var with the key, model id)
@@ -61,6 +75,7 @@ def _client(provider: str):
 # ---------------------------------------------------------------- cost log
 
 def _db() -> sqlite3.Connection:
+    """The cost log is shared by every visitor (it feeds the Evals page), so it always lives in DB_PATH."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(DB_PATH)
     con.execute("""CREATE TABLE IF NOT EXISTS llm_calls (
