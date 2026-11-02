@@ -28,7 +28,7 @@ DAY_LONG = dict(zip(DAYS, ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday
 
 CSS = """
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Plus+Jakarta+Sans:wght@600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
   .block-container {padding-top: 2.2rem; max-width: 1400px;}
   html, body, p, div, span, li, caption {font-family: 'Inter', sans-serif;}
   h1, h2, h3, h4, h5, h6 {font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;}
@@ -96,14 +96,14 @@ CSS = """
   .nh-home-under {color:#475569; font-size:.95rem; line-height:1.6;}
 
   /* sign-in: one centered card, like a marketplace's log-in page */
-  .st-key-nh-auth {max-width:480px; margin:2rem auto 0 auto; background:#FFFFFF; border:1px solid #E2E8F0;
+  .st-key-nh-auth {max-width:520px; margin:0 auto; background:#FFFFFF; border:1px solid #E2E8F0;
     border-radius:12px; padding:1.6rem 1.6rem 1.2rem 1.6rem;}
   .nh-auth-title {font-family:"Plus Jakarta Sans",sans-serif; font-weight:700; font-size:1.6rem; margin:.4rem 0 .6rem 0;}
   .st-key-nh-who {background:#FFFFFF;}
   .st-key-nh-auth [data-testid="stTextInputRootElement"], .st-key-nh-auth [data-testid="stTextAreaRootElement"],
   .st-key-nh-auth [data-baseweb="select"], .st-key-nh-auth [data-baseweb="select"] > div,
   .st-key-nh-auth [data-testid="stNumberInputContainer"] {
-    background:#FAF7F2 !important; border:1px solid #E2E8F0 !important;}
+    background:#F8FAFC !important; border:1px solid #E2E8F0 !important;}
   .st-key-nh-auth input, .st-key-nh-auth textarea {background:transparent !important;}
   /* Rows of cards share one height, with their last element (usually the button) on the bottom edge.
      Wrap the columns in st.container(key="nh-cards-...") and give each card key="nh-card-...". */
@@ -122,6 +122,47 @@ CSS = """
   div[data-testid="stMetric"] {display:flex; flex-direction:column;}
   div[data-testid="stMetric"] > div {flex:1 1 auto; display:flex; flex-direction:column;}
   div[data-testid="stMetric"] [data-testid="stMetricValue"] {margin-top:auto;}   /* numbers line up across a row */
+  /* ---- site look: white pages, top header, big type, generous spacing ---- */
+  /* no sidebar content: on a desktop the links sit in the top bar; on a phone they fold into its menu */
+  .block-container, [data-testid="stMainBlockContainer"] {max-width:1200px; padding:5.5rem 2rem 4rem 2rem;}
+  header[data-testid="stHeader"] {background:rgba(255,255,255,.96); border-bottom:1px solid #EEF0F3;
+    backdrop-filter:saturate(180%) blur(8px); height:4.25rem;}
+  h1 {font-size:2.6rem !important; font-weight:800 !important; letter-spacing:-.025em; line-height:1.12 !important;}
+  h2 {font-size:1.9rem !important; font-weight:800 !important; letter-spacing:-.02em;}
+  h3 {font-size:1.35rem !important; font-weight:700 !important; letter-spacing:-.01em;}
+  .nh-subtitle {font-size:1.15rem !important;}
+  p, li {line-height:1.6;}
+  /* buttons: taller, bolder, pill-shaped */
+  .stButton > button, .stFormSubmitButton > button, [data-testid="stPopover"] button {min-height:2.75rem;
+    border-radius:999px !important; font-weight:600 !important; padding-left:1.25rem; padding-right:1.25rem;}
+  [data-testid="stImage"] img {border-radius:16px;}
+  /* the account controls sit in the header's right corner */
+  .st-key-nh-topbar {position:fixed; top:.7rem; right:1.5rem; z-index:999991; width:auto !important;
+    background:transparent;}
+  .st-key-nh-topbar .stButton > button, .st-key-nh-topbar [data-testid="stPopover"] button {min-height:2.5rem;}
+  @media (max-width:640px) {
+    .block-container, [data-testid="stMainBlockContainer"] {padding:5rem 1rem 3rem 1rem;}
+    h1 {font-size:2rem !important;}
+    .st-key-nh-topbar {right:.5rem;}
+  }
+  /* home: grey bands behind the numbers and the steps; bigger hero */
+  .st-key-nh-home-numbers, .st-key-nh-home-steps {background:#F8FAFC; border-radius:20px; padding:2rem 2rem 1.5rem 2rem;}
+  .nh-home-h1 {font-size:3.6rem !important; font-weight:800 !important; letter-spacing:-.03em; line-height:1.05 !important;}
+  .nh-home-sub {font-size:1.2rem !important;}
+  @media (max-width:640px) { .nh-home-h1 {font-size:2.3rem !important;} }
+  .nh-home-section {margin:2.75rem 0 !important;}
+  /* wordmark next to the logo in the header */
+  :is(div, a, button):has(> img[data-testid="stHeaderLogo"]) {display:flex; align-items:center; gap:.55rem;
+    width:auto !important; overflow:visible !important;}
+  :is(div, a, button):has(> img[data-testid="stHeaderLogo"])::after {content:"Nearhand";
+    font-family:'Plus Jakarta Sans','Inter',sans-serif; font-weight:800; font-size:1.3rem; letter-spacing:-.02em;
+    color:#0F172A; white-space:nowrap;}
+  div:has(> [data-testid="stLogoLink"]) {width:auto !important; margin-right:1rem;}
+  /* home sections are spaced by margins, not by empty spacer elements */
+  [data-testid="stElementContainer"]:has(> div > div > .nh-home-section),
+  [data-testid="stElementContainer"]:has(.nh-home-section:empty) {display:none;}
+  .st-key-nh-home-numbers, .st-key-nh-home-doors, .st-key-nh-home-steps, .st-key-nh-home-under,
+  .st-key-nh-home-close {margin-top:3.5rem;}
 </style>
 """
 

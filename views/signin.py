@@ -1,6 +1,8 @@
 """Log in / Get started. Two kinds of account, chosen first (like most staffing marketplaces), then a
 short form. Demo-grade: no passwords; a part-timer's work history is read by Muse Spark Open."""
 
+import os
+
 import streamlit as st
 
 from core import parsers
@@ -11,7 +13,24 @@ from ui.common import SKILL_LABELS, chips, footer, md, money, role, setup_page
 
 setup_page()
 
-with st.container(key="nh-auth"):
+
+def demo_shortlist():
+    """Four accounts that show the whole story: both owners, plus whoever has an offer waiting."""
+    demo = session.demo_accounts()
+    owners = [a for a in demo if a.role == "owner"]
+    staff = next((a for a in demo if a.role == "staff"), None)
+    pt = next((a for a in demo if a.role == "part_timer"), None)
+    return owners[:1] + [x for x in (staff, pt) if x] + owners[1:2]
+
+
+if os.path.exists("assets/home/signin.png"):   # form left, picture right (stacked on a phone)
+    form_col, pic_col = st.columns([1, 1], gap="large", vertical_alignment="center")
+    with pic_col:
+        st.image("assets/home/signin.png", width="stretch")
+else:
+    form_col = st.container()
+
+with form_col.container(key="nh-auth"):
     mode = st.segmented_control("Account", ["Log in", "Create an account"], key="signin_mode",
                                 label_visibility="collapsed") or "Log in"
 
@@ -30,15 +49,15 @@ with st.container(key="nh-auth"):
                 session.sign_in(a)
                 st.session_state.goto = "home"
                 st.rerun()
-        st.caption("Demo accounts have no password, and everyone in them is fictional. Try one:")
-        for a in session.demo_accounts():
-            c1, c2 = st.columns([3, 1], vertical_alignment="center")
-            c1.markdown(f"**{a.name}** · {session.describe(a)}  \n<span class='nh-muted'>{a.email}</span>",
-                        unsafe_allow_html=True)
-            if c2.button("Use", key=f"use_{a.id}", width="stretch"):
-                session.sign_in(a)
-                st.session_state.goto = "home"
-                st.rerun()
+        with st.expander("Try a demo account", expanded=True):
+            st.caption("No password needed. Everyone here is fictional.")
+            for a in demo_shortlist():
+                c1, c2 = st.columns([3, 1], vertical_alignment="center")
+                c1.markdown(f"**{a.name}** · {session.describe(a)}")
+                if c2.button("Use", key=f"use_{a.id}", width="stretch"):
+                    session.sign_in(a)
+                    st.session_state.goto = "home"
+                    st.rerun()
 
     # ------------------------------------------------------------ create an account
     else:

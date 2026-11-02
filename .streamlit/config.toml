@@ -1,14 +1,17 @@
 [theme]
 base = "light"
 primaryColor = "#6D28D9"
-backgroundColor = "#FAF7F2"
-secondaryBackgroundColor = "#FFFFFF"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F8FAFC"
 textColor = "#0F172A"
 borderColor = "#E2E8F0"
 baseRadius = "12px"
-font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap"
-headingFont = "Plus Jakarta Sans:https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&display=swap"
+font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+headingFont = "Plus Jakarta Sans:https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
 linkColor = "#6D28D9"
+
+[client]
+toolbarMode = "minimal"   # no Deploy button or developer menu: the header belongs to Nearhand
 
 [server]
 headless = true

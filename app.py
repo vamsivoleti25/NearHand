@@ -31,35 +31,36 @@ elif acct is not None:
     session.sign_in(acct)   # keeps business / person ids in step with the account
 
 home = st.Page("views/home.py", title="Home", icon=":material/home:", default=True)
-signin = st.Page("views/signin.py", title="Log in", icon=":material/login:")
+signin = st.Page("views/signin.py", title="Log in", icon=":material/login:", visibility="hidden")  # header buttons
 
-with st.sidebar:
-    st.markdown("## Nearhand" if _HAS_LOGO else "## 🤝 Nearhand")
-    st.caption("Your week, scheduled. Your gaps, filled from down the street.")
+# ---------------------------------------------------------------- header, right corner
+# The page links and logo live in Streamlit's top bar; the account controls float in its right corner.
+with st.container(key="nh-topbar", horizontal=True, horizontal_alignment="right", gap="small", width="content"):
     if acct is None:
-        st.button("Log in", type="primary", width="stretch", on_click=session.go_signin, args=("Log in",))
-        st.button("Get started", width="stretch", on_click=session.go_signin, args=("Create an account",))
+        st.button("Log in", key="top_login", on_click=session.go_signin, args=("Log in",))
+        st.button("Get started", key="top_start", type="primary", on_click=session.go_signin,
+                  args=("Create an account",))
     else:
-        with st.container(border=True, key="nh-who"):
+        n = session.waiting_count(acct)
+        with st.popover(acct.name.split()[0] + (f" · {n}" if n else ""), icon=":material/account_circle:"):
             st.markdown(f"**{acct.name}**")
-            st.caption(session.describe(acct))
-            st.button("Sign out", width="stretch", on_click=session.sign_out)
-    demo = session.demo_accounts()
-    ids = [a.id for a in demo]
-    if acct is not None and acct.id not in ids:
-        ids.insert(0, acct.id)
-        demo.insert(0, acct)
-    labels = {a.id: session.label(a) for a in demo}
-    st.session_state.demo_pick = acct.id if acct else None
-    st.selectbox("Switch demo account", ids, key="demo_pick", placeholder="Choose someone to be",
-                 format_func=labels.get, on_change=session.switch_to_picked,
-                 help="Demo accounts have no password. Everyone here is fictional.")
-    st.divider()
-    if st.button("Reset demo data", help="Clears bookings, offers and saved schedules; restores the seed data."):
-        from core import db
-        db.reset_demo()
-        st.rerun()
-    st.caption("Built with Muse Spark Open")
+            st.caption(f"{session.describe(acct)} · {acct.email}")
+            demo = session.demo_accounts()
+            ids = [a.id for a in demo]
+            if acct.id not in ids:
+                ids.insert(0, acct.id)
+                demo.insert(0, acct)
+            labels = {a.id: session.label(a) for a in demo}
+            st.session_state.demo_pick = acct.id
+            st.selectbox("Switch demo account", ids, key="demo_pick", format_func=labels.get,
+                         on_change=session.switch_to_picked,
+                         help="Demo accounts have no password. Everyone here is fictional.")
+            st.button("Sign out", key="top_signout", width="stretch", on_click=session.sign_out)
+            if st.button("Reset demo data", key="top_reset", width="stretch",
+                         help="Clears bookings, offers and saved schedules; restores the seed data."):
+                from core import db
+                db.reset_demo()
+                st.rerun()
 
 if acct is None:
     pages = [home, signin]
