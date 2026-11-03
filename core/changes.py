@@ -117,7 +117,8 @@ def apply(state: dict, o: Offer, facts: dict, business_name: str) -> Offer:
 
 class CallOut(BaseModel):
     employee: Optional[str] = Field(None, description="The team member's full name, exactly as in the team list")
-    days: list[Day] = Field(default=[], description="The days they can't work")
+    days: list[Day] = Field(default=[], max_length=7,
+                            description="The days they'll miss, each day once (e.g. [\"Thu\"])")
 
 
 CALLOUT_SYSTEM = ("A small-business owner says a team member can't work (called out sick, emergency, and so on). "
@@ -126,9 +127,39 @@ CALLOUT_SYSTEM = ("A small-business owner says a team member can't work (called 
                   "Return only JSON.")
 
 
+DAY_WORDS = {"mon": "Mon", "tue": "Tue", "wed": "Wed", "thu": "Thu", "fri": "Fri", "sat": "Sat", "sun": "Sun"}
+
+
+def quick_call_out(text: str, team: list, today: str) -> CallOut | None:
+    """Plain messages ("Chris called out sick Thursday", "Maya can't come in tomorrow") are read in code: one
+    team member's first or full name, plus day names, 'today' or 'tomorrow'. None when it isn't that simple."""
+    import re
+    from core.taxonomy import DAYS
+    words = re.findall(r"[a-z]+", text.lower())
+    who = {e.name for e in team for w in words if w == e.name.split()[0].lower()}
+    days = []
+    for w in words:
+        d = DAY_WORDS.get(w[:3]) if (w[:3] in DAY_WORDS and (len(w) == 3 or w.endswith("day") or
+                                                             w in ("tues", "thur", "thurs", "weds"))) else None
+        if w == "today":
+            d = today
+        elif w == "tomorrow":
+            d = DAYS[(DAYS.index(today) + 1) % 7]
+        if d and d not in days:
+            days.append(d)
+    if len(who) == 1 and days:
+        return CallOut(employee=who.pop(), days=days)
+    return None
+
+
 def read_call_out(text: str, team: list, today: str) -> CallOut:
+    quick = quick_call_out(text, team, today)
+    if quick is not None:
+        return quick
     names = ", ".join(e.name for e in team)
-    return llm.call_json("call_out", CALLOUT_SYSTEM, f"Team: {names}\nToday is {today}.\nOwner: {text}", CallOut)
+    co = llm.call_json("call_out", CALLOUT_SYSTEM, f"Team: {names}\nToday is {today}.\nOwner: {text}", CallOut,
+                       max_tokens=300)
+    return co.model_copy(update={"days": list(dict.fromkeys(co.days))})
 
 
 def apply_call_out(state: dict, business_id: str, employee, days: list[str]) -> dict:

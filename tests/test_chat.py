@@ -244,3 +244,16 @@ def test_tour_follows_what_the_visitor_has_done():
     assert any("Tour · 3 of 4" in m.value for m in at.markdown)
     click(at, "End tour")
     assert not any("Tour ·" in m.value for m in at.markdown)
+
+
+def test_plain_call_outs_are_read_without_the_model(monkeypatch):
+    from core import changes
+    def boom(*a, **k):
+        raise AssertionError("the model isn't needed for a plain message")
+    monkeypatch.setattr(changes.llm, "call_json", boom)
+    team = db.team("biz_bean")
+    co = changes.read_call_out("Chris called out sick Thursday", team, "Tue")
+    assert co.employee.startswith("Chris") and co.days == ["Thu"]
+    co = changes.read_call_out("maya can't come in tomorrow", team, "Tue")
+    assert co.employee.startswith("Maya") and co.days == ["Wed"]
+    assert changes.quick_call_out("someone is sick", team, "Tue") is None

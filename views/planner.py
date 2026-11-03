@@ -55,7 +55,10 @@ def step_line(tool: str, args: dict, out: dict) -> str:
             return f"🤔 **Tried** {first} {what}: no cheaper, so skipped"
         return f"🤔 **Tried** {first} {what}: saves {saves}"
     if tool == "propose_plan":
-        return f"✅ **Proposed a plan**: {people(out['people_booked'])}, adds {out['added_cost']}"
+        team = len(out.get("team_extra_hours", []))
+        who = " and ".join(x for x in (f"{people(out['people_booked'])} nearby" if out["people_booked"] else "",
+                                       f"{team} of your team" if team else "") if x) or "nobody"
+        return f"✅ **Proposed a plan**: {who}, adds {out['added_cost']}"
     return f"`{tool}`"
 
 
@@ -281,9 +284,9 @@ with tab_week:
                 with st.spinner("Muse Spark Open is reading that…"):
                     try:
                         co = changes.read_call_out(said, team, DAYS[datetime.date.today().weekday()])
-                    except Exception as e:
+                    except Exception:
                         co = None
-                        st.error(f"Couldn't read it: {e}")
+                        st.warning("I couldn't read that. Try: “Chris called out sick Thursday”.")
                 emp = next((e for e in team if co and co.employee and e.name.lower() == co.employee.lower()), None) \
                     or next((e for e in team if co and co.employee
                              and e.name.split()[0].lower() == co.employee.split()[0].lower()), None)
