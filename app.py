@@ -94,6 +94,24 @@ else:
              st.Page("views/profile.py", title="My profile", icon=":material/badge:")]
 pg = st.navigation(pages, position="top")
 session.remember_account()
+
+from ui import tour
+tour.banner(acct if acct is None else session.current())
+
+# "View as" from the planner: the person's inbox in a phone-sized frame, with a way straight back.
+back_to = st.session_state.get("view_back")
+if back_to and acct is not None and acct.role != "owner":
+    from core import db as _db
+    owner = _db.account(back_to)
+    st.markdown("""<style>
+      .block-container {max-width: 440px !important; border: 12px solid #111827; border-radius: 40px;
+        padding: 1.6rem 1.1rem 1.4rem 1.1rem !important; margin-top: 4.6rem; box-shadow: 0 18px 50px rgba(17,24,39,.25);}
+      .block-container h1 {font-size: 1.7rem !important;}
+    </style>""", unsafe_allow_html=True)
+    with st.container(key="nh-viewas", horizontal=True, vertical_alignment="center"):
+        st.caption(f"📱 {acct.name.split()[0]}'s phone")
+        st.button(f"← Back to {owner.name.split()[0]}'s planner", key="nh_back", on_click=session.go_back,
+                  type="primary")
 goto = st.session_state.pop("goto", None)   # set by sign-in, sign-out and switch buttons
 if goto == "signin" and acct is None:
     st.switch_page(signin)

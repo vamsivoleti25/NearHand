@@ -85,14 +85,20 @@ else:
             c = st.columns(4)
             c[0].metric("Matched the optimizer", pct(s["matches_optimizer"]),
                         help="Covered as many hours, at no more than 1% extra cost")
-            c[1].metric("Hours covered", pct(s["coverage_agent"]),
-                        help=f"The optimizer covers {pct(s['coverage_optimizer'])} of open hours")
+            c[1].metric("Hours covered", pct(s["coverage_agent"]), f"best possible: {pct(s['coverage_optimizer'])}",
+                        delta_color="off",
+                        help="Share of open hours filled. Some shifts can't be filled by anyone (for example, "
+                             "nobody nearby holds both the manager keys and the food-safety certificate), so the "
+                             "optimizer's coverage is the ceiling.")
             c[2].metric("Extra hours left open", num(s["extra_open_hours_vs_optimizer"], "+g") + " h",
                         help="Average per week. When both cover the same hours, the agent costs "
                         + ("–" if s["avg_extra_cost_same_coverage"] is None
                            else f"${s['avg_extra_cost_same_coverage']:,.2f} more on average"))
             c[3].metric("Explanations checked", pct(s["grounded"]),
                         help="Every number in the agent's explanation found in a tool result")
+            st.caption(f"Why both numbers: the agent covered {pct(s['coverage_agent'])} of open hours, and "
+                       f"{pct(s['coverage_optimizer'])} is the most any plan could cover with the people available. "
+                       "Matching the optimizer means it reached that ceiling in that week.")
             c = st.columns(4)
             c[0].metric("Turns per plan", num(s["avg_turns"]))
             c[1].metric("Widened the search", pct(s["widened_search"]),

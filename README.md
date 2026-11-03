@@ -10,6 +10,7 @@ part-timers who live nearby. Everyone accepts or declines on their phone, and no
 
 - **Live app:** [nearhand.streamlit.app](https://nearhand.streamlit.app)  (one click on *I need staff* or *I'm looking for shifts*; demo accounts, no password)
 - **3-minute demo:** VIDEO_URL
+- **Short on time?** Click **▶ Take the 2-minute tour** on the home page: it shows what to click at each step.
 - Built during the **Meta Global AI Developer Hackathon**, Oct 29 – Nov 4, 2026 (Indie track).
 
 ![Nearhand home page](docs/screenshots/home.png)
@@ -18,7 +19,7 @@ part-timers who live nearby. Everyone accepts or declines on their phone, and no
 
 | Who | What they get |
 | --- | --- |
-| **Owner / shift manager** | Rules in plain English become checkable rules. One click builds the cheapest week that follows them (OR-Tools CP-SAT). "Fill gaps with AI" proposes who covers each open shift and what it adds to the week, before anything is sent. A next-step hint, a message thread with each person, and an Activity log of everything that happened this week. |
+| **Owner / shift manager** | Rules in plain English become checkable rules. One click builds the cheapest week that follows them (OR-Tools CP-SAT). "Fill gaps with AI" proposes who covers each open shift and what it adds to the week, before anything is sent. A next-step hint, a message thread with each person, and an Activity log of everything that happened this week. "Chris called out sick Thursday" reopens his shifts and the agent fills them; when someone says no, the agent sends the next-best person the offer on its own; a request in chat like "can I do 8 to 12 instead?" becomes a checked, one-click change. "See it on their phone" opens any person's inbox in a phone frame. |
 | **Team member** | "Bean & Co. is asking you first": open shifts offered as extra hours, with the pay, the overtime and how it changes their week. Accept, or say no and the shift goes to the neighborhood. They can message the owner about any offer. |
 | **Part-timer** | Offers from places nearby at their asking rate, around their calendar. "Should I take this?" gives a short, honest recommendation checked against their calendar, weekly max, pay and distance. A message thread with the business on every offer. |
 
@@ -98,7 +99,7 @@ pip install -r requirements.txt
 #   FIREWORKS_API_KEY=...  optional fallback host
 #   META_API_KEY=...       optional: Muse Image scripts
 streamlit run app.py
-python -m pytest -q          # 98 tests; model calls are faked, no keys needed
+python -m pytest -q          # 106 tests; model calls are faked, no keys needed
 python -m evals.run          # the evals, with real model calls
 ```
 

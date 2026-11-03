@@ -1,5 +1,6 @@
 """Planner: rules in plain English -> schedule -> fill gaps with the agent -> send offers -> replace declines."""
 
+import datetime
 import html
 import re
 
@@ -10,12 +11,18 @@ from core.adapter import build_inputs
 from core.agent import BOOKING_FEE_CENTS, FillSession, run_agent
 from core.schemas import ConstraintSet
 from core.solver import solve_staff_only
+from core.taxonomy import DAYS
 import time
 
+from ui import session
 from ui.chat import badge, feed, thread
 from ui.common import (STATUS_BADGE, constraint_label, current_business, demand_hours, footer, gap_hours, legend,
                        load_state, md, money, neighborhood_map, progress, role, save_state, schedule_frame,
                        seed_text, setup_page, week_label)
+
+
+def people(n: int) -> str:
+    return f"{n} {'person' if n == 1 else 'people'}"
 
 
 def step_line(tool: str, args: dict, out: dict) -> str:
@@ -23,23 +30,32 @@ def step_line(tool: str, args: dict, out: dict) -> str:
     if "error" in out:
         return f"⚠️ `{tool}` → {out['error']}"
     if tool == "get_gaps":
-        return f"🔎 **Looked at the week**: {len(out['gaps'])} open shifts, {out['gap_hours']:g} hours"
+        g = len(out["gaps"])
+        return f"🔎 **Looked at the week**: {g} open shift{'s' if g != 1 else ''}, {out['gap_hours']:g} hours"
     if tool == "search_marketplace":
         n = len({c['id'] for cs in out["candidates_by_gap"].values() for c in cs})
         empty = [g for g, cs in out["candidates_by_gap"].items() if not cs]
-        return (f"📍 **Searched the neighborhood** within {out['max_distance_miles']:g} mi: {n} qualified, free people"
+        return (f"📍 **Searched the neighborhood** within {out['max_distance_miles']:g} mi: {n} qualified and free"
                 + (f" · nobody for {', '.join(empty)}" if empty else ""))
     if tool == "solve_with":
         team = len({t["employee_id"] for t in out.get("team_extra_hours", [])})
-        return (f"🧮 **Optimizer**: {out['people_booked']} people nearby"
+        n = out["people_booked"]
+        left = len(out["remaining_gaps"])
+        return (f"🧮 **Optimizer**: {people(n)} nearby"
                 + (f" and {team} of your team" if team else "")
-                + f" cover it for {out['added_cost']} · {len(out['remaining_gaps'])} still open")
+                + f" cover it for {out['added_cost']} · " + (f"{left} still open" if left else "nothing left open"))
     if tool == "what_if":
         ch = out["change"]
-        what = f"{ch['extra_hours']:g} more hours" if ch.get("extra_hours") else f"{ch.get('give_back_day')} back"
-        return f"🤔 **What if** {ch['employee'].split()[0]} worked {what}? Saves {out['saves']}"
+        first = ch["employee"].split()[0]
+        what = f"+{ch['extra_hours']:g} h" if ch.get("extra_hours") else f"{ch.get('give_back_day')} back"
+        saves = out["saves"]
+        if saves.startswith("-"):
+            return f"🤔 **Tried** {first} {what}: would cost {saves[1:]} more, so skipped"
+        if saves in ("$0.00", "0"):
+            return f"🤔 **Tried** {first} {what}: no cheaper, so skipped"
+        return f"🤔 **Tried** {first} {what}: saves {saves}"
     if tool == "propose_plan":
-        return f"✅ **Proposed a plan**: {out['people_booked']} people, adds {out['added_cost']}"
+        return f"✅ **Proposed a plan**: {people(out['people_booked'])}, adds {out['added_cost']}"
     return f"`{tool}`"
 
 
@@ -63,7 +79,7 @@ def run_fill(biz, grid, team, state, pts, replacement: bool) -> None:
     extra = state.get("extra_hours", 8) if state.get("team_first", True) else 0
     session = FillSession(biz, grid, team, chosen_constraints(state), pool, held, staff_result=sr, covered=covered,
                           staff_extra_hours=extra, overtime_ok=state.get("overtime_ok", True), no_extra_for=no_extra,
-                          slots=state["inputs"]["slots"])
+                          slots=state["inputs"]["slots"], out_sick=[tuple(x) for x in state.get("out_sick", [])])
     trace, clock = [], {"t": time.time()}
     with st.status("Muse Spark Open is working on it…", expanded=True) as status:
         def on_step(tool, args, out):
@@ -79,9 +95,10 @@ def run_fill(biz, grid, team, state, pts, replacement: bool) -> None:
     state["plan_gaps"] = list(session.staff_result["gaps"])
     state["trace"] = trace
     save_state(biz.id, state)
-    db.log_event(biz.id, "plan_proposed",
-                 f"{'Replacement plan' if replacement else 'AI plan'}: covers {plan.get('covered_gap_hours', 0):g} of "
-                 f"{plan.get('gap_hours_total', 0):g} open hours, adds {plan['added_cost']}")
+    if plan.get("bookings") or plan.get("team_extra_hours"):   # an empty plan is reported by the caller
+        db.log_event(biz.id, "plan_proposed",
+                     f"{'Replacement plan' if replacement else 'AI plan'}: covers {plan.get('covered_gap_hours', 0):g} of "
+                     f"{plan.get('gap_hours_total', 0):g} open hours, adds {plan['added_cost']}")
 
 
 def send_offers(biz, state, pts) -> int:
@@ -126,6 +143,26 @@ n_unread = sum(unread.values())
 waiting = sum(o.status == "pending" for o in sent)
 reopened = bool(view and view["gaps"] and sent)
 
+# ---------------------------------------------------------------- auto-replace declines
+# When someone says no, the agent doesn't wait for the owner: it fills only what reopened, skips anyone who said
+# no, sends the new offers, and logs it. (Offers still need a yes; nothing is booked automatically.)
+declined = [o for o in sent if o.status == "declined" and o.id not in state.get("auto_done", [])]
+if state.get("auto_backfill", True) and reopened and declined and not state.get("plan"):
+    run_fill(biz, grid, team, state, pts, replacement=True)
+    state["auto_done"] = state.get("auto_done", []) + [o.id for o in declined]
+    plan = state.get("plan") or {}
+    who = ", ".join(sorted({db.worker_name(o).split()[0] for o in declined}))
+    if plan.get("bookings") or plan.get("team_extra_hours"):
+        n = send_offers(biz, state, pts)
+        db.log_event(biz.id, "auto_replaced", f"{who} said no, so the agent sent {n} replacement "
+                     f"offer{'s' if n != 1 else ''} (adds {plan['added_cost']})")
+        st.session_state.auto_note = (f"{who} said no. The agent already sent {n} replacement "
+                                      f"offer{'s' if n != 1 else ''}, adding {plan['added_cost']}.")
+    else:
+        db.log_event(biz.id, "auto_replaced", f"{who} said no; nobody else is free for those hours yet")
+    save_state(biz.id, state)
+    st.rerun()
+
 
 def next_step() -> str:
     """One line saying what to do now, so the flow never needs explaining."""
@@ -133,6 +170,9 @@ def next_step() -> str:
         return "Check the rules below, then click **Read my rules**."
     if view is None:
         return "Untick anything I got wrong, then click **Build schedule**."
+    if state.get("plan") and not (state["plan"].get("bookings") or state["plan"].get("team_extra_hours")):
+        return ("Nobody else is free for the open hours yet. Leave them open, message someone, or allow more "
+                "extra hours and try again.")
     if state.get("plan"):
         return "Review the AI's plan below, then click **Send offers**."
     if view["gaps"] and not sent:
@@ -140,8 +180,8 @@ def next_step() -> str:
     if reopened:
         return "Some hours reopened. **Find replacements with AI** fills only those."
     if waiting:
-        return (f"Waiting on {waiting} answer{'s' if waiting != 1 else ''}. To answer as them, open the account "
-                "menu (top right) and switch to them.")
+        return (f"Waiting on {waiting} answer{'s' if waiting != 1 else ''}. Click a name below to see the offer "
+                "on their phone and answer as them.")
     return "Fully staffed. Nothing to do this week."
 
 
@@ -149,6 +189,21 @@ hint = next_step() + (f" · 💬 **{n_unread} new message{'s' if n_unread != 1 e
                       if n_unread else "")
 hint = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", html.escape(hint).replace("$", "&#36;"))
 st.markdown(f'<div class="nh-next">👉 {hint}</div>', unsafe_allow_html=True)
+
+# The other side of the handoff, one click away: each person's offer as they see it on their phone.
+waiting_people = []
+for o in sorted(sent, key=lambda o: (o.status != "pending", o.created_ts)):
+    if o.status in ("pending", "accepted") and (a := session.account_for(o)) and a.id not in [x.id for x in waiting_people]:
+        waiting_people.append(a)
+if waiting_people:
+    with st.container(key="nh-viewas-row", horizontal=True, vertical_alignment="center", gap="small"):
+        st.caption("📱 See it on their phone:")
+        for a in waiting_people[:6]:
+            st.button(f"{a.name.split()[0]} →", key=f"viewas_{a.id}", on_click=session.view_as, args=(a.id,),
+                      help=f"Open {a.name}'s inbox as they see it; a button brings you back here.")
+
+if st.session_state.get("auto_note"):
+    st.success("🔄 " + md(st.session_state.pop("auto_note")))
 
 # Stable labels keep the chosen tab across reruns (sending a message stays on Offers & messages).
 tab_week, tab_offers, tab_activity = st.tabs(["Week", "Offers & messages", "Activity"])
@@ -197,7 +252,9 @@ with tab_week:
                                                   fixed=inp["fixed"])
                     for o in db.offers(business_id=biz.id, status="pending"):  # a new schedule withdraws offers
                         db.save_offer(o.model_copy(update={"status": "unavailable"}))
-                    state.update({"kept": keep, "inputs": inp, "staff_result": result, "plan": None, "trace": []})
+                    state.update({"kept": keep, "inputs": inp, "staff_result": result, "plan": None, "trace": [],
+                                  "out_sick": [], "changed_by": [],
+                                  "auto_done": [o.id for o in db.offers(business_id=biz.id)]})  # old answers
                     save_state(biz.id, state)
                     gh0 = gap_hours(inp["slots"], result["gaps"])
                     db.log_event(biz.id, "schedule_built",
@@ -212,13 +269,57 @@ with tab_week:
         st.info("Read your rules, then build the schedule.")
     else:
         slots = state["inputs"]["slots"]
+        # ------------------------------------------------------------ someone calls out
+        with st.container(border=True, key="nh-callout"):
+            with st.form("callout", border=False, clear_on_submit=True):
+                a, b = st.columns([4, 1], vertical_alignment="bottom")
+                said = a.text_input("Someone called out?", placeholder="e.g. Chris called out sick Thursday",
+                                    help="Muse Spark Open reads who and which days; their shifts reopen and the "
+                                         "AI fills them.")
+                go = b.form_submit_button("Re-plan", width="stretch")
+            if go and said.strip():
+                with st.spinner("Muse Spark Open is reading that…"):
+                    try:
+                        co = changes.read_call_out(said, team, DAYS[datetime.date.today().weekday()])
+                    except Exception as e:
+                        co = None
+                        st.error(f"Couldn't read it: {e}")
+                emp = next((e for e in team if co and co.employee and e.name.lower() == co.employee.lower()), None) \
+                    or next((e for e in team if co and co.employee
+                             and e.name.split()[0].lower() == co.employee.split()[0].lower()), None)
+                if co is not None and (emp is None or not co.days):
+                    st.warning("I couldn't tell who and which day. Try: “Chris called out sick Thursday”.")
+                elif emp is not None:
+                    r = changes.apply_call_out(state, biz.id, emp, list(co.days))
+                    state["plan"] = None
+                    save_state(biz.id, state)
+                    st.session_state.callout_note = (
+                        f"{emp.name.split()[0]} is off {', '.join(co.days)}: "
+                        + (f"{r['shifts']} shift{'s' if r['shifts'] != 1 else ''} reopened ({r['what']})."
+                           if r["shifts"] else "they had no shifts then."))
+                    st.rerun()
+            if st.session_state.get("callout_note"):
+                st.caption("🤒 " + md(st.session_state.pop("callout_note")))
+
         gh, need = gap_hours(slots, view["gaps"]), demand_hours(slots)
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Week labor cost", money(view["bill"]["total_cents"]),
                   help="Staff pay plus any offered or booked part-timer shifts and booking fees.")
         c2.metric("Overtime", money(view["bill"]["overtime_cents"]))
-        c3.metric("Coverage", f"{100 * (1 - gh / need):.1f}%" if need else "–")
-        c4.metric("Open shifts", f"{len(view['gaps'])} · {gh:g} h" if gh else "None")
+        # Planned counts offers still waiting for a yes; confirmed counts only what people accepted.
+        firm = offers.week_view(state["inputs"], state["staff_result"], [o for o in sent if o.status == "accepted"],
+                                pts, BOOKING_FEE_CENTS)
+        gh_firm = gap_hours(slots, firm["gaps"])
+        pending_shifts = sum(len(o.shifts) for o in sent if o.status == "pending")
+        if need and pending_shifts:
+            c3.metric("Coverage", f"{100 * (1 - gh / need):.1f}% planned",
+                      f"{100 * (1 - gh_firm / need):.1f}% confirmed", delta_color="off",
+                      help="Planned counts offers still waiting for an answer; confirmed counts only accepted ones.")
+        else:
+            c3.metric("Coverage", f"{100 * (1 - gh / need):.1f}%" if need else "–")
+        open_now = f"{len(view['gaps'])} · {gh:g} h" if gh else "None"
+        c4.metric("Open shifts", open_now if not pending_shifts else (open_now if gh else "0"),
+                  f"{pending_shifts} waiting for a yes" if pending_shifts else None, delta_color="off")
 
         # ------------------------------------------------------------ before / after
         plan_now = state.get("plan")
@@ -408,6 +509,12 @@ def change_request_box(o, first: str) -> None:
 
 # ================================================================ OFFERS & MESSAGES
 with tab_offers:
+    auto = st.toggle("Auto-replace declines", value=state.get("auto_backfill", True),
+                     help="When someone says no, the agent finds the next-best person and sends them the offer "
+                          "right away. Offers still need a yes; nothing is booked without one.")
+    if auto != state.get("auto_backfill", True):
+        state["auto_backfill"] = auto
+        save_state(biz.id, state)
     if not sent:
         st.info("No offers yet. Fill the open shifts on the **Week** tab, then send the plan's offers.")
     else:

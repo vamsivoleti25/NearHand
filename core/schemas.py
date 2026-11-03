@@ -143,6 +143,8 @@ class PartTimerProfile(BaseModel):
     business_types: list[BusinessType] = []
     skills: list[Skill] = []
     summary: str = Field(default="", description="One sentence, third person, for a profile card")
+    days_off: list[Day] = Field(default=[], description="Days they say they can't or won't work "
+                                                        "(e.g. 'no Sundays' -> ['Sun']); empty if not stated")
 
 
 class PartTimer(PartTimerProfile):

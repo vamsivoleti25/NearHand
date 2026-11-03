@@ -43,7 +43,7 @@ class FillSession:
                  constraints: ConstraintSet, part_timers: list[PartTimer], bookings: list[Booking],
                  booking_fee_cents: int = BOOKING_FEE_CENTS, staff_result: dict | None = None,
                  covered: dict[str, int] | None = None, staff_extra_hours: float = 0, overtime_ok: bool = True,
-                 no_extra_for=(), slots: list[dict] | None = None):
+                 no_extra_for=(), slots: list[dict] | None = None, out_sick=()):
         self.business, self.part_timers, self.bookings = business, part_timers, bookings
         self.pt_by_id = {p.id: p for p in part_timers}
         self.fee = booking_fee_cents
@@ -51,6 +51,10 @@ class FillSession:
         if slots is not None:   # the week as the owner has it, e.g. with a shift split by an accepted change
             self.inp["slots"] = [dict(x) for x in slots]
         self.staff = self.inp["workers"]
+        for wid, day in out_sick:   # called out: no shifts, and no extra hours, on those days
+            for w in self.staff:
+                if w["id"] == wid and day not in w.setdefault("unavailable_days", []):
+                    w["unavailable_days"].append(day)
         # Shifts already covered by live offers are taken out (replacement rounds fill only what reopened).
         covered = covered or {}
         self.slots = [dict(s, need=s["need"] - covered.get(s["id"], 0)) for s in self.inp["slots"]

@@ -185,6 +185,17 @@ CSS = """
   [data-testid="stTabs"] [role="tablist"] {gap:1.4rem;}
   .nh-next {background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:.6rem .9rem;
     margin:-.3rem 0 1rem 0; font-size:.95rem;}
+  /* Streamlit Cloud's Fork / GitHub toolbar sits over the account button */
+  [data-testid="stToolbarActions"], [data-testid="stToolbarActionButton"], [data-testid="stAppDeployButton"],
+  .stAppDeployButton, [data-testid="stMainMenu"] {display:none !important;}
+  .st-key-nh-viewas-row {margin:-.4rem 0 .6rem 0;}
+  .st-key-nh-viewas-row button {padding:.15rem .8rem; min-height:2rem;}
+  .st-key-nh-viewas {justify-content:space-between; margin-bottom:.4rem;}
+  .st-key-nh-tour {background:#F5F3FF; border:1px solid #DDD6FE; border-radius:12px; padding:.45rem .8rem;
+    margin:0 0 .8rem 0; gap:.8rem;}
+  .st-key-nh-tour p {margin:0; font-size:.95rem;}
+  .nh-tour-n {background:#6D28D9; color:#fff; border-radius:999px; padding:.15rem .6rem; font-size:.8rem;
+    font-weight:600; white-space:nowrap;}
 </style>
 """
 

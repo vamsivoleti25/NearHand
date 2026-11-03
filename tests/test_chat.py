@@ -193,3 +193,54 @@ def test_refresh_keeps_the_same_demo_copy_and_account(tmp_path, monkeypatch):
         assert [e.text for e in db.events(business_id="biz_bean")] == ["written before the refresh"]
     finally:
         llm.use_db(None)
+
+
+def test_view_as_opens_their_inbox_and_comes_back():
+    sent = owner_sends_offers()
+    at = run("views/planner.py", business_id="biz_bean", account_id="acct_owner_biz_bean")
+    o = sent[0]
+    name = db.part_timer(o.part_timer_id).name.split()[0]
+    click(at, f"{name} →")
+    assert not at.exception, at.exception
+    assert at.session_state["account_id"] == f"acct_{o.part_timer_id}"
+    assert at.session_state["view_back"] == "acct_owner_biz_bean"
+    assert at.session_state["goto"] == "views/offers.py"
+
+
+def test_sick_call_reopens_their_shifts_and_the_agent_fills_them(monkeypatch):
+    from core import changes
+    at = run("views/planner.py", business_id="biz_bean")
+    for label in ["Read my rules", "Build schedule"]:
+        click(at, label)
+    state = db.schedule("biz_bean")
+    slots = {s["id"]: s for s in state["inputs"]["slots"]}
+    chris = next(e for e in db.team("biz_bean") if e.name.startswith("Chris"))
+    day = next(slots[sid]["day"] for wid, sid in state["staff_result"]["assignments"] if wid == chris.id)
+    theirs = {sid for wid, sid in state["staff_result"]["assignments"] if wid == chris.id and slots[sid]["day"] == day}
+    monkeypatch.setattr(changes.llm, "call_json", lambda *a, **k: changes.CallOut(employee=chris.name, days=[day]))
+
+    next(t for t in at.text_input if t.label == "Someone called out?").input(f"Chris called out sick {day}")
+    click(at, "Re-plan")
+    assert not at.exception, at.exception
+    state = db.schedule("biz_bean")
+    assert theirs <= set(state["staff_result"]["gaps"])                       # their shifts are open now
+    assert not any(w == chris.id and sid in theirs for w, sid in state["staff_result"]["assignments"])
+    assert any(e.kind == "called_out" for e in db.events(business_id="biz_bean"))
+
+    click(at, "Fill gaps with AI")
+    assert not at.exception, at.exception
+    click(at, "Send offers")
+    covered = {s.slot_id for o in db.offers(business_id="biz_bean") for s in o.shifts}
+    assert theirs & covered, "the agent offered at least one of the reopened shifts"
+    assert not any(o.employee_id == chris.id for o in db.offers(business_id="biz_bean"))   # not back to Chris
+
+
+def test_tour_follows_what_the_visitor_has_done():
+    at = run("app.py", tour=True, view="Manager")
+    assert not at.exception, at.exception
+    assert any("Tour · 1 of 4" in m.value for m in at.markdown)
+    owner_sends_offers()
+    at = run("app.py", tour=True, view="Manager")
+    assert any("Tour · 3 of 4" in m.value for m in at.markdown)
+    click(at, "End tour")
+    assert not any("Tour ·" in m.value for m in at.markdown)

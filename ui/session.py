@@ -100,7 +100,38 @@ def sign_in(a: Account) -> None:
         st.session_state.part_timer_id = a.part_timer_id
 
 
+def account_for(o) -> Account | None:
+    """The account of the person an offer went to (a team member or a part-timer)."""
+    for a in db.accounts(role="staff" if o.kind == "extra_hours" else "part_timer"):
+        if (o.kind == "extra_hours" and a.business_id == o.business_id and a.employee_id == o.employee_id) or \
+                (o.kind == "shift" and a.part_timer_id == o.part_timer_id):
+            return a
+    return None
+
+
+def view_as(account_id: str) -> None:
+    """Planner button: see the offer on that person's phone, with a way straight back."""
+    use_private_db()   # callbacks run before app.py, so point at this visitor's data first
+    back = st.session_state.get("account_id")
+    a = db.account(account_id)
+    sign_in(a)
+    if back and back != a.id:
+        st.session_state.view_back = back
+    st.session_state.goto = INBOX[a.role]
+
+
+def go_back() -> None:
+    """'Back to the planner' from a View-as phone screen."""
+    use_private_db()
+    back = st.session_state.pop("view_back", None)
+    if back:
+        a = db.account(back)
+        sign_in(a)
+        st.session_state.goto = INBOX[a.role]
+
+
 def sign_out() -> None:
+    st.session_state.pop("view_back", None)
     for k in ("account_id", "view", "employee_id", "part_timer_id"):
         st.session_state.pop(k, None)
     if "as" in st.query_params:     # or a refresh would sign them back in
@@ -127,6 +158,7 @@ def switch_to_picked() -> None:
                 return
         if a.id == st.session_state.get("account_id"):
             return   # not a real switch: the label changed under the widget (a count went up or down)
+        st.session_state.pop("view_back", None)
         sign_in(a)
         st.session_state.goto = INBOX[a.role]   # straight to where this person acts: planner or inbox
 

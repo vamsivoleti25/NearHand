@@ -6,6 +6,8 @@ from pathlib import Path
 
 import streamlit as st
 
+from ui import tour
+
 from core import db
 from core.taxonomy import TEMPLATES
 from ui.common import footer, setup_page
@@ -50,6 +52,9 @@ with st.container(key="nh-home-hero"):
             if st.button("I'm looking for shifts", key="hero_shifts", on_click=go, args=("Part-timer",),
                          width="stretch"):
                 st.switch_page("views/offers.py")
+        if st.button("▶ Take the 2-minute tour", key="hero_tour", on_click=tour.start, type="tertiary",
+                     help="Signs you in as Dana, a café owner, and shows what to click at each step."):
+            st.switch_page("views/planner.py")
     with right:
         if os.path.exists("assets/home/hero.png"):
             st.image("assets/home/hero.png")

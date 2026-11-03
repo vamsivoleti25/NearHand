@@ -31,8 +31,14 @@ understood = ([role(r) for r in f.roles] + [SKILL_LABELS.get(s, s) for s in f.sk
 st.markdown("**Understood as**")
 chips(understood or ["(no filters)"])
 
-results = marketplace.search(f, biz, db.part_timers(), db.bookings(), limit=24)
-st.markdown(f"**{len(results)} people** · cheapest first, then nearest")
+how = st.segmented_control("Sort", ["Best fit", "Cheapest", "Nearest"], default="Best fit", key="mp_sort",
+                           label_visibility="collapsed") or "Best fit"
+results = marketplace.rank(marketplace.search(f, biz, db.part_timers(), db.bookings(), limit=500), f.roles,
+                           how)[:24]
+st.markdown(f"**{len(results)} people** · " + {
+    "Best fit": "best fit first: rate, plus 50¢ an hour for each mile away, minus 50¢ for each year of "
+                "experience in the role (up to 4)",
+    "Cheapest": "cheapest first, then nearest", "Nearest": "nearest first, then cheapest"}[how])
 all_pts = {p.id: p for p in db.part_timers()}
 neighborhood_map(biz, [{"pt": all_pts[c["id"]], "kind": "candidate",
                         "info": f"{money(c['rate_cents'])}/h · {c['distance_miles']} mi"} for c in results])
@@ -45,6 +51,7 @@ def _card(col, c):
                        f"{c['distance_miles']} mi away"), unsafe_allow_html=True)
         chips([f"{role(r['role'])} {r['years']:g}y" for r in c["roles"]])
         chips([SKILL_LABELS.get(s, s) for s in c["skills"]], "warn")
+        st.caption(md("Why here: " + marketplace.fit(c, f.roles)[1]))
         if c["free_days"]:
             st.caption("Free: " + ", ".join(c["free_days"]))
         bio = db.part_timer(c["id"]).bio

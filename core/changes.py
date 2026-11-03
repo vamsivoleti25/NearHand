@@ -111,3 +111,50 @@ def apply(state: dict, o: Offer, facts: dict, business_name: str) -> Offer:
     db.send_message(o2, True, business_name, f"Done: {facts['day']} is now {facts['new']}. "
                     "You can accept the offer whenever you're ready.")
     return o2
+
+
+# ---------------------------------------------------------------- someone calls out
+
+class CallOut(BaseModel):
+    employee: Optional[str] = Field(None, description="The team member's full name, exactly as in the team list")
+    days: list[Day] = Field(default=[], description="The days they can't work")
+
+
+CALLOUT_SYSTEM = ("A small-business owner says a team member can't work (called out sick, emergency, and so on). "
+                  "Give that person's full name exactly as it appears in the team list, and the days they'll miss. "
+                  "'today'/'tomorrow' use the day given. If no team member or no day is clear, leave it empty. "
+                  "Return only JSON.")
+
+
+def read_call_out(text: str, team: list, today: str) -> CallOut:
+    names = ", ".join(e.name for e in team)
+    return llm.call_json("call_out", CALLOUT_SYSTEM, f"Team: {names}\nToday is {today}.\nOwner: {text}", CallOut)
+
+
+def apply_call_out(state: dict, business_id: str, employee, days: list[str]) -> dict:
+    """Take someone off their shifts on those days: the shifts reopen as gaps, any extra-hours offer they had on
+    those days is withdrawn, and the agent won't give them hours on those days. Returns what reopened."""
+    from core.solver import bill
+    slots = {s["id"]: s for s in state["inputs"]["slots"]}
+    sr = state["staff_result"]
+    gaps = sr["gaps"]
+    reopened = [sid for wid, sid in sr["assignments"] if wid == employee.id and slots[sid]["day"] in days]
+    sr["assignments"] = [a for a in sr["assignments"] if not (a[0] == employee.id and a[1] in reopened)]
+    for sid in reopened:
+        gaps[sid] = gaps.get(sid, 0) + 1
+    sr["bill"] = bill(state["inputs"]["workers"], state["inputs"]["slots"], sr["assignments"])
+    for o in db.offers(business_id=business_id, status="pending") + db.offers(business_id=business_id,
+                                                                               status="accepted"):
+        if o.kind == "extra_hours" and o.employee_id == employee.id and any(s.day in days for s in o.shifts):
+            db.save_offer(o.model_copy(update={"status": "unavailable"}))
+    out = state.setdefault("out_sick", [])
+    for d in days:
+        if [employee.id, d] not in out:
+            out.append([employee.id, d])
+    hours = sum(slots[sid]["end_q"] - slots[sid]["start_q"] for sid in reopened) / 4
+    what = ", ".join(f"{slots[sid]['day']} {_span(slots[sid]['start_q'], slots[sid]['end_q'])}" for sid in reopened)
+    db.log_event(business_id, "called_out",
+                 f"{employee.name} called out ({', '.join(days)}): "
+                 + (f"{len(reopened)} shift{'s' if len(reopened) != 1 else ''} reopened, {hours:g} h ({what})"
+                    if reopened else "no shifts that day"), worker_id=employee.id)
+    return {"shifts": len(reopened), "hours": hours, "what": what}

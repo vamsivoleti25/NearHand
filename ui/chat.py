@@ -12,7 +12,8 @@ from core.schemas import Event, Offer
 
 ICONS = {"rules_read": "📝", "schedule_built": "🧮", "plan_proposed": "🤖", "plan_discarded": "🗑️",
          "offer_sent": "📨", "accepted": "✅", "declined": "👋", "unavailable": "⏸️", "message": "💬",
-         "change_requested": "🔁", "change_accepted": "✅"}
+         "change_requested": "🔁", "change_accepted": "✅",
+         "called_out": "🤒", "auto_replaced": "🔄"}
 
 
 def ago(ts: float) -> str:

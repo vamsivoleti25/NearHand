@@ -125,12 +125,11 @@ def test_team_first_extra_hours_story():
         them = run("views/my_shifts.py", business_id="biz_bean", employee_id=no.employee_id)
         click(them, "Decline")
         assert db.offer(no.id).status == "declined"
-        at = run("views/planner.py", business_id="biz_bean")
-        click(at, "Find replacements with AI")
+        at = run("views/planner.py", business_id="biz_bean")   # the agent replaces the decline on its own
         assert not at.exception, at.exception
-        click(at, "Send offers")
         round2 = [o for o in db.offers(business_id="biz_bean") if o.round == 2]
         assert no.employee_id not in {o.employee_id for o in round2}
+        assert any(e.kind == "auto_replaced" for e in db.events(business_id="biz_bean"))
 
 
 def test_full_story_offers_accept_decline_replace(monkeypatch):
@@ -160,14 +159,31 @@ def test_full_story_offers_accept_decline_replace(monkeypatch):
     click(pt_view2, "Decline")
     assert db.offer(no.id).status == "declined"
 
-    # the manager sees the reopened shift and the agent finds a replacement
+    # the agent replaces the decline as soon as the manager's planner loads, skipping whoever said no
     at = run("views/planner.py", business_id="biz_bean")
     assert not at.exception, at.exception
-    click(at, "Find replacements with AI")
-    assert not at.exception, at.exception
-    click(at, "Send offers")
     round2 = [o for o in db.offers(business_id="biz_bean") if o.round == 2]
     assert round2 and no.part_timer_id not in {o.part_timer_id for o in round2}
+    assert any("replacement" in m.value for m in at.success)
+
+
+def test_auto_replace_off_leaves_it_to_the_owner(monkeypatch):
+    from core import offers as offers_mod
+    from core.schemas import Advice
+    monkeypatch.setattr(offers_mod.llm, "call_json", lambda *a, **k: Advice(recommendation="pass", reasons=["x"]))
+    at = run("views/planner.py", business_id="biz_bean")
+    for label in ["Read my rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
+        if label == "Fill gaps with AI":
+            at.toggle[0].set_value(False).run()
+        click(at, label)
+    next(t for t in at.toggle if t.label == "Auto-replace declines").set_value(False).run()
+    no = next(o for o in db.offers(business_id="biz_bean") if o.kind == "shift")
+    pt_view = run("views/offers.py", part_timer_id=no.part_timer_id)
+    click(pt_view, "Decline")
+    at = run("views/planner.py", business_id="biz_bean")
+    assert not [o for o in db.offers(business_id="biz_bean") if o.round == 2]
+    click(at, "Find replacements with AI")
+    assert not at.exception, at.exception
 
 
 def test_offers_inbox_empty_state():

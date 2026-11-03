@@ -103,6 +103,31 @@ def search(f: SearchFilter, business: Business, part_timers: list[PartTimer], bo
     return out[:limit]
 
 
+# Best fit: what an hour of this person really costs the owner, in dollars. Rate, plus 50 cents per mile (a long
+# trip makes a no-show likelier), minus 50 cents per year of experience in the roles asked for (up to 4 years).
+MILE_CENTS, YEAR_CENTS, MAX_YEARS = 50, 50, 4
+
+
+def fit(c: dict, roles: list[str]) -> tuple[float, str]:
+    """(score in cents, lower is better; one-line reason). Only role, rate, distance and experience count."""
+    miles = c["distance_miles"] if c["distance_miles"] is not None else 25
+    years = max((r["years"] for r in c["roles"] if not roles or r["role"] in roles), default=0)
+    score = c["rate_cents"] + MILE_CENTS * miles - YEAR_CENTS * min(years, MAX_YEARS)
+    near = "very close" if miles <= 1 else "close" if miles <= 3 else "a longer trip"
+    why = f"{miles:g} mi ({near}) · {years:g}y in this role · ${c['rate_cents'] / 100:.2f}/h"
+    return score, why
+
+
+def rank(results: list[dict], roles: list[str], how: str = "Best fit") -> list[dict]:
+    if how == "Cheapest":
+        key = lambda c: (c["rate_cents"], c["distance_miles"] or 99)   # noqa: E731
+    elif how == "Nearest":
+        key = lambda c: (c["distance_miles"] or 99, c["rate_cents"])   # noqa: E731
+    else:
+        key = lambda c: fit(c, roles)[0]   # noqa: E731
+    return sorted(results, key=key)
+
+
 # ---------------------------------------------------------------- candidates for the solver
 
 def pool_for_gaps(business: Business, gap_slots: list[dict], part_timers: list[PartTimer],

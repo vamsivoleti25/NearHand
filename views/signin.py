@@ -110,7 +110,10 @@ with form_col.container(key="nh-auth"):
             c1, c2 = st.columns(2)
             zip_ = c1.selectbox("Home ZIP code", sorted(ZIP_COORDS), help="Only your distance to a business is ever shown.")
             max_h = c2.number_input("Most hours a week", min_value=4, max_value=40, value=20, step=2)
-            days = st.pills("Days you're usually free", DAYS, selection_mode="multi", default=["Sat", "Sun"])
+            prof0 = st.session_state.get("signup_profile")
+            days = st.pills("Days you're usually free", DAYS, selection_mode="multi",
+                            default=[d for d in ("Sat", "Sun") if not (prof0 and d in prof0.days_off)],
+                            key=f"signup_days_{','.join(prof0.days_off) if prof0 else ''}")
             c1, c2 = st.columns(2)
             times = [f"{h:02d}:00" for h in range(5, 24)]
             start = c1.selectbox("From", times, index=times.index("07:00"))
@@ -124,12 +127,16 @@ with form_col.container(key="nh-auth"):
                         st.session_state.signup_profile = parsers.parse_experience(bio)
                     except Exception as e:
                         st.error(f"Couldn't read it ({e}). Pick your roles below instead.")
+                    else:
+                        st.rerun()   # so "no Sundays" also updates the days above
             prof: PartTimerProfile | None = st.session_state.get("signup_profile")
             if prof:
                 chips([f"{role(r.role)} {r.years:g}y" for r in prof.roles]
                       + ([f"{money(prof.expected_rate_cents)}/h"] if prof.expected_rate_cents else []))
                 if prof.skills:
                     chips([SKILL_LABELS.get(s, s) for s in prof.skills], "warn")
+                if prof.days_off:
+                    chips([f"Not on {d}" for d in prof.days_off], "warn")
             roles = st.multiselect("Roles", ROLES, default=[r.role for r in prof.roles] if prof else [],
                                    format_func=role)
             skills = st.multiselect("Certifications", SKILLS, default=list(prof.skills) if prof else [],

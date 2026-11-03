@@ -191,7 +191,8 @@ EXPERIENCE_SYSTEM = f"""You turn a part-time worker's description of their work 
 - skills: only certifications or duties they state (opening/closing a store -> keyholder;
   "ServSafe Manager" -> food_safety_manager; "food handler card" -> food_handler; "TIPS" -> alcohol_service).
 - expected_rate_cents: the hourly pay they ask for; 0 if they don't say.
-- summary: one plain sentence in third person.
+- summary: one plain sentence in third person (businesses read it on the profile card).
+- days_off: days they say they can't or won't work ("no Sundays" -> Sun; "weekdays only" -> Sat, Sun).
 {VOCAB}"""
 
 
