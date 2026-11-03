@@ -219,14 +219,14 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# NearHand
+# Nearhand
 .env
 .venv/
 .cache/
 data/*.db
 .streamlit/secrets.toml
 
-# NearHand
+# Nearhand
 .env
 .venv/
 .cache/

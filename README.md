@@ -92,7 +92,7 @@ forbade arithmetic, **10 of 10 passed**. The run history is on the Evals page. A
 ## Run it locally
 
 ```bash
-git clone https://github.com/vamsivoleti25/NearHand.git && cd NearHand
+git clone https://github.com/vamsivoleti25/Nearhand.git && cd Nearhand
 pip install -r requirements.txt
 # .env with your keys (never committed):
 #   BASETEN_API_KEY=...    Muse Spark Open on Baseten (the default)
