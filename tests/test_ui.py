@@ -109,7 +109,7 @@ def test_team_first_extra_hours_story():
     """Owner asks the team first; a team member accepts, another declines; the agent replaces the decline
     without asking that person again."""
     at = run("views/planner.py", business_id="biz_bean")
-    for label in ["Read my rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
+    for label in ["Simplify rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
         click(at, label)
         assert not at.exception, (label, at.exception)
     extra = [o for o in db.offers(business_id="biz_bean") if o.kind == "extra_hours"]
@@ -139,7 +139,7 @@ def test_full_story_offers_accept_decline_replace(monkeypatch):
                                                                             reasons=["You're free then."]))
     at = run("views/planner.py", business_id="biz_bean")
     click = lambda app, label: next(b for b in app.button if b.label == label).click().run()  # noqa: E731
-    for label in ["Read my rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
+    for label in ["Simplify rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
         if label == "Fill gaps with AI":
             at.toggle[0].set_value(False).run()   # marketplace only: this story is about part-timers
         click(at, label)
@@ -172,7 +172,7 @@ def test_auto_replace_off_leaves_it_to_the_owner(monkeypatch):
     from core.schemas import Advice
     monkeypatch.setattr(offers_mod.llm, "call_json", lambda *a, **k: Advice(recommendation="pass", reasons=["x"]))
     at = run("views/planner.py", business_id="biz_bean")
-    for label in ["Read my rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
+    for label in ["Simplify rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
         if label == "Fill gaps with AI":
             at.toggle[0].set_value(False).run()
         click(at, label)

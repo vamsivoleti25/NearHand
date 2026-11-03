@@ -167,7 +167,7 @@ if state.get("auto_backfill", True) and reopened and declined and not state.get(
 def next_step() -> str:
     """One line saying what to do now, so the flow never needs explaining."""
     if not state.get("cs"):
-        return "Check the rules below, then click **Read my rules**."
+        return "Check the rules below, then click **Simplify rules**."
     if view is None:
         return "Untick anything I got wrong, then click **Build schedule**."
     if state.get("plan") and not (state["plan"].get("bookings") or state["plan"].get("team_extra_hours")):
@@ -217,7 +217,7 @@ with tab_week:
             rules_text = st.text_area("Rules", value=state.get("rules_text") or seed_text("rules.json", biz.id),
                                       height=90, label_visibility="collapsed")
             st.caption("Mention people with @: " + ", ".join("@" + n for n in sorted(names.values())))
-            if st.button("Read my rules", width="stretch"):
+            if st.button("Simplify rules", width="stretch"):
                 with st.spinner("Muse Spark Open is reading your rules…"):
                     try:
                         cs = parsers.parse_rules(rules_text, team, biz)

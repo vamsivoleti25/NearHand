@@ -31,7 +31,7 @@ def _step(acct) -> tuple[int, str]:
     state = db.schedule(bid)
     sent = db.offers(business_id=bid) if state.get("staff_result") else []
     if not state.get("constraints") or not state.get("staff_result"):
-        return 1, ("On the **Planner**, click **Read my rules** (Muse Spark Open reads plain English), then "
+        return 1, ("On the **Planner**, click **Simplify rules** (Muse Spark Open turns plain English into checkable rules), then "
                    "**Build schedule** (OR-Tools finds the cheapest week that follows them).")
     if not sent:
         return 2, ("Click **Fill gaps with AI** and watch the agent work, asking the team first and then "

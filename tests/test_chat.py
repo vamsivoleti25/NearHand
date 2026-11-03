@@ -16,7 +16,7 @@ def send_in(app, text, placeholder_start="Message"):
 
 def owner_sends_offers():
     at = run("views/planner.py", business_id="biz_bean")
-    for label in ["Read my rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
+    for label in ["Simplify rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
         if label == "Fill gaps with AI":
             at.toggle[0].set_value(False).run()  # marketplace only: part-timers get the offers
         click(at, label)
@@ -73,8 +73,8 @@ def test_part_timer_and_owner_chat_in_the_app():
 
 def test_activity_tab_and_next_step():
     at = run("views/planner.py", business_id="biz_bean")
-    assert any("Read my rules" in m.value for m in at.markdown)           # the hint says what to do first
-    click(at, "Read my rules")
+    assert any("Simplify rules" in m.value for m in at.markdown)           # the hint says what to do first
+    click(at, "Simplify rules")
     assert any("Build schedule" in m.value for m in at.markdown)
     assert any("Read the rules" in m.value for m in at.markdown)          # and the Activity tab shows it
 
@@ -118,7 +118,7 @@ def test_team_member_leaves_early_and_someone_else_covers_the_rest(monkeypatch):
     someone else, never back to them. (Independent of which shifts the solver leaves open.)"""
     from core.taxonomy import from_q, to_q
     at = run("views/planner.py", business_id="biz_bean")
-    for label in ["Read my rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
+    for label in ["Simplify rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
         click(at, label)
     o = next(x for x in db.offers(business_id="biz_bean") if x.kind == "extra_hours"
              and to_q(x.shifts[0].end) - to_q(x.shifts[0].start) >= 16)
@@ -210,7 +210,7 @@ def test_view_as_opens_their_inbox_and_comes_back():
 def test_sick_call_reopens_their_shifts_and_the_agent_fills_them(monkeypatch):
     from core import changes
     at = run("views/planner.py", business_id="biz_bean")
-    for label in ["Read my rules", "Build schedule"]:
+    for label in ["Simplify rules", "Build schedule"]:
         click(at, label)
     state = db.schedule("biz_bean")
     slots = {s["id"]: s for s in state["inputs"]["slots"]}

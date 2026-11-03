@@ -58,7 +58,7 @@ violet booked) and add a one-line legend.
 ## Must not change
 
 - Anything in `core/`, `tests/`, `data/`, `scripts/`.
-- The text of these buttons and labels (the tests click them by name): "Read my rules", "Build schedule",
+- The text of these buttons and labels (the tests click them by name): "Simplify rules", "Build schedule",
   "Fill gaps with AI", "Find replacements with AI", "Send offers", "Discard", "Should I take this?",
   "Accept", "Decline", "Read my team", "Save team", "Build my staffing plan", "Search",
   the metric label "Open shifts", the recommendation pills ("Take it", "Worth a look", "Pass"),

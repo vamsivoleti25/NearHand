@@ -31,7 +31,7 @@ def test_app_opens_on_home_with_both_paths():
     assert STAFF in labels(at) and WORK in labels(at)
 
 
-@pytest.mark.parametrize("label, view, lands_on", [(STAFF, "Manager", "Read my rules"),
+@pytest.mark.parametrize("label, view, lands_on", [(STAFF, "Manager", "Simplify rules"),
                                                    (WORK, "Part-timer", "No offers right now")])
 def test_each_path_switches_view_and_lands_on_its_screen(label, view, lands_on):
     at = app()
