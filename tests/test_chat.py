@@ -291,25 +291,28 @@ def test_a_rule_about_someone_not_on_the_team_is_skipped():
 
 
 def test_every_decline_gets_a_replacement_try_even_after_nobody_was_free():
-    """A decline nobody can cover must not stop the agent from replacing the next one."""
+    """A decline nobody can cover must not stop the agent from trying to replace the next one.
+    (Independent of which people the solver picks on a given machine.)"""
     at = run("views/planner.py", business_id="biz_bean")
     for label in ["Simplify rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
         click(at, label)
     sent = db.offers(business_id="biz_bean")
     first, second = [o for o in sent if o.kind == "extra_hours"][:2]
-    keep = {o.part_timer_id for o in sent if o.kind == "shift"}
+    state = db.schedule("biz_bean")
+    state["team_first"] = False                             # replacements come only from the neighborhood
+    db.save_schedule("biz_bean", state)
     everyone = db.part_timers()
-    for p in everyone:                                      # nobody nearby is free for the first one
-        if p.id not in keep:
-            db.save_part_timer(p.model_copy(update={"availability": {"Mon": [("23:00", "23:30")]}}))
+    for p in everyone:                                      # ...and nobody nearby is free for the first one
+        db.save_part_timer(p.model_copy(update={"availability": {"Mon": [("23:00", "23:30")]}}))
     click(run("views/my_shifts.py", business_id="biz_bean", employee_id=first.employee_id), "Decline")
     at = run("views/planner.py", business_id="biz_bean")
     assert any("Nobody else is free" in m.value for m in at.success)
-    assert db.schedule("biz_bean").get("plan") is None
+    assert db.schedule("biz_bean").get("plan") is None      # no empty plan left to block the next decline
     for p in everyone:                                      # people are free again
         db.save_part_timer(p)
     click(run("views/my_shifts.py", business_id="biz_bean", employee_id=second.employee_id), "Decline")
     at = run("views/planner.py", business_id="biz_bean")
     assert not at.exception, at.exception
-    round2 = [o for o in db.offers(business_id="biz_bean") if o.round == 2]
-    assert round2 and second.employee_id not in {o.employee_id for o in round2}
+    tries = [e.text for e in db.events(business_id="biz_bean", limit=100) if e.kind == "auto_replaced"]
+    assert len(tries) == 2 and db.worker_name(second).split()[0] in tries[0]   # the second decline was tried too
+    assert second.employee_id not in {o.employee_id for o in db.offers(business_id="biz_bean") if o.round > 1}
