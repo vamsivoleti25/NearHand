@@ -38,7 +38,7 @@ def thread(o: Offer, *, as_business: bool, me: str, other: str, key: str) -> Non
     could swallow the next send)."""
     box = st.container()
     with st.form(f"chat_{key}", clear_on_submit=True, border=False):
-        c1, c2 = st.columns([3, 1], vertical_alignment="bottom")
+        c1, c2 = st.columns([2, 1], vertical_alignment="bottom")
         text = c1.text_input("Message", placeholder=f"Message {other}…", label_visibility="collapsed")
         sent = c2.form_submit_button("Send", width="stretch")
     if sent and text.strip():

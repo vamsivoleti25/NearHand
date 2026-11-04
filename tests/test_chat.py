@@ -108,9 +108,9 @@ def ask_for_change(monkeypatch, o, day, start, end):
     click(owner, next(b.label for b in owner.button if b.label.startswith("✨ Read")))
     assert not owner.exception, owner.exception
     assert any("Would reopen" in m.label for m in owner.metric)
-    click(owner, "Accept change")
+    click(owner, "Accept change")          # the planner reruns, and the agent fills what reopened right away
     assert not owner.exception, owner.exception
-    return run("views/planner.py", business_id="biz_bean")
+    return owner
 
 
 def test_team_member_leaves_early_and_someone_else_covers_the_rest(monkeypatch):
@@ -130,15 +130,14 @@ def test_team_member_leaves_early_and_someone_else_covers_the_rest(monkeypatch):
     assert (changed.shifts[0].start, changed.shifts[0].end, changed.status) == (s0.start, early, "pending")
     assert db.messages(o.id)[-1].from_business                                            # a reply went out
     assert any(e.kind == "change_accepted" for e in db.events(business_id="biz_bean"))
-    click(owner, "Find replacements with AI")
-    assert not owner.exception, owner.exception
-    if any(b.label == "Send offers" for b in owner.button):
-        click(owner, "Send offers")
-        round2 = [x for x in db.offers(business_id="biz_bean") if x.round == 2]
+    assert not owner.exception, owner.exception                     # the agent filled the reopened hours itself
+    round2 = [x for x in db.offers(business_id="biz_bean") if x.round == 2]
+    if round2:
         assert [(s.day, s.start, s.end) for x in round2 for s in x.shifts] == [(s0.day, early, s0.end)]
         assert o.employee_id not in {x.employee_id for x in round2}   # not asked to cover what they gave up
+        assert any("new hours left" in m.value and "already sent" in m.value for m in owner.success)
     else:
-        assert any("Nobody is free" in m.value for m in owner.markdown)
+        assert any("Nobody else is free" in m.value for m in owner.success)
 
 
 def test_nobody_free_for_the_reopened_hours(monkeypatch):
@@ -151,13 +150,22 @@ def test_nobody_free_for_the_reopened_hours(monkeypatch):
     for p in db.part_timers():                                                # everyone else is busy
         if p.id != o.part_timer_id:
             db.save_part_timer(p.model_copy(update={"availability": {"Mon": [("23:00", "23:30")]}}))
-    owner = ask_for_change(monkeypatch, o, s0.day, later, s0.end)
-    click(owner, "Find replacements with AI")                                 # team first is off here
+    owner = ask_for_change(monkeypatch, o, s0.day, later, s0.end)          # team first is off here
     assert not owner.exception, owner.exception
-    assert any("Nobody is free" in m.value for m in owner.markdown)
+    assert any("Nobody else is free" in m.value for m in owner.success)
     assert not any(b.label == "Send offers" for b in owner.button)
-    click(owner, "OK, keep it open")
     assert db.offer(o.id).shifts[0].start == later
+
+
+def test_with_auto_replace_off_a_change_waits_for_the_owner(monkeypatch):
+    from core.taxonomy import from_q, to_q
+    o = next(x for x in owner_sends_offers() if to_q(x.shifts[0].end) - to_q(x.shifts[0].start) >= 12)
+    at = run("views/planner.py", business_id="biz_bean")
+    next(t for t in at.toggle if t.label == "Auto-replace declines").set_value(False).run()
+    s0 = o.shifts[0]
+    owner = ask_for_change(monkeypatch, o, s0.day, from_q(to_q(s0.start) + 4), s0.end)
+    assert not [x for x in db.offers(business_id="biz_bean") if x.round == 2]
+    assert any(b.label == "Find replacements with AI" for b in owner.button)
 
 
 def test_not_a_change_request():
@@ -280,3 +288,28 @@ def test_a_rule_about_someone_not_on_the_team_is_skipped():
     for label in ["Simplify rules", "Build schedule"]:
         click(at, label); assert not at.exception, (label, at.exception)
     assert any("not on this team" in c.value for c in at.caption)
+
+
+def test_every_decline_gets_a_replacement_try_even_after_nobody_was_free():
+    """A decline nobody can cover must not stop the agent from replacing the next one."""
+    at = run("views/planner.py", business_id="biz_bean")
+    for label in ["Simplify rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
+        click(at, label)
+    sent = db.offers(business_id="biz_bean")
+    first, second = [o for o in sent if o.kind == "extra_hours"][:2]
+    keep = {o.part_timer_id for o in sent if o.kind == "shift"}
+    everyone = db.part_timers()
+    for p in everyone:                                      # nobody nearby is free for the first one
+        if p.id not in keep:
+            db.save_part_timer(p.model_copy(update={"availability": {"Mon": [("23:00", "23:30")]}}))
+    click(run("views/my_shifts.py", business_id="biz_bean", employee_id=first.employee_id), "Decline")
+    at = run("views/planner.py", business_id="biz_bean")
+    assert any("Nobody else is free" in m.value for m in at.success)
+    assert db.schedule("biz_bean").get("plan") is None
+    for p in everyone:                                      # people are free again
+        db.save_part_timer(p)
+    click(run("views/my_shifts.py", business_id="biz_bean", employee_id=second.employee_id), "Decline")
+    at = run("views/planner.py", business_id="biz_bean")
+    assert not at.exception, at.exception
+    round2 = [o for o in db.offers(business_id="biz_bean") if o.round == 2]
+    assert round2 and second.employee_id not in {o.employee_id for o in round2}

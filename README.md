@@ -99,7 +99,7 @@ pip install -r requirements.txt
 #   FIREWORKS_API_KEY=...  optional fallback host
 #   META_API_KEY=...       optional: Muse Image scripts
 streamlit run app.py
-python -m pytest -q          # 109 tests; model calls are faked, no keys needed
+python -m pytest -q          # 111 tests; model calls are faked, no keys needed
 python -m evals.run          # the evals, with real model calls
 ```
 

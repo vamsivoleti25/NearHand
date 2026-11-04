@@ -149,22 +149,38 @@ reopened = bool(view and view["gaps"] and sent)
 # ---------------------------------------------------------------- auto-replace declines
 # When someone says no, the agent doesn't wait for the owner: it fills only what reopened, skips anyone who said
 # no, sends the new offers, and logs it. (Offers still need a yes; nothing is booked automatically.)
+def real_plan(plan) -> bool:
+    """A plan that books someone; an empty one only says nobody was free."""
+    return bool(plan and (plan.get("bookings") or plan.get("team_extra_hours")))
+
+
 declined = [o for o in sent if o.status == "declined" and o.id not in state.get("auto_done", [])]
-if state.get("auto_backfill", True) and reopened and declined and not state.get("plan"):
+changed = state.get("auto_reopen")   # an accepted change request left part of a shift open
+if state.get("auto_backfill", True) and reopened and (declined or changed) and not real_plan(state.get("plan")):
+    state["plan"] = None          # an old "nobody is free" result mustn't block replacing a new decline
+    state.pop("auto_reopen", None)
     run_fill(biz, grid, team, state, pts, replacement=True)
     state["auto_done"] = state.get("auto_done", []) + [o.id for o in declined]
     plan = state.get("plan") or {}
-    who = ", ".join(sorted({db.worker_name(o).split()[0] for o in declined}))
-    if plan.get("bookings") or plan.get("team_extra_hours"):
+    names = sorted({db.worker_name(o).split()[0] for o in declined})
+    why = " ".join(([f"{', '.join(names)} said no."] if names else [])
+                   + ([f"{changed['who']}'s new hours left {changed['what']} open."] if changed else []))
+    if real_plan(plan):
         n = send_offers(biz, state, pts)
-        db.log_event(biz.id, "auto_replaced", f"{who} said no, so the agent sent {n} replacement "
+        db.log_event(biz.id, "auto_replaced", f"{why} The agent sent {n} replacement "
                      f"offer{'s' if n != 1 else ''} (adds {plan['added_cost']})")
-        st.session_state.auto_note = (f"{who} said no. The agent already sent {n} replacement "
+        st.session_state.auto_note = (f"{why} The agent already sent {n} replacement "
                                       f"offer{'s' if n != 1 else ''}, adding {plan['added_cost']}.")
     else:
-        db.log_event(biz.id, "auto_replaced", f"{who} said no; nobody else is free for those hours yet")
+        state["plan"] = None
+        db.log_event(biz.id, "auto_replaced", f"{why} Nobody else is free for those hours yet")
+        st.session_state.auto_note = (f"{why} Nobody else is free for those hours yet, so they're open "
+                                      "(red in the grid).")
     save_state(biz.id, state)
     st.rerun()
+elif changed:
+    state.pop("auto_reopen", None)
+    save_state(biz.id, state)
 
 
 def next_step() -> str:
@@ -494,12 +510,16 @@ def change_request_box(o, first: str) -> None:
         if f.get("outside"):
             st.caption(md(f["outside"]))
         if f["reopen"]:
-            st.caption("Accepting reopens that part of the shift; **Find replacements with AI** on the Week tab "
+            st.caption("Accepting reopens that part of the shift, and the agent offers it to someone else right "
+                       "away." if state.get("auto_backfill", True) else
+                       "Accepting reopens that part of the shift; **Find replacements with AI** on the Week tab "
                        "can fill it.")
         a, b = st.columns(2)
         if a.button("Accept change", type="primary", width="stretch", key=f"ok_{key}"):
             changes.apply(state, o, f, biz.name)
             state["plan"] = None
+            if f["reopen"] and state.get("auto_backfill", True):   # fill what the change reopened, like a decline
+                state["auto_reopen"] = {"who": first, "what": ", ".join(f["reopen"])}
             save_state(biz.id, state)
             st.session_state.pop(key, None)
             st.toast("Shift changed and a reply sent.", icon="✅")
@@ -513,8 +533,9 @@ def change_request_box(o, first: str) -> None:
 # ================================================================ OFFERS & MESSAGES
 with tab_offers:
     auto = st.toggle("Auto-replace declines", value=state.get("auto_backfill", True),
-                     help="When someone says no, the agent finds the next-best person and sends them the offer "
-                          "right away. Offers still need a yes; nothing is booked without one.")
+                     help="When someone says no, or an accepted change of hours leaves part of a shift open, the "
+                          "agent finds the next-best person and sends them the offer right away. Offers still "
+                          "need a yes; nothing is booked without one.")
     if auto != state.get("auto_backfill", True):
         state["auto_backfill"] = auto
         save_state(biz.id, state)

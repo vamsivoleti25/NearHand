@@ -196,6 +196,7 @@ CSS = """
   .st-key-nh-tour p {margin:0; font-size:.95rem;}
   .nh-tour-n {background:#6D28D9; color:#fff; border-radius:999px; padding:.15rem .6rem; font-size:.8rem;
     font-weight:600; white-space:nowrap;}
+  [data-testid="stFormSubmitButton"] button {white-space: nowrap; min-width: 4.2rem; padding-left: .6rem; padding-right: .6rem;}
 </style>
 """
 

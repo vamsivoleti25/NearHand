@@ -103,20 +103,43 @@ back_to = st.session_state.get("view_back")
 if back_to and acct is not None and acct.role != "owner":
     from core import db as _db
     owner = _db.account(back_to)
+    # A phone-shaped frame that stays put on screen; the inbox scrolls inside it, like on a real phone.
     st.markdown("""<style>
-      .block-container {max-width: 440px !important; border: 12px solid #111827; border-radius: 40px;
-        padding: 1.6rem 1.1rem 1.4rem 1.1rem !important; margin-top: 4.6rem; box-shadow: 0 18px 50px rgba(17,24,39,.25);}
-      .block-container h1 {font-size: 1.7rem !important;}
+      [data-testid="stMain"] {overflow: hidden !important;}
+      .block-container {width: 400px !important; max-width: calc(100vw - 2rem) !important;
+        height: min(820px, calc(100vh - 6.2rem)) !important; overflow-y: auto !important; overflow-x: hidden !important;
+        margin: 4.9rem auto 0 auto !important; padding: 1.4rem 1rem 1.2rem 1rem !important;
+        border: 12px solid #111827; border-radius: 44px; box-shadow: 0 18px 50px rgba(17,24,39,.25);
+        scrollbar-width: thin;}
+      .block-container h1 {font-size: 1.6rem !important; line-height: 1.2 !important;}
+      .block-container h2, .block-container h3 {font-size: 1.3rem !important; line-height: 1.25 !important;}
+      .st-key-nh-viewas {flex-wrap: wrap; gap: .4rem;}
+      /* on an actual phone the screen is the phone: no frame */
+      @media (max-width: 640px) {
+        [data-testid="stMain"] {overflow: auto !important;}
+        .block-container {width: auto !important; height: auto !important; overflow: visible !important;
+          border: none; border-radius: 0; box-shadow: none; margin-top: 4.2rem !important;}
+      }
     </style>""", unsafe_allow_html=True)
     with st.container(key="nh-viewas", horizontal=True, vertical_alignment="center"):
         st.caption(f"📱 {acct.name.split()[0]}'s phone")
         st.button(f"← Back to {owner.name.split()[0]}'s planner", key="nh_back", on_click=session.go_back,
                   type="primary")
+def go(page) -> None:
+    """Switch page, keeping this visitor's demo copy and account in the address (a refresh keeps both)."""
+    keep = {k: v for k, v in (("demo", st.session_state.get("demo_id")),
+                              ("as", st.session_state.get("account_id"))) if v}
+    try:
+        st.switch_page(page, query_params=keep)
+    except TypeError:   # an older Streamlit without query_params here
+        st.switch_page(page)
+
+
 goto = st.session_state.pop("goto", None)   # set by sign-in, sign-out and switch buttons
 if goto == "signin" and acct is None:
-    st.switch_page(signin)
+    go(signin)
 elif goto == "home":
-    st.switch_page(home)
+    go(home)
 elif goto:
-    st.switch_page(goto)   # a page path, e.g. views/setup.py after creating a business
+    go(goto)   # a page path, e.g. views/setup.py after creating a business
 pg.run()
