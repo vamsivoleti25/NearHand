@@ -64,7 +64,11 @@ else:
                         f"recall {s['recall']:.2f}, counted constraint by constraint")
             c[2].metric("Asked when unclear", pct(s["asked_when_unclear"]),
                         help="Rules that can't be turned into numbers should come back as a question")
-            c[3].metric("Seconds per rule set", num(s["avg_seconds"]))
+            if s.get("avg_seconds") is not None:
+                c[3].metric("Seconds per rule set", num(s["avg_seconds"]))
+            else:   # timings weren't recorded on that run; cost was
+                c[3].metric("Cost per rule set", f"{100 * r['cost_usd'] / s['cases']:.1f}¢",
+                            help="Model cost for the whole run divided by the number of rule sets")
             with st.expander("Every case"):
                 st.dataframe(pd.DataFrame([{
                     "": "✓" if x["pass"] else "✗", "Rules": x["text"], "Missed": x["fn"], "Extra": x["fp"],

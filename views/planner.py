@@ -139,7 +139,7 @@ stage = 0 if not state.get("cs") else 1 if view is None else 2 if not sent else 
 if view is not None and sent and not view["gaps"] and all(o.status == "accepted" for o in sent
                                                           if o.status in offers.LIVE):
     stage = 4
-progress(["Read rules", "Build schedule", "Fill open shifts", "Offers out", "Fully staffed"], stage)
+progress(["Simplify rules", "Build schedule", "Fill open shifts", "Offers out", "Fully staffed"], stage)
 
 unread = db.unread(True, business_id=biz.id)          # messages from people, not yet read, per offer
 n_unread = sum(unread.values())
@@ -221,7 +221,7 @@ with tab_week:
                                       height=90, label_visibility="collapsed")
             st.caption("Mention people with @: " + ", ".join("@" + n for n in sorted(names.values())))
             if st.button("Simplify rules", width="stretch"):
-                with st.spinner("Muse Spark Open is reading your rules…"):
+                with st.spinner("Muse Spark Open is simplifying your rules…"):
                     try:
                         cs = parsers.parse_rules(rules_text, team, biz)
                     except Exception as e:
@@ -230,7 +230,7 @@ with tab_week:
                 state = {"rules_text": rules_text, "constraints": cs.model_dump()}
                 save_state(biz.id, state)
                 q = len(cs.ambiguities)
-                db.log_event(biz.id, "rules_read", f"Read the rules: {len(cs.constraints)} understood"
+                db.log_event(biz.id, "rules_read", f"Simplified the rules: {len(cs.constraints)} understood"
                              + (f", {q} question{'s' if q != 1 else ''} back" if q else ""))
                 st.rerun()
 
@@ -238,7 +238,7 @@ with tab_week:
         with right:
             if cs is None:
                 st.markdown("**Rules I understood**")
-                st.caption("Read your rules to see them here as checkable chips.")
+                st.caption("Simplify your rules to see them here as checkable chips.")
             else:
                 labels = [constraint_label(c, names) for c in cs.constraints]
                 st.markdown("**Rules I understood** · untick any that are wrong")
@@ -269,7 +269,7 @@ with tab_week:
                     st.caption("Noted but not enforced: " + ", ".join(state["inputs"]["not_enforced"]))
 
     if view is None:
-        st.info("Read your rules, then build the schedule.")
+        st.info("Simplify your rules, then build the schedule.")
     else:
         slots = state["inputs"]["slots"]
         # ------------------------------------------------------------ someone calls out
@@ -557,6 +557,6 @@ with tab_offers:
 # ================================================================ ACTIVITY
 with tab_activity:
     st.caption("Everything that happened this week, newest first.")
-    feed(db.events(business_id=biz.id, limit=40), "Read your rules to get started; everything you and your "
+    feed(db.events(business_id=biz.id, limit=40), "Simplify your rules to get started; everything you and your "
                                                    "people do shows up here.")
 footer()

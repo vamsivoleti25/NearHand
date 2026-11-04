@@ -76,7 +76,7 @@ def test_activity_tab_and_next_step():
     assert any("Simplify rules" in m.value for m in at.markdown)           # the hint says what to do first
     click(at, "Simplify rules")
     assert any("Build schedule" in m.value for m in at.markdown)
-    assert any("Read the rules" in m.value for m in at.markdown)          # and the Activity tab shows it
+    assert any("Simplified the rules" in m.value for m in at.markdown)          # and the Activity tab shows it
 
 
 def test_each_visitor_gets_their_own_demo_data(tmp_path):

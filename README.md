@@ -68,7 +68,7 @@ flowchart LR
 
 | Tool | Where it's used |
 | --- | --- |
-| **Muse Spark Open** (open weights, served on **Baseten**; Fireworks as a fallback host) | Seven jobs in the product: reading the owner's rules, adjusting the staffing template to the business, reading a pasted team list, reading a part-timer's work history at sign-up, the marketplace search box, the gap-filling agent, and "Should I take this?" offer advice. |
+| **Muse Spark Open** (open weights, served on **Baseten**; Fireworks as a fallback host) | Nine jobs in the product: reading the owner's rules, adjusting the staffing template to the business, reading a pasted team list, reading a part-timer's work history at sign-up (including days they can't work), the marketplace search box, the gap-filling agent, "Should I take this?" offer advice, turning a chat message ("can I do 8 to 12 instead?") into a proposed shift change, and reading a sick call when it's worded loosely (plain ones like "Chris called out sick Thursday" are read in code). |
 | **Muse Image** | The logo and the comic-style homepage and log-in pictures (`scripts/make_logo.py`, `scripts/make_art.py`). |
 | **Muse Code** | The UI redesign and the home page, each from a written brief and task (`design/`), with the test suite as the acceptance check. See the commits *UI redesign by Muse Code* and *Home page by Muse Code*. |
 
@@ -99,7 +99,7 @@ pip install -r requirements.txt
 #   FIREWORKS_API_KEY=...  optional fallback host
 #   META_API_KEY=...       optional: Muse Image scripts
 streamlit run app.py
-python -m pytest -q          # 106 tests; model calls are faked, no keys needed
+python -m pytest -q          # 107 tests; model calls are faked, no keys needed
 python -m evals.run          # the evals, with real model calls
 ```
 
