@@ -9,7 +9,7 @@ them. An AI agent then fills the open shifts, asking the owner's own team first 
 part-timers who live nearby. Everyone accepts or declines on their phone, and nothing is booked without a yes.
 
 - **Live app:** [nearhand.streamlit.app](https://nearhand.streamlit.app)  (one click on *I need staff* or *I'm looking for shifts*; demo accounts, no password)
-- **3-minute demo:** VIDEO_URL
+- **3-minute demo:** https://youtu.be/1jrO5ofsCVo
 - **Short on time?** Click **▶ Take the 2-minute tour** on the home page: it shows what to click at each step.
 - Built during the **Meta Global AI Developer Hackathon**, Oct 29 – Nov 4, 2026 (Indie track).
 
