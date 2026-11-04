@@ -257,3 +257,26 @@ def test_plain_call_outs_are_read_without_the_model(monkeypatch):
     co = changes.read_call_out("maya can't come in tomorrow", team, "Tue")
     assert co.employee.startswith("Maya") and co.days == ["Wed"]
     assert changes.quick_call_out("someone is sick", team, "Tue") is None
+
+
+def test_the_restaurant_runs_the_whole_flow(monkeypatch):
+    """Maple Table (a full-service restaurant) works end to end, not just the café."""
+    from core import parsers
+    from core.schemas import ConstraintSet
+    from tests.test_marketplace import CAFE_RULES
+    ids = [e.id for e in db.team("biz_maple")]
+    rules = ConstraintSet.model_validate({**CAFE_RULES.model_dump(), "constraints": [
+        c.model_copy(update={"employee_id": ids[0]}) if getattr(c, "employee_id", None) else c
+        for c in CAFE_RULES.constraints]})
+    monkeypatch.setattr(parsers, "parse_rules", lambda *a, **k: rules)
+    at = run("views/planner.py", business_id="biz_maple")
+    for label in ["Simplify rules", "Build schedule", "Fill gaps with AI", "Send offers"]:
+        click(at, label); assert not at.exception, (label, at.exception)
+    sent = db.offers(business_id="biz_maple")
+    assert sent
+
+def test_a_rule_about_someone_not_on_the_team_is_skipped():
+    at = run("views/planner.py", business_id="biz_maple")   # the fake rules name Bean & Co.'s Maya
+    for label in ["Simplify rules", "Build schedule"]:
+        click(at, label); assert not at.exception, (label, at.exception)
+    assert any("not on this team" in c.value for c in at.caption)

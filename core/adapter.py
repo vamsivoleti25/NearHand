@@ -75,6 +75,10 @@ def apply_constraints(workers: list[dict], slots: list[dict], cs: ConstraintSet,
     min_rest_q, fixed, not_enforced = 0, [], []
 
     for c in cs.constraints:
+        if getattr(c, "employee_id", None) and c.employee_id not in by_id:
+            # the model named someone who isn't on this team: skip the rule rather than fail the whole week
+            not_enforced.append(f"a rule about {c.employee_id} (not on this team)")
+            continue
         if c.type == "unavailable":
             w = by_id[c.employee_id]
             for d in c.days:
