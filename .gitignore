@@ -237,3 +237,6 @@ evals/.cache/
 
 # each demo visitor gets a private copy of the data
 data/sessions/
+
+# demo video files (recordings, voice lines, renders)
+video/
